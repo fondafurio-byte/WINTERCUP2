@@ -736,17 +736,29 @@ export default function Gironi(){
                   }}
                 >
                   <div style={{
-                    width:32,
-                    height:32,
-                    borderRadius:'50%',
-                    background:'#eef2ff',
+                    width:40,
+                    height:40,
                     display:'flex',
                     alignItems:'center',
-                    justifyContent:'center',
-                    fontWeight:700,
-                    color:'#0f172a'
+                    justifyContent:'center'
                   }}>
-                    {idx + 1}
+                    {team.logo_url ? (
+                      <img src={team.logo_url} alt={team.name} style={{width:40,height:40,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{
+                        width:40,
+                        height:40,
+                        borderRadius:'50%',
+                        background:'#eef2ff',
+                        display:'flex',
+                        alignItems:'center',
+                        justifyContent:'center',
+                        fontWeight:700,
+                        color:'#0f172a'
+                      }}>
+                        {idx + 1}
+                      </div>
+                    )}
                   </div>
                   <div style={{flex:1,fontWeight:600,fontSize:15}}>
                     {team.name}
@@ -1410,10 +1422,11 @@ export default function Gironi(){
               ) : (
                 <ul style={{listStyle:'none',padding:0,margin:0}}>
                   {matches.map(m => {
-                    // resolve team names from teams list
-                    const teamsMap = (teams || []).reduce<Record<string,string>>((acc,t) => { acc[t.id] = t.name; return acc }, {})
-                    const homeName = teamsMap[m.home_team_id] ?? m.home_team_id
-                    const awayName = teamsMap[m.away_team_id] ?? m.away_team_id
+                    // resolve team data from teams list
+                    const homeTeam = teams.find(t => t.id === m.home_team_id)
+                    const awayTeam = teams.find(t => t.id === m.away_team_id)
+                    const homeName = homeTeam?.name ?? m.home_team_id
+                    const awayName = awayTeam?.name ?? m.away_team_id
 
                     // format date/time
                     let dateStr = ''
@@ -1454,9 +1467,17 @@ export default function Gironi(){
                               const highlightAway = hs != null && ascore != null && ascore > hs
                               return (
                                 <>
-                                  <span className={`team-name home ${highlightHome ? 'winner' : ''}`} style={{fontWeight: highlightHome ? 800 : 700}}>{homeName}</span>
-                                  <span className="match-score" style={{margin:'0 8px',fontWeight:600}}>{hasScore ? `${hs != null ? hs : '-'} — ${ascore != null ? ascore : '-'}` : '—'}</span>
-                                  <span className={`team-name away ${highlightAway ? 'winner' : ''}`} style={{fontWeight: highlightAway ? 800 : 700}}>{awayName}</span>
+                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                    {homeTeam?.logo_url && (
+                                      <img src={homeTeam.logo_url} alt={homeName} style={{width:40,height:40,objectFit:'contain',filter:highlightHome?'drop-shadow(0 0 4px rgba(34,197,94,0.6))':'none'}} />
+                                    )}
+                                  </div>
+                                  <span className="match-score" style={{margin:'0 16px',fontWeight:700,fontSize:18}}>{hasScore ? `${hs != null ? hs : '-'} — ${ascore != null ? ascore : '-'}` : '—'}</span>
+                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                    {awayTeam?.logo_url && (
+                                      <img src={awayTeam.logo_url} alt={awayName} style={{width:40,height:40,objectFit:'contain',filter:highlightAway?'drop-shadow(0 0 4px rgba(34,197,94,0.6))':'none'}} />
+                                    )}
+                                  </div>
                                 </>
                               )
                             })()}
