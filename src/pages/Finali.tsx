@@ -480,7 +480,8 @@ export default function Finali(){
         }
 
         // Rimuovi eventuali undefined e compatta l'array
-        setFinalRankings(rankings.filter(Boolean))
+        // Mostra la classifica solo se i gironi sono completati
+        setFinalRankings(allPhasesCompleted ? rankings.filter(Boolean) : [])
       } else {
         setFinalRankings([])
       }
