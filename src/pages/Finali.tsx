@@ -821,7 +821,7 @@ export default function Finali(){
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
                 <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsA[0] ? standingsA[0].name : '1° Girone A'}
+                    {allPhasesCompleted && standingsA[0] ? standingsA[0].name : '1° Girone A'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
@@ -840,7 +840,7 @@ export default function Finali(){
                 </div>
                 <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsB[0] ? standingsB[0].name : '1° Girone B'}
+                    {allPhasesCompleted && standingsB[0] ? standingsB[0].name : '1° Girone B'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
@@ -950,7 +950,7 @@ export default function Finali(){
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
                 <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsA[1] ? standingsA[1].name : '2° Girone A'}
+                    {allPhasesCompleted && standingsA[1] ? standingsA[1].name : '2° Girone A'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
@@ -969,7 +969,7 @@ export default function Finali(){
                 </div>
                 <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsB[1] ? standingsB[1].name : '2° Girone B'}
+                    {allPhasesCompleted && standingsB[1] ? standingsB[1].name : '2° Girone B'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
@@ -1079,7 +1079,7 @@ export default function Finali(){
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
                 <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsA[2] ? standingsA[2].name : '3° Girone A'}
+                    {allPhasesCompleted && standingsA[2] ? standingsA[2].name : '3° Girone A'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
@@ -1098,7 +1098,7 @@ export default function Finali(){
                 </div>
                 <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsB[2] ? standingsB[2].name : '3° Girone B'}
+                    {allPhasesCompleted && standingsB[2] ? standingsB[2].name : '3° Girone B'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
@@ -1208,7 +1208,7 @@ export default function Finali(){
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
                 <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsA[3] ? standingsA[3].name : '4° Girone A'}
+                    {allPhasesCompleted && standingsA[3] ? standingsA[3].name : '4° Girone A'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
@@ -1227,7 +1227,7 @@ export default function Finali(){
                 </div>
                 <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
                   <div style={{fontWeight:700,fontSize:15}}>
-                    {standingsB[3] ? standingsB[3].name : '4° Girone B'}
+                    {allPhasesCompleted && standingsB[3] ? standingsB[3].name : '4° Girone B'}
                   </div>
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
