@@ -820,10 +820,16 @@ export default function Finali(){
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsA[0] ? standingsA[0].name : '1° Girone A'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsA[0] ? (
+                    standingsA[0].logo_url ? (
+                      <img src={standingsA[0].logo_url} alt={standingsA[0].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsA[0].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>1° Girone A</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
@@ -839,10 +845,16 @@ export default function Finali(){
                     return <div style={{fontWeight:700,fontSize:20,color:'#64748b'}}>VS</div>
                   })()}
                 </div>
-                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsB[0] ? standingsB[0].name : '1° Girone B'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsB[0] ? (
+                    standingsB[0].logo_url ? (
+                      <img src={standingsB[0].logo_url} alt={standingsB[0].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsB[0].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>1° Girone B</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
@@ -949,10 +961,16 @@ export default function Finali(){
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsA[1] ? standingsA[1].name : '2° Girone A'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsA[1] ? (
+                    standingsA[1].logo_url ? (
+                      <img src={standingsA[1].logo_url} alt={standingsA[1].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsA[1].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>2° Girone A</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
@@ -968,10 +986,16 @@ export default function Finali(){
                     return <div style={{fontWeight:700,fontSize:20,color:'#64748b'}}>VS</div>
                   })()}
                 </div>
-                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsB[1] ? standingsB[1].name : '2° Girone B'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsB[1] ? (
+                    standingsB[1].logo_url ? (
+                      <img src={standingsB[1].logo_url} alt={standingsB[1].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsB[1].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>2° Girone B</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
@@ -1078,10 +1102,16 @@ export default function Finali(){
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsA[2] ? standingsA[2].name : '3° Girone A'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsA[2] ? (
+                    standingsA[2].logo_url ? (
+                      <img src={standingsA[2].logo_url} alt={standingsA[2].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsA[2].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>3° Girone A</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
@@ -1097,10 +1127,16 @@ export default function Finali(){
                     return <div style={{fontWeight:700,fontSize:20,color:'#64748b'}}>VS</div>
                   })()}
                 </div>
-                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsB[2] ? standingsB[2].name : '3° Girone B'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsB[2] ? (
+                    standingsB[2].logo_url ? (
+                      <img src={standingsB[2].logo_url} alt={standingsB[2].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsB[2].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>3° Girone B</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
@@ -1207,10 +1243,16 @@ export default function Finali(){
                 </div>
               </div>
               <div style={{display:'flex',alignItems:'center',gap:12,marginBottom:12}}>
-                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsA[3] ? standingsA[3].name : '4° Girone A'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#f8fafc',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsA[3] ? (
+                    standingsA[3].logo_url ? (
+                      <img src={standingsA[3].logo_url} alt={standingsA[3].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsA[3].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>4° Girone A</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone A</div>
                 </div>
                 <div style={{display:'flex',flexDirection:'column',alignItems:'center',gap:4}}>
@@ -1226,10 +1268,16 @@ export default function Finali(){
                     return <div style={{fontWeight:700,fontSize:20,color:'#64748b'}}>VS</div>
                   })()}
                 </div>
-                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,textAlign:'center'}}>
-                  <div style={{fontWeight:700,fontSize:15}}>
-                    {allPhasesCompleted && standingsB[3] ? standingsB[3].name : '4° Girone B'}
-                  </div>
+                <div style={{flex:1,padding:12,background:'#fef2f2',borderRadius:6,display:'flex',flexDirection:'column',alignItems:'center',justifyContent:'center',minHeight:80}}>
+                  {allPhasesCompleted && standingsB[3] ? (
+                    standingsB[3].logo_url ? (
+                      <img src={standingsB[3].logo_url} alt={standingsB[3].name} style={{width:50,height:50,objectFit:'contain'}} />
+                    ) : (
+                      <div style={{fontWeight:700,fontSize:15}}>{standingsB[3].name}</div>
+                    )
+                  ) : (
+                    <div style={{fontWeight:700,fontSize:15,color:'#64748b'}}>4° Girone B</div>
+                  )}
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
