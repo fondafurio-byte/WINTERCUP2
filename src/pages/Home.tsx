@@ -1335,6 +1335,20 @@ export default function Home() {
             
             <div style={{ lineHeight: 1.7, color: '#334155' }}>
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12, color: '#1e293b' }}>
+                Date e Campi
+              </h3>
+              <p style={{ marginBottom: 8 }}>
+                <strong>Date:</strong> dal 03/01 al 05/01/2026
+              </p>
+              <p style={{ marginBottom: 8 }}>
+                <strong>Campi:</strong>
+              </p>
+              <ul style={{ marginBottom: 20, paddingLeft: 24 }}>
+                <li>Palestra MORIGIA, via Pietro Sighinolfi</li>
+                <li>Palestra MATTIOLI, via Celso Cicognani, 8</li>
+              </ul>
+
+              <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12, color: '#1e293b' }}>
                 Formula del Torneo
               </h3>
               
