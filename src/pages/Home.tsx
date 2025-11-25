@@ -1363,11 +1363,9 @@ export default function Home() {
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12, color: '#1e293b' }}>
                 Criteri di Classifica
               </h3>
-              <p style={{ marginBottom: 8 }}>In caso di parità di punti, prevalgono:</p>
-              <ol style={{ marginBottom: 20, paddingLeft: 24 }}>
-                <li>Scontro Diretto</li>
-                <li>Differenza punti (fatti - subiti)</li>
-              </ol>
+              <p style={{ marginBottom: 20 }}>
+                In caso di parità in classifica, prevarrà la squadra che si è aggiudicata lo scontro diretto nei gironi.
+              </p>
 
               <h3 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12, color: '#1e293b' }}>
                 Formato Partite
