@@ -1,0 +1,33 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+:root{
+  --bg: #0f172a;
+}
+
+html,body,#root{
+  height:100%;
+}
+
+body{
+  background-color: #ffffff;
+  color: #0f172a; /* similar to text-slate-900 */
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+.container{
+  max-width: 72rem; /* approx. max-w-6xl */
+  margin-left: auto;
+  margin-right: auto;
+  padding-left: 1rem;
+  padding-right: 1rem;
+}
+
+.card{
+  background-color: #ffffff;
+  border-radius: 0.75rem; /* approx. rounded-xl */
+  box-shadow: 0 6px 18px rgba(15,23,42,0.08);
+  padding: 1.5rem;
+}

@@ -1,0 +1,287 @@
+/* Minimal styles for Vite + React starter */
+html,body,#root{height:100%;}
+body{font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; background:#ffffff; color:#0f172a}
+
+/* Dialog / overlay styles used by AdminDialog */
+.rw-overlay{
+	position: fixed;
+	inset: 0;
+	background: rgba(2,6,23,0.6);
+	display: block;
+	z-index: 50;
+}
+.rw-dialog{
+	position: fixed;
+	left: 50%;
+	top: 50%;
+	transform: translate(-50%, -50%);
+	background: #ffffff;
+	border-radius: 12px;
+	padding: 1.25rem;
+	width: 92vw;
+	max-width: 420px;
+	box-shadow: 0 10px 30px rgba(2,6,23,0.15);
+	z-index: 60;
+}
+.rw-input{display:flex;align-items:center;gap:0.5rem;padding:0.5rem 0.75rem;border:1px solid #e6edf3;border-radius:8px;width:100%;}
+.rw-input input{flex:1;border:0;outline:0;font-size:0.95rem}
+.rw-actions{display:flex;justify-content:flex-end;gap:0.5rem;margin-top:1rem}
+.btn{background:#0f172a;color:white;border:0;padding:0.5rem 0.75rem;border-radius:8px;cursor:pointer}
+.btn.secondary{background:transparent;color:#0f172a;border:1px solid #e6edf3}
+.status{margin-top:0.75rem;font-size:0.9rem;color:#334155}
+
+/* Topbar */
+.rw-topbar{
+	position:sticky;top:0;left:0;right:0;display:flex;align-items:center;gap:12px;padding:10px 16px;background:#ffffff;border-bottom:1px solid #eef2f7;z-index:40
+}
+.rw-hamburger{background:transparent;border:0;padding:6px;border-radius:8px;cursor:pointer}
+.rw-topbar-title{font-weight:600;font-size:1rem}
+
+/* Side menu overlay */
+.side-overlay{position:fixed;inset:0;display:flex;pointer-events:none;z-index:9999}
+.side-overlay.visible{pointer-events:auto}
+.side-drawer{width:0;max-width:320px;background:#fff;height:100%;box-shadow:10px 0 30px rgba(2,6,23,0.12);transform:translateX(-100%);transition:transform .22s ease,width .22s;overflow:hidden;display:flex;flex-direction:column;z-index:10000}
+.side-drawer.open{width:320px;transform:translateX(0)}
+.side-drawer-header{padding:16px;border-bottom:1px solid #f1f5f9}
+.side-drawer-list{list-style:none;margin:0;padding:8px}
+.side-drawer-list li{margin-bottom:8px}
+.side-item{display:block;width:100%;text-align:left;padding:10px 12px;border-radius:8px;border:0;background:transparent;cursor:pointer}
+.side-item:hover{background:#f1f5f9}
+
+
+/* Responsive layout for Gironi page */
+.gironi-grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+	gap: 16px;
+	align-items: start;
+}
+
+/* Ensure selects / inputs inside .rw-input fill their container */
+.rw-input select,
+.rw-input input,
+.rw-input textarea {
+	flex: 1 1 auto;
+	min-width: 0; /* prevent overflow in flex */
+	width: 100%;
+	border: none;
+	background: transparent;
+	font: inherit;
+}
+
+@media (max-width: 480px) {
+	/* Slightly larger gaps on small screens for tap targets */
+	.gironi-grid { gap: 12px; }
+	.drawer-content { padding: 12px; }
+}
+/* Ensure overlay darkens background when open */
+.side-overlay.visible::before{content:'';position:fixed;inset:0;background:rgba(2,6,23,0.35);z-index:9999}
+
+/* App container and logo (responsive) */
+.app-container{
+	width:100%;
+	max-width:1100px;
+	margin:0 auto;
+	padding:0 16px; /* ensure horizontal padding on mobile */
+	box-sizing:border-box;
+}
+
+.app-logo{
+	display:block;
+	margin:0 auto;
+	/* larger adaptive logo: min 10rem, scales with viewport, max 50rem */
+	width:clamp(8rem, 30vw, 30rem);
+	height:auto;
+	cursor:pointer;
+}
+
+/* Prevent page-level horizontal overflow */
+*{box-sizing:border-box}
+html,body{overflow-x:hidden}
+
+/* Fluid typography: scale fonts with viewport but stay readable */
+html { font-size: clamp(14px, 1.2vw, 18px); }
+
+/* Standings layout (left fixed column + right scrollable numeric grid) */
+/* The right-side header `.standings-right .standings-header` and `.standings-right-row`
+   define the six numeric columns; left header/cells live in `.standings-left-*` classes. */
+.standings-table-wrapper {
+	width: 100%;
+	display: flex;
+	gap: 2px; /* even tighter gap between name column and data */
+	/* row height (increased for better mobile alignment) */
+	--standings-row-height: 48px;
+}
+.standings-inner { display:flex; width:100%; }
+
+/* Left and right columns stack vertically inside the inner wrapper */
+.standings-inner > .standings-left,
+.standings-inner > .standings-right {
+	display:flex;
+	flex-direction:column;
+}
+
+/* Left header specific styling */
+.standings-left-header { 
+	padding: 0 12px; 
+	font-weight:700; 
+	display: flex;
+	align-items: center;
+	justify-content: flex-start;
+	height: var(--standings-row-height);
+	margin: 0;
+}
+
+/* Left (fixed) column */
+.standings-left {
+	flex: 0 0 200px;
+	position: sticky;
+	left: 0;
+	z-index: 12;
+	background: #fff;
+	box-shadow: none;
+	border-right: 1px solid #f1f5f9;
+}
+.standings-left-rows { display:flex; flex-direction:column; gap:0; }
+.standings-left-cell {
+	display:flex;
+	align-items:center;
+	gap:8px;
+	padding: 0 10px;
+	border-bottom:1px solid #f1f5f9;
+	height: var(--standings-row-height);
+	min-height: var(--standings-row-height);
+	box-sizing: border-box;
+}
+
+/* Right (scrollable) columns */
+.standings-right { flex:1 1 auto; overflow-x:auto; -webkit-overflow-scrolling:touch; }
+.standings-right-inner { min-width: 440px; }
+.standings-header { display:grid; grid-template-columns: repeat(6, minmax(40px, 1fr)); gap:3px; align-items:center; padding:0; border-bottom:1px solid #e6edf3; font-weight:700; height: var(--standings-row-height); }
+.standings-rows { display:flex; flex-direction:column; }
+.standings-right-row { display:grid; grid-template-columns: repeat(6, minmax(40px, 1fr)); gap:3px; align-items:stretch; padding:0; border-bottom:1px solid #f1f5f9; height: var(--standings-row-height); }
+.cell { white-space: nowrap; text-align:center; }
+.standings-right-row .cell { display:flex; align-items:center; justify-content:center; padding:0; height: 100%; box-sizing: border-box; }
+
+/* Ensure header cells are centered within their grid columns */
+.standings-header > div { 
+	text-align: center;
+	display: flex;
+	align-items: center;
+	justify-content: center;
+	min-width: 0; /* allow grid cells to shrink properly */
+}
+
+
+@media (max-width: 720px) {
+	.standings-left { flex: 0 0 160px; }
+	.standings-right-inner { min-width: 420px; }
+	.standings-header { gap:4px; }
+	.standings-right-row { gap:4px; }
+}
+
+/* ensure numeric cells are centered, first column (team) left-aligned */
+.standings-row { align-items: center; }
+.standings-row > .standings-team { text-align: left; display:flex; align-items:center; }
+.standings-row > .cell { text-align: center; }
+.standings-team { display:flex; align-items:center; gap:8px; }
+.standings-pos { width:28px; height:28px; display:flex; align-items:center; justify-content:center; background:#eef2ff; border-radius:6px; font-weight:700; }
+.standings-name { font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.standings-detailed .cell { text-align:center; font-variant-numeric: tabular-nums; }
+.standings-summary { display:none; }
+
+/* compact badges on mobile and hide header/detailed columns */
+@media (max-width: 720px) {
+	/* keep header and columns but compress sizes and gaps so table remains readable */
+	.standings-header {
+		grid-template-columns: repeat(6, minmax(30px, 1fr));
+		gap: 3px;
+		padding: 6px 0;
+	}
+	.standings-right-row {
+		grid-template-columns: repeat(6, minmax(30px, 1fr));
+		gap: 3px;
+		padding: 8px 0;
+	}
+	.standings-name { font-size: 0.95em; }
+	.standings-pos { width:24px; height:24px; }
+	.standings-detailed .cell { font-size:0.95em; }
+	.standings-summary { display: none; }
+}
+
+/* Matches: keep teams and score on same line and prevent wrapping issues */
+.match-row { width:100%; box-sizing:border-box; }
+.match-teams .team-name { white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:140px; display:inline-block; vertical-align:middle; }
+.match-teams .match-score { font-weight:700; min-width:56px; text-align:center; display:inline-block; }
+.match-teams .winner { font-size:1.05rem; }
+
+@media (max-width: 720px) {
+	.match-teams { gap:4px; flex:1; min-width:0; }
+	.match-teams .team-name { max-width:80px; font-size:clamp(0.8rem, 2.2vw, 0.9rem); }
+	.match-teams .match-score { font-size:clamp(0.85rem, 2.4vw, 0.95rem); min-width:40px; margin:0 4px; }
+	.match-row { padding:10px 8px; }
+	.match-row .rw-actions { margin-top:6px; }
+	.match-row > div:first-child { flex-wrap:wrap; gap:8px; }
+}
+
+/* Live scoring modal layout */
+.live-scoring-modal .live-scoring-grid {
+	display: grid;
+	grid-template-columns: 1fr 1fr;
+	gap: 16px;
+	max-height: 60vh;
+	overflow: hidden;
+}
+
+.live-scoring-modal .team-column {
+	display: flex;
+	flex-direction: column;
+	max-height: 60vh;
+}
+
+.live-scoring-modal .athletes-list {
+	display: flex;
+	flex-direction: column;
+	gap: 8px;
+	overflow-y: auto;
+	flex: 1;
+	padding-right: 4px;
+}
+
+@media (max-width: 720px) {
+	.live-scoring-modal {
+		max-width: 98vw !important;
+		padding: 12px !important;
+	}
+	
+	.live-scoring-modal .live-scoring-grid {
+		grid-template-columns: 1fr;
+		gap: 12px;
+		max-height: none;
+	}
+	
+	.live-scoring-modal .team-column {
+		max-height: 40vh;
+	}
+	
+	.live-scoring-modal .athletes-list {
+		max-height: 35vh;
+	}
+}
+
+/* utility classes */
+.center { text-align:center; }
+
+/* make buttons and inputs scale slightly with viewport */
+.btn, .rw-input { font-size: clamp(0.9rem, 1.4vw, 1rem); padding: 0.45rem 0.6rem; }
+
+/* dialog tweaks on very small screens */
+@media (max-width: 420px) {
+	.rw-dialog { padding: 0.9rem; max-width: 92vw; }
+}
+
+/* Pulse animation for LIVE badge */
+@keyframes pulse {
+	0%, 100% { opacity: 1; }
+	50% { opacity: 0.6; }
+}
