@@ -715,11 +715,6 @@ export default function Finali(){
         <>
         {view === 'incroci' && (
         <section style={{marginTop:24}}>
-          <p style={{color:'#475569',marginBottom:16}}>
-            {allPhasesCompleted 
-              ? 'Incroci finali determinati dalle classifiche finali.' 
-              : 'Gli incroci finali saranno determinati al completamento di tutte le fasi dei gironi.'}
-          </p>
           <h2 style={{fontSize:18,margin:0,marginBottom:16}}>Incroci Finali</h2>
           
           <div style={{display:'grid',gap:16}}>
