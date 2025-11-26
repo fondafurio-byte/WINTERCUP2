@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
-import { Trophy, Zap, Edit2, Trash2 } from 'lucide-react'
+import { Trophy, Zap, Edit2, Trash2, MapPin, Calendar, Clock } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 
 const LazyFinalVoteDialog = React.lazy(() => import('../components/FinalVoteDialog'))
@@ -866,6 +866,37 @@ export default function Finali(){
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
+              {(() => {
+                const match = finalMatches.find(m => m.finalType === '1-2')
+                if (match && (match.campo || match.orario)) {
+                  const orarioDate = match.orario ? new Date(match.orario) : null
+                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
+                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                  return (
+                    <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
+                      {match.campo && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <MapPin size={14} />
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                        </div>
+                      )}
+                      {dateStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Calendar size={14} />
+                          <span>{dateStr}</span>
+                        </div>
+                      )}
+                      {timeStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Clock size={14} />
+                          <span>{timeStr}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+                return null
+              })()}
             </div>
 
             {/* Finale 3°/4° Posto */}
@@ -1009,6 +1040,37 @@ export default function Finali(){
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
+              {(() => {
+                const match = finalMatches.find(m => m.finalType === '3-4')
+                if (match && (match.campo || match.orario)) {
+                  const orarioDate = match.orario ? new Date(match.orario) : null
+                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
+                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                  return (
+                    <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
+                      {match.campo && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <MapPin size={14} />
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                        </div>
+                      )}
+                      {dateStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Calendar size={14} />
+                          <span>{dateStr}</span>
+                        </div>
+                      )}
+                      {timeStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Clock size={14} />
+                          <span>{timeStr}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+                return null
+              })()}
             </div>
 
             {/* Finale 5°/6° Posto */}
@@ -1152,6 +1214,37 @@ export default function Finali(){
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
+              {(() => {
+                const match = finalMatches.find(m => m.finalType === '5-6')
+                if (match && (match.campo || match.orario)) {
+                  const orarioDate = match.orario ? new Date(match.orario) : null
+                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
+                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                  return (
+                    <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
+                      {match.campo && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <MapPin size={14} />
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                        </div>
+                      )}
+                      {dateStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Calendar size={14} />
+                          <span>{dateStr}</span>
+                        </div>
+                      )}
+                      {timeStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Clock size={14} />
+                          <span>{timeStr}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+                return null
+              })()}
             </div>
 
             {/* Finale 7°/8° Posto */}
@@ -1295,6 +1388,37 @@ export default function Finali(){
                   <div style={{fontSize:12,color:'#64748b',marginTop:4}}>Girone B</div>
                 </div>
               </div>
+              {(() => {
+                const match = finalMatches.find(m => m.finalType === '7-8')
+                if (match && (match.campo || match.orario)) {
+                  const orarioDate = match.orario ? new Date(match.orario) : null
+                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
+                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                  return (
+                    <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
+                      {match.campo && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <MapPin size={14} />
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                        </div>
+                      )}
+                      {dateStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Calendar size={14} />
+                          <span>{dateStr}</span>
+                        </div>
+                      )}
+                      {timeStr && (
+                        <div style={{display:'flex',alignItems:'center',gap:4}}>
+                          <Clock size={14} />
+                          <span>{timeStr}</span>
+                        </div>
+                      )}
+                    </div>
+                  )
+                }
+                return null
+              })()}
             </div>
           </div>
 
