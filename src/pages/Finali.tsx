@@ -31,6 +31,8 @@ type FinalMatch = {
   home_score: number | null
   away_score: number | null
   finalType: '1-2' | '3-4' | '5-6' | '7-8'
+  campo?: string | null
+  orario?: string | null
 }
 
 export default function Finali(){
@@ -62,6 +64,8 @@ export default function Finali(){
   const [editMatchId, setEditMatchId] = useState<string | null>(null)
   const [editHomeScore, setEditHomeScore] = useState<string>('')
   const [editAwayScore, setEditAwayScore] = useState<string>('')
+  const [editCampo, setEditCampo] = useState<string>('')
+  const [editOrario, setEditOrario] = useState<string>('')
   const [editStatus, setEditStatus] = useState<string | null>(null)
 
   // Calculate team totals
@@ -653,7 +657,9 @@ export default function Finali(){
         .from('partite')
         .update({
           home_score: homeScore,
-          away_score: awayScore
+          away_score: awayScore,
+          campo: editCampo || null,
+          orario: editOrario || null
         })
         .eq('id', editMatchId)
 
@@ -791,6 +797,8 @@ export default function Finali(){
                                     setEditMatchId(match.id)
                                     setEditHomeScore(match.home_score?.toString() || '')
                                     setEditAwayScore(match.away_score?.toString() || '')
+                                    setEditCampo(match.campo || '')
+                                    setEditOrario(match.orario || '')
                                     setEditModalOpen(true)
                                   }
                                 }}
@@ -932,6 +940,8 @@ export default function Finali(){
                                     setEditMatchId(match.id)
                                     setEditHomeScore(match.home_score?.toString() || '')
                                     setEditAwayScore(match.away_score?.toString() || '')
+                                    setEditCampo(match.campo || '')
+                                    setEditOrario(match.orario || '')
                                     setEditModalOpen(true)
                                   }
                                 }}
@@ -1073,6 +1083,8 @@ export default function Finali(){
                                     setEditMatchId(match.id)
                                     setEditHomeScore(match.home_score?.toString() || '')
                                     setEditAwayScore(match.away_score?.toString() || '')
+                                    setEditCampo(match.campo || '')
+                                    setEditOrario(match.orario || '')
                                     setEditModalOpen(true)
                                   }
                                 }}
@@ -1214,6 +1226,8 @@ export default function Finali(){
                                     setEditMatchId(match.id)
                                     setEditHomeScore(match.home_score?.toString() || '')
                                     setEditAwayScore(match.away_score?.toString() || '')
+                                    setEditCampo(match.campo || '')
+                                    setEditOrario(match.orario || '')
                                     setEditModalOpen(true)
                                   }
                                 }}
@@ -1602,6 +1616,39 @@ export default function Finali(){
                   value={editAwayScore}
                   onChange={(e) => setEditAwayScore(e.target.value)}
                   placeholder="Punteggio ospite"
+                  style={{
+                    width:'100%',
+                    padding:10,
+                    border:'1px solid #cbd5e1',
+                    borderRadius:6,
+                    fontSize:14
+                  }}
+                />
+              </div>
+
+              <div style={{marginBottom:16}}>
+                <label style={{display:'block',marginBottom:8,fontWeight:600}}>Campo</label>
+                <input
+                  type="text"
+                  value={editCampo}
+                  onChange={(e) => setEditCampo(e.target.value)}
+                  placeholder="Es: Palestra MORIGIA"
+                  style={{
+                    width:'100%',
+                    padding:10,
+                    border:'1px solid #cbd5e1',
+                    borderRadius:6,
+                    fontSize:14
+                  }}
+                />
+              </div>
+
+              <div style={{marginBottom:16}}>
+                <label style={{display:'block',marginBottom:8,fontWeight:600}}>Orario</label>
+                <input
+                  type="datetime-local"
+                  value={editOrario}
+                  onChange={(e) => setEditOrario(e.target.value)}
                   style={{
                     width:'100%',
                     padding:10,
