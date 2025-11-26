@@ -328,6 +328,18 @@ export default function TeamLoginDialog({ open: controlledOpen, onOpenChange }: 
                   <UserPlus size={18} />
                   Registrati come Utente
                 </button>
+
+                <div style={{
+                  marginTop: 16,
+                  padding: 12,
+                  background: '#f0f9ff',
+                  border: '1px solid #bae6fd',
+                  borderRadius: 6
+                }}>
+                  <div style={{ fontSize: '0.8rem', color: '#0c4a6e', lineHeight: 1.5 }}>
+                    <strong>👤 Utente registrato:</strong> Vota gli MVP delle partite e visualizza statistiche complete.
+                  </div>
+                </div>
               </form>
 
               <PublicUserRegistration 
