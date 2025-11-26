@@ -242,10 +242,6 @@ export default function PublicUserRegistration({ open, onOpenChange }: PublicUse
               </button>
             </div>
           </form>
-
-          <div style={{ marginTop: 16, padding: 12, background: '#f1f5f9', borderRadius: 8, fontSize: 13, color: '#475569' }}>
-            <strong>ℹ️ Nota:</strong> I voti degli utenti registrati pubblicamente hanno un peso del 10% nella scelta del MVP, mentre i voti delle squadre hanno un peso del 90%.
-          </div>
         </Dialog.Content>
       </Dialog.Portal>
     </Dialog.Root>
