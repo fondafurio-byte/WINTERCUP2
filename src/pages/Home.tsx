@@ -1414,38 +1414,59 @@ export default function Home() {
               <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#667eea' }}>
                 Girone A
               </h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                   <thead>
-                    <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: 700 }}>Pos</th>
-                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: 700 }}>Squadra</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>Pt</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>G</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>V</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>S</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>Diff</th>
+                    <tr style={{ background: '#dbeafe', borderBottom: '2px solid #93c5fd' }}>
+                      <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pos</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Sq</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pt</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>G</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>V</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>S</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>PF</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>PS</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Diff</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {standingsA.map((team, idx) => (
-                      <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '10px', fontWeight: 700 }}>{idx + 1}</td>
-                        <td style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {team.logo_url && (
-                            <img src={team.logo_url} alt="" style={{ width: 24, height: 24, objectFit: 'contain' }} />
-                          )}
-                          <span style={{ fontWeight: 600 }}>{team.name}</span>
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>{team.points}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.games}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.wins}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.losses}</td>
-                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 600 }}>
-                          {team.pts_for - team.pts_against > 0 ? '+' : ''}{team.pts_for - team.pts_against}
-                        </td>
-                      </tr>
-                    ))}
+                    {standingsA.map((team, idx) => {
+                      const diff = team.pts_for - team.pts_against
+                      return (
+                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#eff6ff' : '#fff' }}>
+                          <td style={{ padding: '6px 4px', fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>{idx + 1}</td>
+                          <td style={{ padding: '6px 4px', fontWeight: 600 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {team.logo_url ? (
+                                <img 
+                                  src={team.logo_url} 
+                                  alt={`${team.name} logo`} 
+                                  style={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 3 }}
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>-</span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, fontSize: '0.9rem' }}>{team.points}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.games}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', color: '#16a34a', fontSize: '0.75rem' }}>{team.wins}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', color: '#dc2626', fontSize: '0.75rem' }}>{team.losses}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.pts_for}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.pts_against}</td>
+                          <td style={{
+                            padding: '6px 4px',
+                            textAlign: 'center',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            color: diff > 0 ? '#16a34a' : diff < 0 ? '#dc2626' : '#64748b'
+                          }}>
+                            {diff > 0 ? '+' : ''}{diff}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
@@ -1456,38 +1477,59 @@ export default function Home() {
               <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#f5576c' }}>
                 Girone B
               </h3>
-              <div style={{ overflowX: 'auto' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.9rem' }}>
+              <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
+                <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                   <thead>
-                    <tr style={{ background: '#f1f5f9' }}>
-                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: 700 }}>Pos</th>
-                      <th style={{ padding: '8px', textAlign: 'left', fontWeight: 700 }}>Squadra</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>Pt</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>G</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>V</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>S</th>
-                      <th style={{ padding: '8px', textAlign: 'center', fontWeight: 700 }}>Diff</th>
+                    <tr style={{ background: '#fce7f3', borderBottom: '2px solid #f9a8d4' }}>
+                      <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pos</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Sq</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pt</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>G</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>V</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>S</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>PF</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>PS</th>
+                      <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Diff</th>
                     </tr>
                   </thead>
                   <tbody>
-                    {standingsB.map((team, idx) => (
-                      <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0' }}>
-                        <td style={{ padding: '10px', fontWeight: 700 }}>{idx + 1}</td>
-                        <td style={{ padding: '10px', display: 'flex', alignItems: 'center', gap: 8 }}>
-                          {team.logo_url && (
-                            <img src={team.logo_url} alt="" style={{ width: 24, height: 24, objectFit: 'contain' }} />
-                          )}
-                          <span style={{ fontWeight: 600 }}>{team.name}</span>
-                        </td>
-                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 700 }}>{team.points}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.games}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.wins}</td>
-                        <td style={{ padding: '10px', textAlign: 'center' }}>{team.losses}</td>
-                        <td style={{ padding: '10px', textAlign: 'center', fontWeight: 600 }}>
-                          {team.pts_for - team.pts_against > 0 ? '+' : ''}{team.pts_for - team.pts_against}
-                        </td>
-                      </tr>
-                    ))}
+                    {standingsB.map((team, idx) => {
+                      const diff = team.pts_for - team.pts_against
+                      return (
+                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#fdf2f8' : '#fff' }}>
+                          <td style={{ padding: '6px 4px', fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>{idx + 1}</td>
+                          <td style={{ padding: '6px 4px', fontWeight: 600 }}>
+                            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+                              {team.logo_url ? (
+                                <img 
+                                  src={team.logo_url} 
+                                  alt={`${team.name} logo`} 
+                                  style={{ width: 24, height: 24, objectFit: 'contain', borderRadius: 3 }}
+                                  onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                                />
+                              ) : (
+                                <span style={{ fontSize: '0.6rem', color: '#94a3b8' }}>-</span>
+                              )}
+                            </div>
+                          </td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, fontSize: '0.9rem' }}>{team.points}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.games}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', color: '#16a34a', fontSize: '0.75rem' }}>{team.wins}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', color: '#dc2626', fontSize: '0.75rem' }}>{team.losses}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.pts_for}</td>
+                          <td style={{ padding: '6px 4px', textAlign: 'center', fontSize: '0.75rem' }}>{team.pts_against}</td>
+                          <td style={{
+                            padding: '6px 4px',
+                            textAlign: 'center',
+                            fontWeight: 600,
+                            fontSize: '0.75rem',
+                            color: diff > 0 ? '#16a34a' : diff < 0 ? '#dc2626' : '#64748b'
+                          }}>
+                            {diff > 0 ? '+' : ''}{diff}
+                          </td>
+                        </tr>
+                      )
+                    })}
                   </tbody>
                 </table>
               </div>
