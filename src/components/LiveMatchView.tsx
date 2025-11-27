@@ -62,37 +62,60 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         setIsLive(matchData.is_live ?? false)
       }
 
-      // Carica tutte le statistiche atleti della partita
-      const { data: allStats, error: statsError } = await supabase
+      // Carica tutte le statistiche atleti della partita (senza join)
+      const { data: puntiData, error: puntiError } = await supabase
         .from('punti_atleti')
-        .select(`
-          punti,
-          atleta_id,
-          atleti (
-            id,
-            nome,
-            cognome,
-            numero_maglia,
-            team_id
-          )
-        `)
+        .select('punti, atleta_id')
         .eq('partita_id', matchId)
 
       console.debug('LiveMatchView - timestamp:', new Date().toLocaleTimeString())
       console.debug('LiveMatchView - matchId:', matchId)
-      console.debug('LiveMatchView - allStats length:', allStats?.length, 'error:', statsError)
-      console.debug('LiveMatchView - allStats data:', JSON.stringify(allStats))
-      console.debug('LiveMatchView - homeTeam.id:', homeTeam.id, 'awayTeam.id:', awayTeam.id)
+      console.debug('LiveMatchView - puntiData:', puntiData, 'error:', puntiError)
 
-      if (allStats && allStats.length > 0) {
+      if (puntiError) {
+        console.error('LiveMatchView - Error loading punti:', puntiError)
+        setHomeScore(0)
+        setAwayScore(0)
+        setHomeTopScorers([])
+        setAwayTopScorers([])
+        return
+      }
+
+      if (puntiData && puntiData.length > 0) {
+        // Carica info atleti
+        const atletiIds = puntiData.map(p => p.atleta_id)
+        const { data: atletiData, error: atletiError } = await supabase
+          .from('atleti')
+          .select('id, nome, cognome, numero_maglia, team_id')
+          .in('id', atletiIds)
+
+        console.debug('LiveMatchView - atletiData:', atletiData, 'error:', atletiError)
+
+        if (atletiError || !atletiData) {
+          console.error('LiveMatchView - Error loading atleti:', atletiError)
+          return
+        }
+
+        // Combina i dati
+        const combinedData = puntiData.map(p => {
+          const atleta = atletiData.find(a => a.id === p.atleta_id)
+          return {
+            ...p,
+            atleta
+          }
+        }).filter(item => item.atleta)
+
+        console.debug('LiveMatchView - combinedData:', combinedData)
+        console.debug('LiveMatchView - homeTeam.id:', homeTeam.id, 'awayTeam.id:', awayTeam.id)
+
         // Filtra e ordina per squadra casa
-        const homeStatsFiltered = allStats
-          .filter(s => s.atleti && (s.atleti as any).team_id === homeTeam.id && s.punti > 0)
+        const homeStatsFiltered = combinedData
+          .filter(s => s.atleta && s.atleta.team_id === homeTeam.id && s.punti > 0)
           .map(s => ({
-            id: (s.atleti as any).id,
-            nome: (s.atleti as any).nome,
-            cognome: (s.atleti as any).cognome,
-            numero_maglia: (s.atleti as any).numero_maglia,
+            id: s.atleta!.id,
+            nome: s.atleta!.nome,
+            cognome: s.atleta!.cognome,
+            numero_maglia: s.atleta!.numero_maglia,
             punti: s.punti
           }))
           .sort((a, b) => b.punti - a.punti)
@@ -102,13 +125,13 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         setHomeTopScorers(homeStatsFiltered)
 
         // Filtra e ordina per squadra ospite
-        const awayStatsFiltered = allStats
-          .filter(s => s.atleti && (s.atleti as any).team_id === awayTeam.id && s.punti > 0)
+        const awayStatsFiltered = combinedData
+          .filter(s => s.atleta && s.atleta.team_id === awayTeam.id && s.punti > 0)
           .map(s => ({
-            id: (s.atleti as any).id,
-            nome: (s.atleti as any).nome,
-            cognome: (s.atleti as any).cognome,
-            numero_maglia: (s.atleti as any).numero_maglia,
+            id: s.atleta!.id,
+            nome: s.atleta!.nome,
+            cognome: s.atleta!.cognome,
+            numero_maglia: s.atleta!.numero_maglia,
             punti: s.punti
           }))
           .sort((a, b) => b.punti - a.punti)
@@ -118,19 +141,19 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         setAwayTopScorers(awayStatsFiltered)
 
         // Calcola i punteggi totali dalla somma dei punti atleti
-        const homeTotal = allStats
-          .filter(s => s.atleti && (s.atleti as any).team_id === homeTeam.id)
+        const homeTotal = combinedData
+          .filter(s => s.atleta && s.atleta.team_id === homeTeam.id)
           .reduce((sum, s) => sum + s.punti, 0)
         
-        const awayTotal = allStats
-          .filter(s => s.atleti && (s.atleti as any).team_id === awayTeam.id)
+        const awayTotal = combinedData
+          .filter(s => s.atleta && s.atleta.team_id === awayTeam.id)
           .reduce((sum, s) => sum + s.punti, 0)
         
         console.debug('LiveMatchView - homeTotal:', homeTotal, 'awayTotal:', awayTotal)
         setHomeScore(homeTotal)
         setAwayScore(awayTotal)
       } else {
-        console.debug('LiveMatchView - No stats data found')
+        console.debug('LiveMatchView - No punti data found')
         setHomeScore(0)
         setAwayScore(0)
         setHomeTopScorers([])
