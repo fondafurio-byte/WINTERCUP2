@@ -7,7 +7,6 @@ import clsx from 'clsx'
 export default function AdminDialog(){
   const [open, setOpen] = useState(false)
   const [mode, setMode] = useState<'login' | 'register'>('login')
-  const [isAdmin, setIsAdmin] = useState(false)
   
   // Login state
   const [username, setUsername] = useState('')
@@ -25,25 +24,7 @@ export default function AdminDialog(){
   // If the component is mounted, open the dialog by default so parent 'Apri Admin' shows it immediately
   useEffect(() => {
     setOpen(true)
-    checkAdminStatus()
   }, [])
-
-  // Check if current user is admin
-  async function checkAdminStatus() {
-    const { data: { user } } = await supabase.auth.getUser()
-    if (!user) {
-      setIsAdmin(false)
-      return
-    }
-
-    const { data: adminData } = await supabase
-      .from('admins')
-      .select('*')
-      .eq('user_id', user.id)
-      .limit(1)
-
-    setIsAdmin(Boolean(adminData && adminData.length > 0))
-  }
 
   async function handleSubmit(e: React.FormEvent){
     e.preventDefault()
@@ -126,7 +107,6 @@ export default function AdminDialog(){
 
       if (adminData && adminData.length > 0) {
         setStatus('Accesso effettuato come admin')
-        setIsAdmin(true)
         setTimeout(() => {
           setOpen(false)
           window.dispatchEvent(new CustomEvent('admin-login-success'))
@@ -283,25 +263,23 @@ export default function AdminDialog(){
             >
               Accesso
             </button>
-            {isAdmin && (
-              <button
-                type="button"
-                onClick={() => setMode('register')}
-                style={{
-                  flex:1,
-                  padding:'8px 16px',
-                  background:'none',
-                  border:'none',
-                  borderBottom: mode === 'register' ? '2px solid #3b82f6' : '2px solid transparent',
-                  color: mode === 'register' ? '#3b82f6' : '#64748b',
-                  fontWeight: mode === 'register' ? 600 : 400,
-                  cursor:'pointer',
-                  transition:'all 0.2s'
-                }}
-              >
-                Registra Rilevatore
-              </button>
-            )}
+            <button
+              type="button"
+              onClick={() => setMode('register')}
+              style={{
+                flex:1,
+                padding:'8px 16px',
+                background:'none',
+                border:'none',
+                borderBottom: mode === 'register' ? '2px solid #3b82f6' : '2px solid transparent',
+                color: mode === 'register' ? '#3b82f6' : '#64748b',
+                fontWeight: mode === 'register' ? 600 : 400,
+                cursor:'pointer',
+                transition:'all 0.2s'
+              }}
+            >
+              Registra Rilevatore
+            </button>
           </div>
 
           {mode === 'login' ? (
