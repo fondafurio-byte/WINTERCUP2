@@ -451,32 +451,38 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
             }
 
             .live-match-teams {
-              flex-direction: column !important;
-              gap: 12px !important;
+              flex-direction: row !important;
+              gap: 8px !important;
+              align-items: center !important;
             }
 
             .live-team {
-              flex: none !important;
-              width: 100% !important;
+              flex: 1 !important;
+              display: flex !important;
+              flex-direction: column !important;
+              align-items: center !important;
+              justify-content: center !important;
             }
 
             .live-team-logo {
-              width: 60px !important;
-              height: 60px !important;
-              margin-bottom: 8px !important;
+              width: 50px !important;
+              height: 50px !important;
+              margin-bottom: 6px !important;
             }
 
             .live-team-name {
-              font-size: 14px !important;
+              font-size: 11px !important;
               word-break: break-word;
-              padding: 0 10px;
+              padding: 0 5px;
+              line-height: 1.2;
+              max-width: 100%;
             }
 
             .live-score {
-              font-size: 48px !important;
+              font-size: 40px !important;
               min-width: auto !important;
-              order: -1;
-              margin-bottom: 16px;
+              flex-shrink: 0 !important;
+              padding: 0 8px !important;
             }
 
             .live-scorers-grid {
@@ -512,20 +518,26 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
           @media (max-width: 480px) {
             .live-score {
-              font-size: 36px !important;
+              font-size: 32px !important;
+              padding: 0 5px !important;
             }
 
             .live-team-logo {
-              width: 50px !important;
-              height: 50px !important;
+              width: 45px !important;
+              height: 45px !important;
             }
 
             .live-team-name {
-              font-size: 12px !important;
+              font-size: 10px !important;
+              padding: 0 3px !important;
             }
 
             .live-scorers-grid {
               padding: 15px 10px !important;
+            }
+
+            .live-match-teams {
+              gap: 4px !important;
             }
           }
         `}
