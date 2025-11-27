@@ -80,6 +80,7 @@ export default function Gironi(){
   // Document upload state
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [uploadDocMatchId, setUploadDocMatchId] = useState<string | null>(null)
+  const [existingDocs, setExistingDocs] = useState<Set<string>>(new Set())
 
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
@@ -138,7 +139,9 @@ export default function Gironi(){
           return 
         }
         // Update matches state with fresh data
-        setMatches((data as any) ?? [])
+        const matchesData = (data as any) ?? []
+        setMatches(matchesData)
+        if (matchesData.length > 0) checkExistingDocuments(matchesData)
       }catch(err){ 
         console.debug('poll error', err) 
       }
@@ -631,6 +634,39 @@ export default function Gironi(){
     }
   }
 
+  // Verifica quali documenti esistono effettivamente nello storage
+  async function checkExistingDocuments(matchesData: MatchRow[]) {
+    const docsToCheck = matchesData
+      .filter(m => (m as any).documento_url)
+      .map(m => (m as any).documento_url)
+    
+    if (docsToCheck.length === 0) {
+      setExistingDocs(new Set())
+      return
+    }
+
+    const existing = new Set<string>()
+    
+    for (const docPath of docsToCheck) {
+      try {
+        const { data, error } = await supabase.storage
+          .from('partite-documenti')
+          .list('', { 
+            limit: 1,
+            search: docPath
+          })
+        
+        if (!error && data && data.length > 0) {
+          existing.add(docPath)
+        }
+      } catch (err) {
+        console.debug('Error checking document:', docPath, err)
+      }
+    }
+    
+    setExistingDocs(existing)
+  }
+
   async function handleDocumentUpload(matchId: string, file: File) {
     setUploadingDoc(true)
     setUploadDocMatchId(matchId)
@@ -721,7 +757,10 @@ export default function Gironi(){
         .eq('girone', girone)
         .order('orario', { ascending: true })
 
-      if (matches) setMatches(matches as any)
+      if (matches) {
+        setMatches(matches as any)
+        checkExistingDocuments(matches as any)
+      }
       
       setUploadingDoc(false)
       setUploadDocMatchId(null)
@@ -1552,6 +1591,7 @@ export default function Gironi(){
                                 
                                 if (updatedMatches) {
                                   setMatches(updatedMatches as any)
+                                  checkExistingDocuments(updatedMatches as any)
                                   console.log('✅ Matches reloaded, count:', updatedMatches.length)
                                 }
                                 
@@ -1886,7 +1926,7 @@ export default function Gironi(){
                             </div>
                           )}
 
-                          {(m as any).documento_url && (isAdmin || isRilevatore || isTeamUser) && (
+                          {(m as any).documento_url && existingDocs.has((m as any).documento_url) && (isAdmin || isRilevatore || isTeamUser) && (
                             <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
                               <FileText size={14} />
                               <button 
