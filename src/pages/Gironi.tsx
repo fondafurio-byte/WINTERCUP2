@@ -688,16 +688,15 @@ export default function Gironi(){
         return
       }
 
-      // Get public URL
-      const { data: urlData } = supabase.storage
-        .from('partite-documenti')
-        .getPublicUrl(fileName)
+      // Salva solo il path del file, non l'URL completo
+      // L'URL verrà generato dinamicamente quando serve visualizzare il documento
+      const filePath = fileName
 
       // Update partite table
       const { error: updateError } = await supabase
         .from('partite')
         .update({
-          documento_url: urlData.publicUrl,
+          documento_url: filePath,
           documento_nome: file.name,
           documento_tipo: file.type,
           documento_caricato_da: rilevData?.id || null,
@@ -1887,14 +1886,39 @@ export default function Gironi(){
                           {(m as any).documento_url && (isAdmin || isRilevatore || isTeamUser) && (
                             <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
                               <FileText size={14} />
-                              <a 
-                                href={(m as any).documento_url} 
-                                target="_blank" 
-                                rel="noopener noreferrer" 
-                                style={{color:'#3b82f6',textDecoration:'none',fontWeight:600}}
+                              <button 
+                                onClick={async () => {
+                                  try {
+                                    // Genera URL firmato valido per 1 ora
+                                    const { data, error } = await supabase.storage
+                                      .from('partite-documenti')
+                                      .createSignedUrl((m as any).documento_url, 3600)
+                                    
+                                    if (error) {
+                                      alert('Errore apertura documento: ' + error.message)
+                                      return
+                                    }
+                                    
+                                    if (data?.signedUrl) {
+                                      window.open(data.signedUrl, '_blank')
+                                    }
+                                  } catch (err) {
+                                    console.error('Errore documento:', err)
+                                    alert('Errore apertura documento')
+                                  }
+                                }}
+                                style={{
+                                  background:'transparent',
+                                  border:'none',
+                                  color:'#3b82f6',
+                                  textDecoration:'none',
+                                  fontWeight:600,
+                                  cursor:'pointer',
+                                  padding:0
+                                }}
                               >
                                 Visualizza documento
-                              </a>
+                              </button>
                             </div>
                           )}
                         </div>
