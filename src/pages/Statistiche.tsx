@@ -176,13 +176,13 @@ export default function Statistiche(){
               <div style={{display:'grid',gap:24,marginTop:12}}>
                 {/* Girone A */}
                 <div>
-                  <h3 style={{margin:0,marginBottom:12,fontSize:18,color:'#1e40af',display:'flex',alignItems:'center',gap:8}}>
+                  <h3 style={{margin:0,marginBottom:12,fontSize:18,color:'#17b3ff',display:'flex',alignItems:'center',gap:8}}>
                     <span>Girone A</span>
                   </h3>
                   <div style={{overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
                     <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.75rem'}}>
                       <thead>
-                        <tr style={{background:'#dbeafe',borderBottom:'2px solid #93c5fd'}}>
+                        <tr style={{background:'#e0f4ff',borderBottom:'2px solid #17b3ff'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
@@ -199,7 +199,7 @@ export default function Statistiche(){
                           const giocate = s.wins + s.losses
                           const diff = s.pts_for - s.pts_against
                           return (
-                            <tr key={s.id} style={{borderBottom:'1px solid #e2e8f0',background: idx === 0 ? '#eff6ff' : '#fff'}}>
+                            <tr key={s.id} style={{borderBottom:'1px solid #e2e8f0',background: idx === 0 ? '#e0f4ff' : '#fff'}}>
                               <td style={{padding:'6px 4px',fontWeight:700,color:'#64748b',fontSize:'0.75rem'}}>{idx + 1}</td>
                               <td style={{padding:'6px 4px',fontWeight:600}}>
                                 <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>
@@ -240,13 +240,13 @@ export default function Statistiche(){
 
                 {/* Girone B */}
                 <div>
-                  <h3 style={{margin:0,marginBottom:12,fontSize:18,color:'#be185d',display:'flex',alignItems:'center',gap:8}}>
+                  <h3 style={{margin:0,marginBottom:12,fontSize:18,color:'#b8160f',display:'flex',alignItems:'center',gap:8}}>
                     <span>Girone B</span>
                   </h3>
                   <div style={{overflowX:'auto',WebkitOverflowScrolling:'touch'}}>
                     <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.75rem'}}>
                       <thead>
-                        <tr style={{background:'#fce7f3',borderBottom:'2px solid #fbcfe8'}}>
+                        <tr style={{background:'#fde8e7',borderBottom:'2px solid #b8160f'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
@@ -263,7 +263,7 @@ export default function Statistiche(){
                           const giocate = s.wins + s.losses
                           const diff = s.pts_for - s.pts_against
                           return (
-                            <tr key={s.id} style={{borderBottom:'1px solid #e2e8f0',background: idx === 0 ? '#fdf2f8' : '#fff'}}>
+                            <tr key={s.id} style={{borderBottom:'1px solid #e2e8f0',background: idx === 0 ? '#fde8e7' : '#fff'}}>
                               <td style={{padding:'6px 4px',fontWeight:700,color:'#64748b',fontSize:'0.75rem'}}>{idx + 1}</td>
                               <td style={{padding:'6px 4px',fontWeight:600}}>
                                 <div style={{display:'flex',alignItems:'center',justifyContent:'center'}}>

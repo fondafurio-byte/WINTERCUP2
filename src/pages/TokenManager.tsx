@@ -258,7 +258,7 @@ export default function TokenManager() {
 
       {/* Girone A */}
       <div style={{ marginBottom: 40 }}>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 16, color: '#667eea' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 16, color: '#17b3ff' }}>
           Girone A
         </h2>
         <div style={{ overflowX: 'auto' }}>
@@ -345,7 +345,7 @@ export default function TokenManager() {
 
       {/* Girone B */}
       <div>
-        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 16, color: '#f5576c' }}>
+        <h2 style={{ fontSize: '1.3rem', fontWeight: 700, marginBottom: 16, color: '#b8160f' }}>
           Girone B
         </h2>
         <div style={{ overflowX: 'auto' }}>
