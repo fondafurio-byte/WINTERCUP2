@@ -88,7 +88,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         const atletiIds = puntiData.map(p => p.atleta_id)
         const { data: atletiData, error: atletiError } = await supabase
           .from('atleti')
-          .select('id, nome, cognome, numero_maglia, team_id')
+          .select('id, nome, cognome, numero_maglia, squadra_id')
           .in('id', atletiIds)
 
         console.log('👥 Atleti data received:', {
@@ -118,7 +118,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
         // Filtra e ordina per squadra casa
         const homeStatsFiltered = combinedData
-          .filter(s => s.atleta && s.atleta.team_id === homeTeam.id && s.punti > 0)
+          .filter(s => s.atleta && s.atleta.squadra_id === homeTeam.id && s.punti > 0)
           .map(s => ({
             id: s.atleta!.id,
             nome: s.atleta!.nome,
@@ -133,7 +133,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
         // Filtra e ordina per squadra ospite
         const awayStatsFiltered = combinedData
-          .filter(s => s.atleta && s.atleta.team_id === awayTeam.id && s.punti > 0)
+          .filter(s => s.atleta && s.atleta.squadra_id === awayTeam.id && s.punti > 0)
           .map(s => ({
             id: s.atleta!.id,
             nome: s.atleta!.nome,
@@ -148,11 +148,11 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
         // Calcola i punteggi totali dalla somma dei punti atleti
         const homeTotal = combinedData
-          .filter(s => s.atleta && s.atleta.team_id === homeTeam.id)
+          .filter(s => s.atleta && s.atleta.squadra_id === homeTeam.id)
           .reduce((sum, s) => sum + s.punti, 0)
         
         const awayTotal = combinedData
-          .filter(s => s.atleta && s.atleta.team_id === awayTeam.id)
+          .filter(s => s.atleta && s.atleta.squadra_id === awayTeam.id)
           .reduce((sum, s) => sum + s.punti, 0)
         
         console.log('⚽ SCORES UPDATED:', {
