@@ -307,13 +307,19 @@ export default function Partecipanti() {
               style={{
                 padding: 20,
                 borderRadius: 12,
-                border: '2px solid #e6edf3',
+                border: team.girone === 'A' ? '2px solid #17b3ff' : team.girone === 'B' ? '2px solid #b8160f' : '2px solid #e6edf3',
                 cursor: 'pointer',
                 transition: 'all 0.2s',
-                background: '#ffffff'
+                background: team.girone === 'A' ? 'linear-gradient(135deg, #e0f4ff 0%, #b8e6ff 100%)' : team.girone === 'B' ? 'linear-gradient(135deg, #fde8e7 0%, #fbb8b4 100%)' : '#ffffff'
               }}
-              onMouseEnter={(e) => { e.currentTarget.style.borderColor = '#0f172a'; e.currentTarget.style.boxShadow = '0 4px 12px rgba(15,23,42,0.1)' }}
-              onMouseLeave={(e) => { e.currentTarget.style.borderColor = '#e6edf3'; e.currentTarget.style.boxShadow = 'none' }}
+              onMouseEnter={(e) => { 
+                e.currentTarget.style.borderColor = team.girone === 'A' ? '#17b3ff' : team.girone === 'B' ? '#b8160f' : '#0f172a'; 
+                e.currentTarget.style.boxShadow = team.girone === 'A' ? '0 4px 12px rgba(23,179,255,0.3)' : team.girone === 'B' ? '0 4px 12px rgba(184,22,15,0.3)' : '0 4px 12px rgba(15,23,42,0.1)' 
+              }}
+              onMouseLeave={(e) => { 
+                e.currentTarget.style.borderColor = team.girone === 'A' ? '#17b3ff' : team.girone === 'B' ? '#b8160f' : '#e6edf3'; 
+                e.currentTarget.style.boxShadow = 'none' 
+              }}
             >
               <div style={{ display: 'flex', alignItems: 'center', gap: 12 }}>
                 {team.logo_url ? (

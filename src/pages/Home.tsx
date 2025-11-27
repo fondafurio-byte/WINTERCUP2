@@ -851,7 +851,7 @@ export default function Home() {
         <>
           {/* Girone A */}
           <div style={{ marginBottom: 32 }}>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#667eea' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#17b3ff' }}>
               Girone A
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
@@ -860,8 +860,8 @@ export default function Home() {
                   key={team.id}
                   onClick={() => handleTeamClick(team)}
                   style={{
-                    background: 'white',
-                    border: '2px solid #e2e8f0',
+                    background: 'linear-gradient(135deg, #e0f4ff 0%, #b8e6ff 100%)',
+                    border: '2px solid #17b3ff',
                     borderRadius: 12,
                     padding: 20,
                     cursor: 'pointer',
@@ -870,12 +870,12 @@ export default function Home() {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#667eea'
+                    e.currentTarget.style.borderColor = '#17b3ff'
                     e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(102,126,234,0.2)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(23,179,255,0.3)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0'
+                    e.currentTarget.style.borderColor = '#17b3ff'
                     e.currentTarget.style.transform = 'translateY(0)'
                     e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
                   }}
@@ -895,7 +895,7 @@ export default function Home() {
 
           {/* Girone B */}
           <div>
-            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#f5576c' }}>
+            <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#b8160f' }}>
               Girone B
             </h3>
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
@@ -904,8 +904,8 @@ export default function Home() {
                   key={team.id}
                   onClick={() => handleTeamClick(team)}
                   style={{
-                    background: 'white',
-                    border: '2px solid #e2e8f0',
+                    background: 'linear-gradient(135deg, #fde8e7 0%, #fbb8b4 100%)',
+                    border: '2px solid #b8160f',
                     borderRadius: 12,
                     padding: 20,
                     cursor: 'pointer',
@@ -914,12 +914,12 @@ export default function Home() {
                     boxShadow: '0 1px 3px rgba(0,0,0,0.1)'
                   }}
                   onMouseEnter={(e) => {
-                    e.currentTarget.style.borderColor = '#f5576c'
+                    e.currentTarget.style.borderColor = '#b8160f'
                     e.currentTarget.style.transform = 'translateY(-2px)'
-                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(245,87,108,0.2)'
+                    e.currentTarget.style.boxShadow = '0 4px 12px rgba(184,22,15,0.3)'
                   }}
                   onMouseLeave={(e) => {
-                    e.currentTarget.style.borderColor = '#e2e8f0'
+                    e.currentTarget.style.borderColor = '#b8160f'
                     e.currentTarget.style.transform = 'translateY(0)'
                     e.currentTarget.style.boxShadow = '0 1px 3px rgba(0,0,0,0.1)'
                   }}
@@ -1411,13 +1411,13 @@ export default function Home() {
 
             {/* Girone A */}
             <div style={{ marginBottom: 32 }}>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#667eea' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#17b3ff' }}>
                 Girone A
               </h3>
               <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                   <thead>
-                    <tr style={{ background: '#dbeafe', borderBottom: '2px solid #93c5fd' }}>
+                    <tr style={{ background: '#e0f4ff', borderBottom: '2px solid #17b3ff' }}>
                       <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pos</th>
                       <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Squadra</th>
                       <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pt</th>
@@ -1429,7 +1429,7 @@ export default function Home() {
                     {standingsA.map((team, idx) => {
                       const diff = team.pts_for - team.pts_against
                       return (
-                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#eff6ff' : '#fff' }}>
+                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#e0f4ff' : '#fff' }}>
                           <td style={{ padding: '6px 4px', fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>{idx + 1}</td>
                           <td style={{ padding: '6px 4px', fontWeight: 600 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
@@ -1457,13 +1457,13 @@ export default function Home() {
 
             {/* Girone B */}
             <div>
-              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#f5576c' }}>
+              <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 12, color: '#b8160f' }}>
                 Girone B
               </h3>
               <div style={{ overflowX: 'auto', WebkitOverflowScrolling: 'touch' }}>
                 <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.75rem' }}>
                   <thead>
-                    <tr style={{ background: '#fce7f3', borderBottom: '2px solid #f9a8d4' }}>
+                    <tr style={{ background: '#fde8e7', borderBottom: '2px solid #b8160f' }}>
                       <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pos</th>
                       <th style={{ padding: '6px 4px', textAlign: 'left', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Squadra</th>
                       <th style={{ padding: '6px 4px', textAlign: 'center', fontWeight: 700, whiteSpace: 'nowrap', fontSize: '0.7rem' }}>Pt</th>
@@ -1475,7 +1475,7 @@ export default function Home() {
                     {standingsB.map((team, idx) => {
                       const diff = team.pts_for - team.pts_against
                       return (
-                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#fdf2f8' : '#fff' }}>
+                        <tr key={team.id} style={{ borderBottom: '1px solid #e2e8f0', background: idx === 0 ? '#fde8e7' : '#fff' }}>
                           <td style={{ padding: '6px 4px', fontWeight: 700, color: '#64748b', fontSize: '0.75rem' }}>{idx + 1}</td>
                           <td style={{ padding: '6px 4px', fontWeight: 600 }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
