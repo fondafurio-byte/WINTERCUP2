@@ -25,8 +25,11 @@ export default function InstallPWABanner() {
       const now = new Date()
       const daysSinceDismissed = (now.getTime() - dismissedDate.getTime()) / (1000 * 60 * 60 * 24)
       
-      // Show again after 7 days
-      if (daysSinceDismissed < 7) {
+      console.log('PWA Banner - Days since dismissed:', daysSinceDismissed)
+      
+      // Show again after 1 day
+      if (daysSinceDismissed < 1) {
+        console.log('PWA Banner - Dismissed recently, not showing')
         return
       }
     }
@@ -43,11 +46,16 @@ export default function InstallPWABanner() {
       detected = 'desktop'
     }
 
+    console.log('PWA Banner - Detected device:', detected, 'UserAgent:', userAgent)
+
     setDeviceType(detected)
     
     // Only show banner if we detected a known device type
     if (detected !== 'unknown') {
+      console.log('PWA Banner - Showing banner')
       setShowBanner(true)
+    } else {
+      console.log('PWA Banner - Unknown device, not showing')
     }
 
     // Listen for beforeinstallprompt event (Android/Desktop Chrome)
