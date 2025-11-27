@@ -1744,7 +1744,7 @@ export default function Gironi(){
                                 Registrati
                               </button>
                             )}
-                            {(isAdmin || (isRilevatore && rilevatore)) && (
+                            {(isAdmin || (isRilevatore && rilevatore)) && ((m as any).home_score == null || (m as any).away_score == null) && (
                               <button 
                                 title={isRilevatore && !rilevatore ? "Registrati prima alla partita per abilitare la rilevazione live" : "Rilevazione live punti"}
                                 onClick={() => {
