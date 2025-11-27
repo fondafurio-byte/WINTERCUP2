@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus } from 'lucide-react'
+import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import VoteDialog from '../components/VoteDialog'
+import Compressor from 'compressorjs'
 
 type Team = { id: string; name: string; girone?: string; logo_url?: string | null }
 type MatchRow = { id?: string; home_team_id: string; away_team_id: string; campo?: string; orario?: string; girone: string; home_score?: number | null; away_score?: number | null }
@@ -75,6 +76,10 @@ export default function Gironi(){
   const [viewStatsHomeTeam, setViewStatsHomeTeam] = useState<Team | null>(null)
   const [viewStatsAwayTeam, setViewStatsAwayTeam] = useState<Team | null>(null)
   const [loadingViewStats, setLoadingViewStats] = useState(false)
+
+  // Document upload state
+  const [uploadingDoc, setUploadingDoc] = useState(false)
+  const [uploadDocMatchId, setUploadDocMatchId] = useState<string | null>(null)
 
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
@@ -623,6 +628,106 @@ export default function Gironi(){
       setRilevatori((data as any) ?? [])
     } catch (err) {
       console.debug('load rilevatori error', err)
+    }
+  }
+
+  async function handleDocumentUpload(matchId: string, file: File) {
+    setUploadingDoc(true)
+    setUploadDocMatchId(matchId)
+
+    try {
+      // Get current user and rilevatore id
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        alert('Utente non autenticato')
+        setUploadingDoc(false)
+        return
+      }
+
+      const { data: rilevData } = await supabase
+        .from('rilevatori')
+        .select('id')
+        .eq('user_id', user.id)
+        .maybeSingle()
+
+      // Compress file if it's an image
+      const processFile = (fileToUpload: File): Promise<File> => {
+        return new Promise((resolve, reject) => {
+          if (fileToUpload.type.startsWith('image/')) {
+            new Compressor(fileToUpload, {
+              quality: 0.8,
+              maxWidth: 2000,
+              maxHeight: 2000,
+              success(result) {
+                resolve(result as File)
+              },
+              error(err) {
+                reject(err)
+              }
+            })
+          } else {
+            resolve(fileToUpload)
+          }
+        })
+      }
+
+      const processedFile = await processFile(file)
+      const fileName = `${matchId}-${Date.now()}.${processedFile.name.split('.').pop()}`
+
+      // Upload to Supabase Storage
+      const { data: uploadData, error: uploadError } = await supabase.storage
+        .from('partite-documenti')
+        .upload(fileName, processedFile, {
+          contentType: processedFile.type,
+          upsert: false
+        })
+
+      if (uploadError) {
+        alert('Errore caricamento: ' + uploadError.message)
+        setUploadingDoc(false)
+        return
+      }
+
+      // Get public URL
+      const { data: urlData } = supabase.storage
+        .from('partite-documenti')
+        .getPublicUrl(fileName)
+
+      // Update partite table
+      const { error: updateError } = await supabase
+        .from('partite')
+        .update({
+          documento_url: urlData.publicUrl,
+          documento_nome: file.name,
+          documento_tipo: file.type,
+          documento_caricato_da: rilevData?.id || null,
+          documento_caricato_il: new Date().toISOString()
+        })
+        .eq('id', matchId)
+
+      if (updateError) {
+        alert('Errore aggiornamento database: ' + updateError.message)
+        setUploadingDoc(false)
+        return
+      }
+
+      // Reload matches
+      const { data: matches } = await supabase
+        .from('partite')
+        .select('*')
+        .eq('girone', girone)
+        .order('orario', { ascending: true })
+
+      if (matches) setMatches(matches as any)
+      
+      setUploadingDoc(false)
+      setUploadDocMatchId(null)
+      alert('Documento caricato con successo!')
+    } catch (err) {
+      console.debug('upload error', err)
+      alert('Errore durante il caricamento')
+      setUploadingDoc(false)
+      setUploadDocMatchId(null)
     }
   }
 
@@ -1652,6 +1757,51 @@ export default function Gironi(){
                                 <Zap size={18} fill="#10b981" />
                               </button>
                             )}
+                            {(isAdmin || isRilevatore) && (m as any).home_score != null && (m as any).away_score != null && (
+                              <div style={{position:'relative'}}>
+                                <input
+                                  type="file"
+                                  accept="image/*,application/pdf"
+                                  capture="environment"
+                                  onChange={(e) => {
+                                    const file = e.target.files?.[0]
+                                    if (file) {
+                                      handleDocumentUpload((m as any).id, file)
+                                    }
+                                    e.target.value = ''
+                                  }}
+                                  style={{
+                                    position:'absolute',
+                                    opacity:0,
+                                    width:0,
+                                    height:0,
+                                    pointerEvents:'none'
+                                  }}
+                                  id={`upload-doc-${(m as any).id}`}
+                                  disabled={uploadingDoc && uploadDocMatchId === (m as any).id}
+                                />
+                                <label
+                                  htmlFor={`upload-doc-${(m as any).id}`}
+                                  title="Carica documento partita"
+                                  style={{
+                                    background: uploadingDoc && uploadDocMatchId === (m as any).id ? '#94a3b8' : '#8b5cf6',
+                                    border:0,
+                                    borderRadius:4,
+                                    cursor: uploadingDoc && uploadDocMatchId === (m as any).id ? 'wait' : 'pointer',
+                                    color:'white',
+                                    padding:'6px 12px',
+                                    fontSize:13,
+                                    fontWeight:600,
+                                    display:'flex',
+                                    alignItems:'center',
+                                    gap:4
+                                  }}
+                                >
+                                  <Upload size={14} />
+                                  {uploadingDoc && uploadDocMatchId === (m as any).id ? 'Caricamento...' : 'Documento'}
+                                </label>
+                              </div>
+                            )}
                             {isAdmin && (
                               <>
                                 <button title="Modifica partita" onClick={() => {
@@ -1708,6 +1858,20 @@ export default function Gironi(){
                               <span style={{fontWeight:600}}>
                                 {rilevatore.nome} {rilevatore.cognome}
                               </span>
+                            </div>
+                          )}
+
+                          {(m as any).documento_url && (isAdmin || isRilevatore || isTeamUser) && (
+                            <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
+                              <FileText size={14} />
+                              <a 
+                                href={(m as any).documento_url} 
+                                target="_blank" 
+                                rel="noopener noreferrer" 
+                                style={{color:'#3b82f6',textDecoration:'none',fontWeight:600}}
+                              >
+                                Visualizza documento
+                              </a>
                             </div>
                           )}
                         </div>
