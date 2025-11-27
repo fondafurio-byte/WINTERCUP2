@@ -336,8 +336,14 @@ export default function TeamLoginDialog({ open: controlledOpen, onOpenChange }: 
                   border: '1px solid #bae6fd',
                   borderRadius: 6
                 }}>
-                  <div style={{ fontSize: '0.8rem', color: '#0c4a6e', lineHeight: 1.5 }}>
-                    <strong>👤 Utente registrato:</strong> Vota gli MVP delle partite e visualizza statistiche complete.
+                  <div style={{ fontSize: '0.8rem', color: '#0c4a6e', lineHeight: 1.6 }}>
+                    <strong>👤 Utente registrato - Accedi alle funzioni:</strong>
+                    <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
+                      <li>🔴 <strong>Visualizza partite LIVE</strong> in tempo reale con punteggi e top scorers</li>
+                      <li>🏆 <strong>Vota gli MVP</strong> delle partite completate</li>
+                      <li>📊 <strong>Consulta tabellini completi</strong> con statistiche dettagliate</li>
+                      <li>📄 <strong>Scarica i referti</strong> ufficiali delle partite</li>
+                    </ul>
                   </div>
                 </div>
               </form>
