@@ -15,6 +15,7 @@ export default function Gironi(){
 
   const [isAdmin, setIsAdmin] = useState(false)
   const [isRilevatore, setIsRilevatore] = useState(false)
+  const [currentRilevatoreId, setCurrentRilevatoreId] = useState<string | null>(null)
   const [isTeamUser, setIsTeamUser] = useState(false)
   const [isActualTeamUser, setIsActualTeamUser] = useState(false) // Solo squadre, non public_users
   const [teams, setTeams] = useState<Team[]>([])
@@ -208,6 +209,7 @@ export default function Gironi(){
           if (mounted) {
             setIsAdmin(false)
             setIsRilevatore(false)
+            setCurrentRilevatoreId(null)
             setIsTeamUser(false)
           }
           return 
@@ -226,7 +228,15 @@ export default function Gironi(){
         // Check rilevatore
         const { data: rilevData, error: rilevError} = await supabase.from('rilevatori').select('*').or(`user_id.eq.${user.id},id.eq.${user.id}`).limit(1)
         if (rilevError) { console.debug('rilevatore check error', rilevError.message) }
-        if (mounted) setIsRilevatore(Boolean(rilevData && (rilevData as any).length > 0))
+        if (mounted) {
+          const isRilev = Boolean(rilevData && (rilevData as any).length > 0)
+          setIsRilevatore(isRilev)
+          if (isRilev && rilevData && rilevData.length > 0) {
+            setCurrentRilevatoreId(rilevData[0].id)
+          } else {
+            setCurrentRilevatoreId(null)
+          }
+        }
         
         // Check team user OR public user (anyone who can vote)
         const { data: teamUserData } = await supabase.from('users').select('*').eq('user_id', user.id).limit(1)
@@ -251,6 +261,7 @@ export default function Gironi(){
         if (mounted) {
           setIsAdmin(false)
           setIsRilevatore(false)
+          setCurrentRilevatoreId(null)
           setIsTeamUser(false)
           setIsActualTeamUser(false)
         }
@@ -281,6 +292,7 @@ export default function Gironi(){
     }catch(err){ console.debug('signout err', err) }
     setIsAdmin(false)
     setIsRilevatore(false)
+    setCurrentRilevatoreId(null)
     setIsTeamUser(false)
   }
 
@@ -1822,7 +1834,7 @@ export default function Gironi(){
                                 </button>
                               </>
                             )}
-                            {isRilevatore && !rilevatore && ((m as any).home_score == null || (m as any).away_score == null) && (
+                            {isRilevatore && !(m as any).rilevatore_id && ((m as any).home_score == null || (m as any).away_score == null) && (
                               <button 
                                 title="Registrati a questa partita" 
                                 onClick={async () => {
@@ -1886,9 +1898,9 @@ export default function Gironi(){
                                 Registrati
                               </button>
                             )}
-                            {(isAdmin || (isRilevatore && rilevatore)) && ((m as any).home_score == null || (m as any).away_score == null) && (
+                            {(isAdmin || (isRilevatore && currentRilevatoreId && (m as any).rilevatore_id === currentRilevatoreId)) && ((m as any).home_score == null || (m as any).away_score == null) && (
                               <button 
-                                title={isRilevatore && !rilevatore ? "Registrati prima alla partita per abilitare la rilevazione live" : "Rilevazione live punti"}
+                                title="Rilevazione live punti"
                                 onClick={async () => {
                                   setLiveMatchId((m as any).id)
                                   loadAtletiForLiveScoring((m as any).id)

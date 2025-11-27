@@ -34,6 +34,7 @@ type FinalMatch = {
   campo?: string | null
   orario?: string | null
   is_live?: boolean
+  rilevatore_id?: string | null
 }
 
 export default function Finali(){
@@ -49,6 +50,7 @@ export default function Finali(){
   const [isTeamUser, setIsTeamUser] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
   const [isRilevatore, setIsRilevatore] = useState(false)
+  const [currentRilevatoreId, setCurrentRilevatoreId] = useState<string | null>(null)
   const [teamsMap, setTeamsMap] = useState<Record<string, Team>>({})
 
   // Live scoring modal state
@@ -100,6 +102,7 @@ export default function Finali(){
         setIsTeamUser(false)
         setIsAdmin(false)
         setIsRilevatore(false)
+        setCurrentRilevatoreId(null)
         return
       }
 
@@ -121,7 +124,12 @@ export default function Finali(){
         .limit(1)
       const isRilevUser = Boolean(rilevData && rilevData.length > 0)
       setIsRilevatore(isRilevUser)
-      console.log('Finali - isRilevatore:', isRilevUser)
+      if (isRilevUser && rilevData && rilevData.length > 0) {
+        setCurrentRilevatoreId(rilevData[0].id)
+      } else {
+        setCurrentRilevatoreId(null)
+      }
+      console.log('Finali - isRilevatore:', isRilevUser, 'rilevatoreId:', rilevData && rilevData.length > 0 ? rilevData[0].id : null)
 
       // Controlla se l'utente è un utente di squadra o pubblico
       const { data: teamUserData } = await supabase
@@ -146,6 +154,7 @@ export default function Finali(){
       setIsTeamUser(false)
       setIsAdmin(false)
       setIsRilevatore(false)
+      setCurrentRilevatoreId(null)
     }
   }
 
@@ -786,12 +795,14 @@ export default function Finali(){
                           Vota MVP
                         </button>
                       )}
-                      {(isAdmin || isRilevatore) && (
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '1-2')
+                        const canEditMatch = isAdmin || (isRilevatore && currentRilevatoreId && match?.rilevatore_id === currentRilevatoreId)
+                        return canEditMatch && (
                         <>
                           <button
                             title="Rilevazione live"
                             onClick={async () => {
-                              const match = finalMatches.find(m => m.finalType === '1-2')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
@@ -852,7 +863,8 @@ export default function Finali(){
                             </>
                           )}
                         </>
-                      )}
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -990,12 +1002,14 @@ export default function Finali(){
                           Vota MVP
                         </button>
                       )}
-                      {(isAdmin || isRilevatore) && (
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '3-4')
+                        const canEditMatch = isAdmin || (isRilevatore && currentRilevatoreId && match?.rilevatore_id === currentRilevatoreId)
+                        return canEditMatch && (
                         <>
                           <button
                             title="Rilevazione live"
                             onClick={async () => {
-                              const match = finalMatches.find(m => m.finalType === '3-4')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
@@ -1056,7 +1070,8 @@ export default function Finali(){
                             </>
                           )}
                         </>
-                      )}
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -1194,12 +1209,14 @@ export default function Finali(){
                           Vota MVP
                         </button>
                       )}
-                      {(isAdmin || isRilevatore) && (
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '5-6')
+                        const canEditMatch = isAdmin || (isRilevatore && currentRilevatoreId && match?.rilevatore_id === currentRilevatoreId)
+                        return canEditMatch && (
                         <>
                           <button
                             title="Rilevazione live"
                             onClick={async () => {
-                              const match = finalMatches.find(m => m.finalType === '5-6')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
@@ -1260,7 +1277,8 @@ export default function Finali(){
                             </>
                           )}
                         </>
-                      )}
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -1398,12 +1416,14 @@ export default function Finali(){
                           Vota MVP
                         </button>
                       )}
-                      {(isAdmin || isRilevatore) && (
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '7-8')
+                        const canEditMatch = isAdmin || (isRilevatore && currentRilevatoreId && match?.rilevatore_id === currentRilevatoreId)
+                        return canEditMatch && (
                         <>
                           <button
                             title="Rilevazione live"
                             onClick={async () => {
-                              const match = finalMatches.find(m => m.finalType === '7-8')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
@@ -1464,7 +1484,8 @@ export default function Finali(){
                             </>
                           )}
                         </>
-                      )}
+                        )
+                      })()}
                     </>
                   )}
                 </div>
