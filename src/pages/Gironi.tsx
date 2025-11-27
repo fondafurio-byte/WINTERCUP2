@@ -913,9 +913,9 @@ export default function Gironi(){
                     alignItems:'center',
                     gap:12,
                     padding:12,
-                    border:'1px solid #e2e8f0',
+                    border: girone === 'A' ? '2px solid #17b3ff' : '2px solid #b8160f',
                     borderRadius:8,
-                    background:'#fff'
+                    background: girone === 'A' ? 'linear-gradient(135deg, #e0f4ff 0%, #b8e6ff 100%)' : 'linear-gradient(135deg, #fde8e7 0%, #fbb8b4 100%)'
                   }}
                 >
                   <div style={{
@@ -926,18 +926,18 @@ export default function Gironi(){
                     justifyContent:'center'
                   }}>
                     {team.logo_url ? (
-                      <img src={team.logo_url} alt={team.name} style={{width:40,height:40,objectFit:'contain'}} />
+                      <img src={team.logo_url} alt={team.name} style={{width:40,height:40,objectFit:'contain',background:'white',borderRadius:6,padding:4}} />
                     ) : (
                       <div style={{
                         width:40,
                         height:40,
                         borderRadius:'50%',
-                        background:'#eef2ff',
+                        background:'white',
                         display:'flex',
                         alignItems:'center',
                         justifyContent:'center',
                         fontWeight:700,
-                        color:'#0f172a'
+                        color: girone === 'A' ? '#17b3ff' : '#b8160f'
                       }}>
                         {idx + 1}
                       </div>
