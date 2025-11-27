@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
-import { Trophy, Zap, Edit2, Trash2, MapPin, Calendar, Clock } from 'lucide-react'
+import { Trophy, Zap, Edit2, Trash2, MapPin, Calendar, Clock, Radio } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 
 const LazyFinalVoteDialog = React.lazy(() => import('../components/FinalVoteDialog'))
@@ -734,29 +734,59 @@ export default function Finali(){
                   {finalMatches.find(m => m.finalType === '1-2') && (
                     <>
                       {isTeamUser && (
-                        <button
-                          title="Vota MVP"
-                          onClick={() => {
-                            const match = finalMatches.find(m => m.finalType === '1-2')
-                            if (match) openVoteDialog(match)
-                          }}
-                          style={{
-                            background:'#f59e0b',
-                            border:0,
-                            borderRadius:4,
-                            cursor:'pointer',
-                            color:'white',
-                            padding:'6px 12px',
-                            fontSize:13,
-                            fontWeight:600,
-                            display:'flex',
-                            alignItems:'center',
-                            gap:4
-                          }}
-                        >
-                          <Trophy size={14} />
-                          Vota MVP
-                        </button>
+                        <>
+                          <button
+                            title="Guarda Live"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '1-2')
+                              if (match) {
+                                setLiveViewMatchId(match.id)
+                                setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
+                                setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
+                                setLiveViewOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#8b5cf6',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Radio size={14} />
+                            Guarda
+                          </button>
+                          <button
+                            title="Vota MVP"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '1-2')
+                              if (match) openVoteDialog(match)
+                            }}
+                            style={{
+                              background:'#f59e0b',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Trophy size={14} />
+                            Vota MVP
+                          </button>
+                        </>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -911,29 +941,59 @@ export default function Finali(){
                   {finalMatches.find(m => m.finalType === '3-4') && (
                     <>
                       {isTeamUser && (
-                        <button
-                          title="Vota MVP"
-                          onClick={() => {
-                            const match = finalMatches.find(m => m.finalType === '3-4')
-                            if (match) openVoteDialog(match)
-                          }}
-                          style={{
-                            background:'#f59e0b',
-                            border:0,
-                            borderRadius:4,
-                            cursor:'pointer',
-                            color:'white',
-                            padding:'6px 12px',
-                            fontSize:13,
-                            fontWeight:600,
-                            display:'flex',
-                            alignItems:'center',
-                            gap:4
-                          }}
-                        >
-                          <Trophy size={14} />
-                          Vota MVP
-                        </button>
+                        <>
+                          <button
+                            title="Guarda Live"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '3-4')
+                              if (match) {
+                                setLiveViewMatchId(match.id)
+                                setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
+                                setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
+                                setLiveViewOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#8b5cf6',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Radio size={14} />
+                            Guarda
+                          </button>
+                          <button
+                            title="Vota MVP"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '3-4')
+                              if (match) openVoteDialog(match)
+                            }}
+                            style={{
+                              background:'#f59e0b',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Trophy size={14} />
+                            Vota MVP
+                          </button>
+                        </>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -1088,29 +1148,59 @@ export default function Finali(){
                   {finalMatches.find(m => m.finalType === '5-6') && (
                     <>
                       {isTeamUser && (
-                        <button
-                          title="Vota MVP"
-                          onClick={() => {
-                            const match = finalMatches.find(m => m.finalType === '5-6')
-                            if (match) openVoteDialog(match)
-                          }}
-                          style={{
-                            background:'#f59e0b',
-                            border:0,
-                            borderRadius:4,
-                            cursor:'pointer',
-                            color:'white',
-                            padding:'6px 12px',
-                            fontSize:13,
-                            fontWeight:600,
-                            display:'flex',
-                            alignItems:'center',
-                            gap:4
-                          }}
-                        >
-                          <Trophy size={14} />
-                          Vota MVP
-                        </button>
+                        <>
+                          <button
+                            title="Guarda Live"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '5-6')
+                              if (match) {
+                                setLiveViewMatchId(match.id)
+                                setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
+                                setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
+                                setLiveViewOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#8b5cf6',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Radio size={14} />
+                            Guarda
+                          </button>
+                          <button
+                            title="Vota MVP"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '5-6')
+                              if (match) openVoteDialog(match)
+                            }}
+                            style={{
+                              background:'#f59e0b',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Trophy size={14} />
+                            Vota MVP
+                          </button>
+                        </>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -1265,29 +1355,59 @@ export default function Finali(){
                   {finalMatches.find(m => m.finalType === '7-8') && (
                     <>
                       {isTeamUser && (
-                        <button
-                          title="Vota MVP"
-                          onClick={() => {
-                            const match = finalMatches.find(m => m.finalType === '7-8')
-                            if (match) openVoteDialog(match)
-                          }}
-                          style={{
-                            background:'#f59e0b',
-                            border:0,
-                            borderRadius:4,
-                            cursor:'pointer',
-                            color:'white',
-                            padding:'6px 12px',
-                            fontSize:13,
-                            fontWeight:600,
-                            display:'flex',
-                            alignItems:'center',
-                            gap:4
-                          }}
-                        >
-                          <Trophy size={14} />
-                          Vota MVP
-                        </button>
+                        <>
+                          <button
+                            title="Guarda Live"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '7-8')
+                              if (match) {
+                                setLiveViewMatchId(match.id)
+                                setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
+                                setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
+                                setLiveViewOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#8b5cf6',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Radio size={14} />
+                            Guarda
+                          </button>
+                          <button
+                            title="Vota MVP"
+                            onClick={() => {
+                              const match = finalMatches.find(m => m.finalType === '7-8')
+                              if (match) openVoteDialog(match)
+                            }}
+                            style={{
+                              background:'#f59e0b',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <Trophy size={14} />
+                            Vota MVP
+                          </button>
+                        </>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>

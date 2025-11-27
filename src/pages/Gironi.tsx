@@ -1757,6 +1757,35 @@ export default function Gironi(){
                               </button>
                             )}
                             
+                            {/* Pulsante Guarda Live - visibile a tutti quando c'è un punteggio */}
+                            {isTeamUser && !((m as any).is_live) && ((m as any).home_score != null || (m as any).away_score != null) && (
+                              <button
+                                title="Guarda Live"
+                                onClick={() => {
+                                  setLiveViewMatchId((m as any).id)
+                                  setLiveViewHomeTeam(homeTeam || null)
+                                  setLiveViewAwayTeam(awayTeam || null)
+                                  setLiveViewOpen(true)
+                                }}
+                                style={{
+                                  background:'#8b5cf6',
+                                  border:0,
+                                  borderRadius:4,
+                                  cursor:'pointer',
+                                  color:'white',
+                                  padding:'6px 12px',
+                                  fontSize:13,
+                                  fontWeight:600,
+                                  display:'flex',
+                                  alignItems:'center',
+                                  gap:4
+                                }}
+                              >
+                                <Radio size={14} />
+                                Guarda
+                              </button>
+                            )}
+                            
                             {isTeamUser && (m as any).home_score != null && (m as any).away_score != null && (
                               <>
                                 <button 
