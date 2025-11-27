@@ -349,12 +349,55 @@ export default function Partecipanti() {
       {/* Team detail view */}
       {selectedTeam && (
         <div>
+          {/* Team Header with Logo */}
+          <div style={{ 
+            display: 'flex', 
+            alignItems: 'center', 
+            gap: 16, 
+            marginBottom: 24,
+            padding: 20,
+            background: selectedTeam.girone === 'A' ? 'linear-gradient(135deg, #e0f4ff 0%, #b8e6ff 100%)' : selectedTeam.girone === 'B' ? 'linear-gradient(135deg, #fde8e7 0%, #fbb8b4 100%)' : '#f8fafc',
+            borderRadius: 12,
+            border: selectedTeam.girone === 'A' ? '2px solid #17b3ff' : selectedTeam.girone === 'B' ? '2px solid #b8160f' : '2px solid #e2e8f0'
+          }}>
+            {selectedTeam.logo_url ? (
+              <img 
+                src={selectedTeam.logo_url} 
+                alt={`${selectedTeam.name} logo`}
+                style={{ 
+                  width: 80, 
+                  height: 80, 
+                  objectFit: 'contain', 
+                  background: 'white',
+                  borderRadius: 12,
+                  padding: 8,
+                  flexShrink: 0
+                }}
+              />
+            ) : (
+              <div style={{
+                width: 80,
+                height: 80,
+                background: 'white',
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Users size={40} color="#64748b" />
+              </div>
+            )}
+            <div style={{ flex: 1 }}>
+              <h2 style={{ margin: 0, marginBottom: 8, fontSize: '1.75rem' }}>{selectedTeam.name}</h2>
+              <span style={{ color: '#64748b', fontSize: '1rem', fontWeight: 600 }}>Girone {selectedTeam.girone || 'Non assegnato'}</span>
+            </div>
+          </div>
+
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
             <button className="btn secondary" onClick={() => setSelectedTeam(null)}>
               <X size={16} /> Indietro
             </button>
-            <h2 style={{ margin: 0 }}>{selectedTeam.name}</h2>
-            <span style={{ color: '#64748b' }}>Girone {selectedTeam.girone || 'Non assegnato'}</span>
             {isAdmin && (
               <>
                 <button 
