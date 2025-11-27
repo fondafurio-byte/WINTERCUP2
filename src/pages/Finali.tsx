@@ -762,30 +762,29 @@ export default function Finali(){
                         )
                       })()}
                       {isTeamUser && (
-                          <button
-                            title="Vota MVP"
-                            onClick={() => {
-                              const match = finalMatches.find(m => m.finalType === '1-2')
-                              if (match) openVoteDialog(match)
-                            }}
-                            style={{
-                              background:'#f59e0b',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'6px 12px',
-                              fontSize:13,
-                              fontWeight:600,
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                          >
-                            <Trophy size={14} />
-                            Vota MVP
-                          </button>
-                        </>
+                        <button
+                          title="Vota MVP"
+                          onClick={() => {
+                            const match = finalMatches.find(m => m.finalType === '1-2')
+                            if (match) openVoteDialog(match)
+                          }}
+                          style={{
+                            background:'#f59e0b',
+                            border:0,
+                            borderRadius:4,
+                            cursor:'pointer',
+                            color:'white',
+                            padding:'6px 12px',
+                            fontSize:13,
+                            fontWeight:600,
+                            display:'flex',
+                            alignItems:'center',
+                            gap:4
+                          }}
+                        >
+                          <Trophy size={14} />
+                          Vota MVP
+                        </button>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -967,30 +966,29 @@ export default function Finali(){
                         )
                       })()}
                       {isTeamUser && (
-                          <button
-                            title="Vota MVP"
-                            onClick={() => {
-                              const match = finalMatches.find(m => m.finalType === '3-4')
-                              if (match) openVoteDialog(match)
-                            }}
-                            style={{
-                              background:'#f59e0b',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'6px 12px',
-                              fontSize:13,
-                              fontWeight:600,
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                          >
-                            <Trophy size={14} />
-                            Vota MVP
-                          </button>
-                        </>
+                        <button
+                          title="Vota MVP"
+                          onClick={() => {
+                            const match = finalMatches.find(m => m.finalType === '3-4')
+                            if (match) openVoteDialog(match)
+                          }}
+                          style={{
+                            background:'#f59e0b',
+                            border:0,
+                            borderRadius:4,
+                            cursor:'pointer',
+                            color:'white',
+                            padding:'6px 12px',
+                            fontSize:13,
+                            fontWeight:600,
+                            display:'flex',
+                            alignItems:'center',
+                            gap:4
+                          }}
+                        >
+                          <Trophy size={14} />
+                          Vota MVP
+                        </button>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -1172,30 +1170,29 @@ export default function Finali(){
                         )
                       })()}
                       {isTeamUser && (
-                          <button
-                            title="Vota MVP"
-                            onClick={() => {
-                              const match = finalMatches.find(m => m.finalType === '5-6')
-                              if (match) openVoteDialog(match)
-                            }}
-                            style={{
-                              background:'#f59e0b',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'6px 12px',
-                              fontSize:13,
-                              fontWeight:600,
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                          >
-                            <Trophy size={14} />
-                            Vota MVP
-                          </button>
-                        </>
+                        <button
+                          title="Vota MVP"
+                          onClick={() => {
+                            const match = finalMatches.find(m => m.finalType === '5-6')
+                            if (match) openVoteDialog(match)
+                          }}
+                          style={{
+                            background:'#f59e0b',
+                            border:0,
+                            borderRadius:4,
+                            cursor:'pointer',
+                            color:'white',
+                            padding:'6px 12px',
+                            fontSize:13,
+                            fontWeight:600,
+                            display:'flex',
+                            alignItems:'center',
+                            gap:4
+                          }}
+                        >
+                          <Trophy size={14} />
+                          Vota MVP
+                        </button>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
@@ -1377,30 +1374,29 @@ export default function Finali(){
                         )
                       })()}
                       {isTeamUser && (
-                          <button
-                            title="Vota MVP"
-                            onClick={() => {
-                              const match = finalMatches.find(m => m.finalType === '7-8')
-                              if (match) openVoteDialog(match)
-                            }}
-                            style={{
-                              background:'#f59e0b',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'6px 12px',
-                              fontSize:13,
-                              fontWeight:600,
-                              display:'flex',
-                              alignItems:'center',
-                              gap:4
-                            }}
-                          >
-                            <Trophy size={14} />
-                            Vota MVP
-                          </button>
-                        </>
+                        <button
+                          title="Vota MVP"
+                          onClick={() => {
+                            const match = finalMatches.find(m => m.finalType === '7-8')
+                            if (match) openVoteDialog(match)
+                          }}
+                          style={{
+                            background:'#f59e0b',
+                            border:0,
+                            borderRadius:4,
+                            cursor:'pointer',
+                            color:'white',
+                            padding:'6px 12px',
+                            fontSize:13,
+                            fontWeight:600,
+                            display:'flex',
+                            alignItems:'center',
+                            gap:4
+                          }}
+                        >
+                          <Trophy size={14} />
+                          Vota MVP
+                        </button>
                       )}
                       {(isAdmin || isRilevatore) && (
                         <>
