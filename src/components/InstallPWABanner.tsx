@@ -230,7 +230,7 @@ export default function InstallPWABanner() {
       bottom: 0,
       left: 0,
       right: 0,
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: 'linear-gradient(135deg, #17b3ff 0%, #0891d1 100%)',
       color: 'white',
       padding: '16px 20px',
       boxShadow: '0 -4px 12px rgba(0,0,0,0.15)',
