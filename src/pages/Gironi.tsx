@@ -16,6 +16,7 @@ export default function Gironi(){
   const [isAdmin, setIsAdmin] = useState(false)
   const [isRilevatore, setIsRilevatore] = useState(false)
   const [isTeamUser, setIsTeamUser] = useState(false)
+  const [isActualTeamUser, setIsActualTeamUser] = useState(false) // Solo squadre, non public_users
   const [teams, setTeams] = useState<Team[]>([])
   const [matches, setMatches] = useState<MatchRow[]>([])
 
@@ -231,25 +232,27 @@ export default function Gironi(){
         const { data: teamUserData } = await supabase.from('users').select('*').eq('user_id', user.id).limit(1)
         const { data: publicUserData } = await supabase.from('public_users').select('*').eq('user_id', user.id).limit(1)
         
-        const isVoter = Boolean(
-          (teamUserData && (teamUserData as any).length > 0) || 
-          (publicUserData && (publicUserData as any).length > 0)
-        )
+        const isActualTeam = Boolean(teamUserData && (teamUserData as any).length > 0)
+        const isVoter = Boolean(isActualTeam || (publicUserData && (publicUserData as any).length > 0))
         
         console.log('User voting rights check:', { 
           user_id: user.id, 
-          isTeamUser: !!(teamUserData && (teamUserData as any).length > 0),
+          isTeamUser: isActualTeam,
           isPublicUser: !!(publicUserData && (publicUserData as any).length > 0),
           canVote: isVoter
         })
         
-        if (mounted) setIsTeamUser(isVoter)
+        if (mounted) {
+          setIsTeamUser(isVoter)
+          setIsActualTeamUser(isActualTeam)
+        }
       }catch(err){ 
         console.debug(err)
         if (mounted) {
           setIsAdmin(false)
           setIsRilevatore(false)
           setIsTeamUser(false)
+          setIsActualTeamUser(false)
         }
       }
     }
@@ -1964,7 +1967,7 @@ export default function Gironi(){
                             </div>
                           )}
 
-                          {(m as any).documento_url && existingDocs.has((m as any).documento_url) && (isAdmin || isRilevatore || isTeamUser) && (
+                          {(m as any).documento_url && existingDocs.has((m as any).documento_url) && (isAdmin || isRilevatore || isActualTeamUser) && (
                             <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
                               <FileText size={14} />
                               <button 
