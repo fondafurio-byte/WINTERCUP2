@@ -787,7 +787,7 @@ export default function Home() {
         <button
           onClick={() => setInfoModalOpen(true)}
           style={{
-            background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+            background: 'linear-gradient(135deg, #17b3ff 0%, #0891d1 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
