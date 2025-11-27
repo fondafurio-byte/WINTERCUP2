@@ -1746,7 +1746,7 @@ export default function Gironi(){
                                 </button>
                               </>
                             )}
-                            {isRilevatore && !rilevatore && (
+                            {isRilevatore && !rilevatore && ((m as any).home_score == null || (m as any).away_score == null) && (
                               <button 
                                 title="Registrati a questa partita" 
                                 onClick={async () => {
