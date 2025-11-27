@@ -57,7 +57,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
       // Carica tutte le statistiche atleti della partita
       const { data: allStats, error: statsError } = await supabase
-        .from('partite_atleti_punti')
+        .from('punti_atleti')
         .select(`
           punti,
           atleta_id,
