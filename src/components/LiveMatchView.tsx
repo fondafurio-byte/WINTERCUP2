@@ -30,25 +30,25 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
   const [isLive, setIsLive] = useState(false)
 
   useEffect(() => {
-    console.debug('LiveMatchView useEffect - matchId:', matchId, 'homeTeam:', homeTeam.id, 'awayTeam:', awayTeam.id)
+    console.log('🔴 LiveMatchView MOUNTED - matchId:', matchId, 'homeTeam:', homeTeam.name, 'awayTeam:', awayTeam.name)
     
     // Carica dati iniziali
     loadMatchData()
 
     // Poll ogni 2 secondi per aggiornamenti live
     const interval = setInterval(() => {
-      console.debug('LiveMatchView polling...', new Date().toLocaleTimeString())
+      console.log('⏱️ LiveMatchView polling...', new Date().toLocaleTimeString())
       loadMatchData()
     }, 2000)
 
     return () => {
-      console.debug('LiveMatchView cleanup - stopping polling')
+      console.log('🔴 LiveMatchView UNMOUNTED - stopping polling')
       clearInterval(interval)
     }
   }, [matchId, homeTeam.id, awayTeam.id])
 
   async function loadMatchData() {
-    console.debug('LiveMatchView loadMatchData START', new Date().toLocaleTimeString())
+    console.log('📊 Loading match data...', new Date().toLocaleTimeString())
     try {
       // Carica flag is_live della partita
       const { data: matchData } = await supabase
@@ -68,12 +68,14 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         .select('punti, atleta_id')
         .eq('partita_id', matchId)
 
-      console.debug('LiveMatchView - timestamp:', new Date().toLocaleTimeString())
-      console.debug('LiveMatchView - matchId:', matchId)
-      console.debug('LiveMatchView - puntiData:', puntiData, 'error:', puntiError)
+      console.log('📈 Punti data received:', { 
+        count: puntiData?.length || 0, 
+        data: puntiData,
+        error: puntiError 
+      })
 
       if (puntiError) {
-        console.error('LiveMatchView - Error loading punti:', puntiError)
+        console.error('❌ Error loading punti:', puntiError)
         setHomeScore(0)
         setAwayScore(0)
         setHomeTopScorers([])
@@ -89,10 +91,13 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           .select('id, nome, cognome, numero_maglia, team_id')
           .in('id', atletiIds)
 
-        console.debug('LiveMatchView - atletiData:', atletiData, 'error:', atletiError)
+        console.log('👥 Atleti data received:', {
+          count: atletiData?.length || 0,
+          error: atletiError
+        })
 
         if (atletiError || !atletiData) {
-          console.error('LiveMatchView - Error loading atleti:', atletiError)
+          console.error('❌ Error loading atleti:', atletiError)
           return
         }
 
@@ -105,8 +110,11 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           }
         }).filter(item => item.atleta)
 
-        console.debug('LiveMatchView - combinedData:', combinedData)
-        console.debug('LiveMatchView - homeTeam.id:', homeTeam.id, 'awayTeam.id:', awayTeam.id)
+        console.log('🔗 Combined data:', {
+          total: combinedData.length,
+          homeTeamId: homeTeam.id,
+          awayTeamId: awayTeam.id
+        })
 
         // Filtra e ordina per squadra casa
         const homeStatsFiltered = combinedData
@@ -121,7 +129,6 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           .sort((a, b) => b.punti - a.punti)
           .slice(0, 3)
         
-        console.debug('LiveMatchView - homeStatsFiltered:', homeStatsFiltered)
         setHomeTopScorers(homeStatsFiltered)
 
         // Filtra e ordina per squadra ospite
@@ -137,7 +144,6 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           .sort((a, b) => b.punti - a.punti)
           .slice(0, 3)
         
-        console.debug('LiveMatchView - awayStatsFiltered:', awayStatsFiltered)
         setAwayTopScorers(awayStatsFiltered)
 
         // Calcola i punteggi totali dalla somma dei punti atleti
@@ -149,18 +155,24 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           .filter(s => s.atleta && s.atleta.team_id === awayTeam.id)
           .reduce((sum, s) => sum + s.punti, 0)
         
-        console.debug('LiveMatchView - homeTotal:', homeTotal, 'awayTotal:', awayTotal)
+        console.log('⚽ SCORES UPDATED:', {
+          home: homeTotal,
+          away: awayTotal,
+          homeTopScorers: homeStatsFiltered.length,
+          awayTopScorers: awayStatsFiltered.length
+        })
+        
         setHomeScore(homeTotal)
         setAwayScore(awayTotal)
       } else {
-        console.debug('LiveMatchView - No punti data found')
+        console.log('📭 No punti data found - resetting to 0')
         setHomeScore(0)
         setAwayScore(0)
         setHomeTopScorers([])
         setAwayTopScorers([])
       }
     } catch (err) {
-      console.debug('Error loading live match data:', err)
+      console.error('❌ Error loading live match data:', err)
     }
   }
 
