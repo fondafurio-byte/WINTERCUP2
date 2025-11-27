@@ -868,16 +868,17 @@ export default function Finali(){
               </div>
               {(() => {
                 const match = finalMatches.find(m => m.finalType === '1-2')
-                if (match && (match.campo || match.orario)) {
-                  const orarioDate = match.orario ? new Date(match.orario) : null
-                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
-                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                const campo = match?.campo || 'MORIGIA'
+                const orarioDate = match?.orario ? new Date(match.orario) : new Date('2026-01-05T11:30:00')
+                const dateStr = orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                const timeStr = orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                if (campo || dateStr || timeStr) {
                   return (
                     <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
-                      {match.campo && (
+                      {campo && (
                         <div style={{display:'flex',alignItems:'center',gap:4}}>
                           <MapPin size={14} />
-                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{campo}</span>
                         </div>
                       )}
                       {dateStr && (
@@ -1042,16 +1043,17 @@ export default function Finali(){
               </div>
               {(() => {
                 const match = finalMatches.find(m => m.finalType === '3-4')
-                if (match && (match.campo || match.orario)) {
-                  const orarioDate = match.orario ? new Date(match.orario) : null
-                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
-                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                const campo = match?.campo || 'MORIGIA'
+                const orarioDate = match?.orario ? new Date(match.orario) : new Date('2026-01-05T09:30:00')
+                const dateStr = orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                const timeStr = orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                if (campo || dateStr || timeStr) {
                   return (
                     <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
-                      {match.campo && (
+                      {campo && (
                         <div style={{display:'flex',alignItems:'center',gap:4}}>
                           <MapPin size={14} />
-                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{campo}</span>
                         </div>
                       )}
                       {dateStr && (
@@ -1216,16 +1218,17 @@ export default function Finali(){
               </div>
               {(() => {
                 const match = finalMatches.find(m => m.finalType === '5-6')
-                if (match && (match.campo || match.orario)) {
-                  const orarioDate = match.orario ? new Date(match.orario) : null
-                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
-                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                const campo = match?.campo || 'MATTIOLI'
+                const orarioDate = match?.orario ? new Date(match.orario) : new Date('2026-01-05T11:00:00')
+                const dateStr = orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                const timeStr = orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                if (campo || dateStr || timeStr) {
                   return (
                     <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
-                      {match.campo && (
+                      {campo && (
                         <div style={{display:'flex',alignItems:'center',gap:4}}>
                           <MapPin size={14} />
-                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{campo}</span>
                         </div>
                       )}
                       {dateStr && (
@@ -1390,16 +1393,17 @@ export default function Finali(){
               </div>
               {(() => {
                 const match = finalMatches.find(m => m.finalType === '7-8')
-                if (match && (match.campo || match.orario)) {
-                  const orarioDate = match.orario ? new Date(match.orario) : null
-                  const dateStr = orarioDate ? orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' }) : null
-                  const timeStr = orarioDate ? orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' }) : null
+                const campo = match?.campo || 'MATTIOLI'
+                const orarioDate = match?.orario ? new Date(match.orario) : new Date('2026-01-05T09:00:00')
+                const dateStr = orarioDate.toLocaleDateString('it-IT', { day: '2-digit', month: '2-digit', year: 'numeric' })
+                const timeStr = orarioDate.toLocaleTimeString('it-IT', { hour: '2-digit', minute: '2-digit' })
+                if (campo || dateStr || timeStr) {
                   return (
                     <div style={{display:'flex',gap:12,alignItems:'center',marginTop:12,color:'#475569',fontSize:13,flexWrap:'wrap',paddingTop:8,borderTop:'1px solid #e2e8f0'}}>
-                      {match.campo && (
+                      {campo && (
                         <div style={{display:'flex',alignItems:'center',gap:4}}>
                           <MapPin size={14} />
-                          <span style={{textTransform:'uppercase',fontWeight:600}}>{match.campo}</span>
+                          <span style={{textTransform:'uppercase',fontWeight:600}}>{campo}</span>
                         </div>
                       )}
                       {dateStr && (
