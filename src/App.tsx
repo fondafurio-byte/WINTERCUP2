@@ -10,6 +10,7 @@ import Partecipanti from './pages/Partecipanti'
 import TokenManager from './pages/TokenManager'
 import Condividi from './pages/Condividi'
 import AdminDialog from './components/AdminDialog'
+import InstallPWABanner from './components/InstallPWABanner'
 import { supabase } from './lib/supabase'
 
 export default function App(){
@@ -196,6 +197,9 @@ export default function App(){
             )}
           </div>
         </div>
+        
+        {/* PWA Install Banner */}
+        <InstallPWABanner />
       </div>
     </ErrorBoundary>
   )
