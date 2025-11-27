@@ -805,7 +805,7 @@ export default function Home() {
         <button
           onClick={() => setStandingsModalOpen(true)}
           style={{
-            background: 'linear-gradient(135deg, #f093fb 0%, #f5576c 100%)',
+            background: 'linear-gradient(135deg, #800f0b 0%, #5c0a08 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
