@@ -186,9 +186,9 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
       background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
       zIndex: 9999,
       overflow: 'auto',
-      padding: '20px'
+      padding: '10px'
     }}>
-      <div style={{
+      <div className="live-match-container" style={{
         maxWidth: 800,
         margin: '0 auto',
         background: 'white',
@@ -213,18 +213,18 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         )}
 
         {/* Risultato e loghi */}
-        <div style={{
+        <div className="live-match-header" style={{
           padding: '40px 20px',
           background: 'linear-gradient(to bottom, #f8fafc, white)'
         }}>
-          <div style={{
+          <div className="live-match-teams" style={{
             display: 'flex',
             justifyContent: 'space-around',
             alignItems: 'center',
             gap: 20
           }}>
             {/* Squadra Casa */}
-            <div style={{
+            <div className="live-team" style={{
               flex: 1,
               textAlign: 'center'
             }}>
@@ -232,6 +232,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
                 <img 
                   src={homeTeam.logo_url} 
                   alt={homeTeam.name}
+                  className="live-team-logo"
                   style={{
                     width: 100,
                     height: 100,
@@ -241,7 +242,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
                   }}
                 />
               )}
-              <div style={{
+              <div className="live-team-name" style={{
                 fontSize: 18,
                 fontWeight: 700,
                 color: '#1e293b'
@@ -251,7 +252,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
             </div>
 
             {/* Punteggio */}
-            <div style={{
+            <div className="live-score" style={{
               fontSize: 64,
               fontWeight: 900,
               color: '#1e293b',
@@ -263,7 +264,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
             </div>
 
             {/* Squadra Ospite */}
-            <div style={{
+            <div className="live-team" style={{
               flex: 1,
               textAlign: 'center'
             }}>
@@ -271,6 +272,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
                 <img 
                   src={awayTeam.logo_url} 
                   alt={awayTeam.name}
+                  className="live-team-logo"
                   style={{
                     width: 100,
                     height: 100,
@@ -280,7 +282,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
                   }}
                 />
               )}
-              <div style={{
+              <div className="live-team-name" style={{
                 fontSize: 18,
                 fontWeight: 700,
                 color: '#1e293b'
@@ -292,7 +294,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         </div>
 
         {/* Top Scorers */}
-        <div style={{
+        <div className="live-scorers-grid" style={{
           padding: 30,
           display: 'grid',
           gridTemplateColumns: '1fr 1fr',
@@ -435,6 +437,96 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
           @keyframes pulse {
             0%, 100% { opacity: 1; }
             50% { opacity: 0.7; }
+          }
+
+          /* Mobile responsive styles */
+          @media (max-width: 768px) {
+            .live-match-container {
+              border-radius: 0 !important;
+              max-width: 100% !important;
+            }
+
+            .live-match-header {
+              padding: 20px 10px !important;
+            }
+
+            .live-match-teams {
+              flex-direction: column !important;
+              gap: 12px !important;
+            }
+
+            .live-team {
+              flex: none !important;
+              width: 100% !important;
+            }
+
+            .live-team-logo {
+              width: 60px !important;
+              height: 60px !important;
+              margin-bottom: 8px !important;
+            }
+
+            .live-team-name {
+              font-size: 14px !important;
+              word-break: break-word;
+              padding: 0 10px;
+            }
+
+            .live-score {
+              font-size: 48px !important;
+              min-width: auto !important;
+              order: -1;
+              margin-bottom: 16px;
+            }
+
+            .live-scorers-grid {
+              grid-template-columns: 1fr !important;
+              padding: 20px 15px !important;
+              gap: 20px !important;
+            }
+
+            .live-scorers-grid h3 {
+              font-size: 14px !important;
+              margin-bottom: 12px !important;
+            }
+
+            .live-scorers-grid > div > div > div {
+              padding: 10px !important;
+              gap: 8px !important;
+            }
+
+            .live-scorers-grid > div > div > div > div:first-child {
+              width: 28px !important;
+              height: 28px !important;
+              font-size: 12px !important;
+            }
+
+            .live-scorers-grid > div > div > div > div:nth-child(2) > div {
+              font-size: 13px !important;
+            }
+
+            .live-scorers-grid > div > div > div > div:last-child {
+              font-size: 18px !important;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .live-score {
+              font-size: 36px !important;
+            }
+
+            .live-team-logo {
+              width: 50px !important;
+              height: 50px !important;
+            }
+
+            .live-team-name {
+              font-size: 12px !important;
+            }
+
+            .live-scorers-grid {
+              padding: 15px 10px !important;
+            }
           }
         `}
       </style>
