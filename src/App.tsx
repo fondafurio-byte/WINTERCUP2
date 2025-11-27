@@ -8,6 +8,7 @@ import Statistiche from './pages/Statistiche'
 import Finali from './pages/Finali'
 import Partecipanti from './pages/Partecipanti'
 import TokenManager from './pages/TokenManager'
+import Condividi from './pages/Condividi'
 import AdminDialog from './components/AdminDialog'
 import { supabase } from './lib/supabase'
 
@@ -112,6 +113,7 @@ export default function App(){
       case 'finali': return 'Finali'
       case 'partecipanti': return 'Partecipanti'
       case 'tokens': return 'Token Squadre'
+      case 'condividi': return 'Condividi'
       default: return 'Home'
     }
   }
@@ -125,6 +127,7 @@ export default function App(){
             { key: 'statistiche', label: 'Classifiche', onClick: () => { setCurrentPage('statistiche'); setMenuOpen(false) } },
             { key: 'finali', label: 'Finali', onClick: () => { setCurrentPage('finali'); setMenuOpen(false) } },
             { key: 'partecipanti', label: 'Partecipanti', onClick: () => { setCurrentPage('partecipanti'); setMenuOpen(false) } },
+            { key: 'condividi', label: 'Condividi', onClick: () => { setCurrentPage('condividi'); setMenuOpen(false) } },
             ...(isAuthenticated ? [{ key: 'tokens', label: 'Token Squadre', onClick: () => { setCurrentPage('tokens'); setMenuOpen(false) } }] : []),
           ]} />
         
@@ -187,6 +190,9 @@ export default function App(){
             )}
             {currentPage === 'tokens' && (
               <TokenManager />
+            )}
+            {currentPage === 'condividi' && (
+              <Condividi />
             )}
           </div>
         </div>
