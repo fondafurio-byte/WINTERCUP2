@@ -650,14 +650,15 @@ export default function Gironi(){
         .eq('user_id', user.id)
         .maybeSingle()
 
-      // Compress file if it's an image
+      // Compress file if it's an image (alta qualità per documenti leggibili)
       const processFile = (fileToUpload: File): Promise<File> => {
         return new Promise((resolve, reject) => {
           if (fileToUpload.type.startsWith('image/')) {
             new Compressor(fileToUpload, {
-              quality: 0.8,
-              maxWidth: 2000,
-              maxHeight: 2000,
+              quality: 0.95, // Qualità molto alta per mantenere leggibilità
+              maxWidth: 4000, // Risoluzione più alta per documenti
+              maxHeight: 4000,
+              mimeType: 'image/jpeg', // Forza JPEG per dimensioni ragionevoli
               success(result) {
                 resolve(result as File)
               },
