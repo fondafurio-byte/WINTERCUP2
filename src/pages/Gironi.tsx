@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText, Radio } from 'lucide-react'
+import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText, Radio, Eye } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import VoteDialog from '../components/VoteDialog'
@@ -1741,8 +1741,8 @@ export default function Gironi(){
                               </button>
                             )}
                             
-                            {/* Pulsante Guarda Live - visibile a tutti quando c'è un punteggio */}
-                            {isTeamUser && !((m as any).is_live) && ((m as any).home_score != null || (m as any).away_score != null) && (
+                            {/* Pulsante Guarda Live - visibile quando partita è live */}
+                            {isTeamUser && (m as any).is_live && (
                               <button
                                 title="Guarda Live"
                                 onClick={() => {
@@ -1757,16 +1757,13 @@ export default function Gironi(){
                                   borderRadius:4,
                                   cursor:'pointer',
                                   color:'white',
-                                  padding:'6px 12px',
-                                  fontSize:13,
-                                  fontWeight:600,
+                                  padding:'8px',
                                   display:'flex',
                                   alignItems:'center',
-                                  gap:4
+                                  justifyContent:'center'
                                 }}
                               >
-                                <Radio size={14} />
-                                Guarda
+                                <Eye size={16} />
                               </button>
                             )}
                             
