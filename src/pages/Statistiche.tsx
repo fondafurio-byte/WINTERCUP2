@@ -184,8 +184,8 @@ export default function Statistiche(){
                       <thead>
                         <tr style={{background:'#e0f4ff',borderBottom:'2px solid #17b3ff'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
-                          <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
-                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Nome</th>
+                          <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}></th>
+                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Squadra</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>G</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>V</th>
@@ -250,8 +250,8 @@ export default function Statistiche(){
                       <thead>
                         <tr style={{background:'#fde8e7',borderBottom:'2px solid #b8160f'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
-                          <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
-                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Nome</th>
+                          <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}></th>
+                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Squadra</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>G</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>V</th>
