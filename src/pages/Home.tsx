@@ -823,7 +823,7 @@ export default function Home() {
         <button
           onClick={() => setShowTeamLogin(true)}
           style={{
-            background: 'linear-gradient(135deg, #4ade80 0%, #22c55e 100%)',
+            background: 'linear-gradient(135deg, #b2b2b2 0%, #8a8a8a 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
