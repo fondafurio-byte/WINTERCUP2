@@ -1211,7 +1211,16 @@ export default function Gironi(){
               </Dialog.Root>
 
               {/* Live scoring modal - accessible to both admin and rilevatori */}
-              <Dialog.Root open={liveModalOpen} onOpenChange={setLiveModalOpen}>
+              <Dialog.Root open={liveModalOpen} onOpenChange={async (open) => {
+                setLiveModalOpen(open)
+                // Quando si chiude la finestra live, rimuovi il flag is_live
+                if (!open && liveMatchId) {
+                  await supabase
+                    .from('partite')
+                    .update({ is_live: false })
+                    .eq('id', liveMatchId)
+                }
+              }}>
                 <Dialog.Portal>
                   <Dialog.Overlay className="rw-overlay" />
                   <Dialog.Content className="rw-dialog live-scoring-modal" style={{maxWidth:'95vw',width:800,maxHeight:'90vh',overflow:'auto'}}>
@@ -1854,10 +1863,16 @@ export default function Gironi(){
                             {(isAdmin || (isRilevatore && rilevatore)) && ((m as any).home_score == null || (m as any).away_score == null) && (
                               <button 
                                 title={isRilevatore && !rilevatore ? "Registrati prima alla partita per abilitare la rilevazione live" : "Rilevazione live punti"}
-                                onClick={() => {
+                                onClick={async () => {
                                   setLiveMatchId((m as any).id)
                                   loadAtletiForLiveScoring((m as any).id)
                                   setLiveModalOpen(true)
+                                  
+                                  // Imposta la partita come "live"
+                                  await supabase
+                                    .from('partite')
+                                    .update({ is_live: true })
+                                    .eq('id', (m as any).id)
                                 }} 
                                 style={{background:'transparent',border:0,cursor:'pointer',color:'#10b981',padding:4}}
                               >

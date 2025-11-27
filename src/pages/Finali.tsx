@@ -762,12 +762,14 @@ export default function Finali(){
                         <>
                           <button
                             title="Rilevazione live"
-                            onClick={() => {
+                            onClick={async () => {
                               const match = finalMatches.find(m => m.finalType === '1-2')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
                                 setLiveModalOpen(true)
+                                // Imposta partita come live
+                                await supabase.from('partite').update({ is_live: true }).eq('id', match.id)
                               }
                             }}
                             style={{
@@ -937,12 +939,14 @@ export default function Finali(){
                         <>
                           <button
                             title="Rilevazione live"
-                            onClick={() => {
+                            onClick={async () => {
                               const match = finalMatches.find(m => m.finalType === '3-4')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
                                 setLiveModalOpen(true)
+                                // Imposta partita come live
+                                await supabase.from('partite').update({ is_live: true }).eq('id', match.id)
                               }
                             }}
                             style={{
@@ -1112,12 +1116,14 @@ export default function Finali(){
                         <>
                           <button
                             title="Rilevazione live"
-                            onClick={() => {
+                            onClick={async () => {
                               const match = finalMatches.find(m => m.finalType === '5-6')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
                                 setLiveModalOpen(true)
+                                // Imposta partita come live
+                                await supabase.from('partite').update({ is_live: true }).eq('id', match.id)
                               }
                             }}
                             style={{
@@ -1287,12 +1293,14 @@ export default function Finali(){
                         <>
                           <button
                             title="Rilevazione live"
-                            onClick={() => {
+                            onClick={async () => {
                               const match = finalMatches.find(m => m.finalType === '7-8')
                               if (match) {
                                 setLiveMatchId(match.id)
                                 loadAtletiForLiveScoring(match.id)
                                 setLiveModalOpen(true)
+                                // Imposta partita come live
+                                await supabase.from('partite').update({ is_live: true }).eq('id', match.id)
                               }
                             }}
                             style={{
@@ -1532,7 +1540,13 @@ export default function Finali(){
       )}
 
       {/* Live Scoring Modal */}
-      <Dialog.Root open={liveModalOpen} onOpenChange={setLiveModalOpen}>
+      <Dialog.Root open={liveModalOpen} onOpenChange={async (open) => {
+        setLiveModalOpen(open)
+        // Rimuovi flag is_live quando si chiude
+        if (!open && liveMatchId) {
+          await supabase.from('partite').update({ is_live: false }).eq('id', liveMatchId)
+        }
+      }}>
         <Dialog.Portal>
           <Dialog.Overlay style={{position:'fixed',inset:0,background:'rgba(0,0,0,0.5)',zIndex:50}} />
           <Dialog.Content style={{
