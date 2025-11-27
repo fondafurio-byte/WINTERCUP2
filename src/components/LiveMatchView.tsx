@@ -184,8 +184,8 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam, girone }: L
     } else if (girone === 'B') {
       return 'linear-gradient(135deg, #ef4444 0%, #b91c1c 50%, #7f1d1d 100%)'
     }
-    // Default se girone non specificato
-    return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+    // Default per finali e quando girone non specificato (grigio come tasto login)
+    return 'linear-gradient(135deg, #d9d9d9 0%, #737373 50%, #5c5c5c 100%)'
   }
 
   return (
