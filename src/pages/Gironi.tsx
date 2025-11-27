@@ -1595,15 +1595,18 @@ export default function Gironi(){
                     }
 
                     const showVoteButton = isTeamUser && (m as any).home_score != null && (m as any).away_score != null
-                    if ((m as any).id && showVoteButton) {
-                      console.log('Vote button conditions:', { 
-                        matchId: (m as any).id,
-                        isTeamUser, 
-                        home_score: (m as any).home_score, 
-                        away_score: (m as any).away_score,
-                        showVoteButton
-                      })
-                    }
+                    const showDocButton = (isAdmin || isRilevatore) && (m as any).home_score != null && (m as any).away_score != null
+                    
+                    // Debug log
+                    console.log('Match buttons:', {
+                      matchId: (m as any).id,
+                      home_score: (m as any).home_score,
+                      away_score: (m as any).away_score,
+                      isAdmin,
+                      isRilevatore,
+                      showDocButton,
+                      hasScores: (m as any).home_score != null && (m as any).away_score != null
+                    })
                     
                     return (
                       <li key={(m as any).id} className="match-row" style={{padding:12,borderBottom:'1px solid #eef2f7'}}>
@@ -1766,7 +1769,7 @@ export default function Gironi(){
                                 <Zap size={18} fill="#10b981" />
                               </button>
                             )}
-                            {(isAdmin || isRilevatore) && (m as any).home_score != null && (m as any).away_score != null && (
+                            {showDocButton && (
                               <div style={{position:'relative'}}>
                                 <input
                                   type="file"
