@@ -80,10 +80,24 @@ body{font-family: Inter, ui-sans-serif, system-ui, -apple-system, 'Segoe UI', Ro
 /* App container and logo (responsive) */
 .app-container{
 	width:100%;
-	max-width:1100px;
 	margin:0 auto;
 	padding:0 16px; /* ensure horizontal padding on mobile */
 	box-sizing:border-box;
+}
+
+/* Desktop: larghezza adattiva alla finestra */
+@media (min-width: 768px) {
+	.app-container {
+		max-width: 95%;
+		padding: 0 24px;
+	}
+}
+
+/* Mobile: larghezza fissa */
+@media (max-width: 767px) {
+	.app-container {
+		max-width: 1100px;
+	}
 }
 
 .app-logo{
