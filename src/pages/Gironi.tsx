@@ -682,6 +682,8 @@ export default function Gironi(){
           upsert: false
         })
 
+      console.log('Upload result:', { fileName, uploadData, uploadError })
+
       if (uploadError) {
         alert('Errore caricamento: ' + uploadError.message)
         setUploadingDoc(false)
@@ -690,7 +692,8 @@ export default function Gironi(){
 
       // Salva solo il path del file, non l'URL completo
       // L'URL verrà generato dinamicamente quando serve visualizzare il documento
-      const filePath = fileName
+      const filePath = uploadData?.path || fileName
+      console.log('Saving file path to DB:', filePath)
 
       // Update partite table
       const { error: updateError } = await supabase
@@ -1889,10 +1892,15 @@ export default function Gironi(){
                               <button 
                                 onClick={async () => {
                                   try {
+                                    const docPath = (m as any).documento_url
+                                    console.log('Trying to open document:', { docPath, matchId: (m as any).id })
+                                    
                                     // Genera URL firmato valido per 1 ora
                                     const { data, error } = await supabase.storage
                                       .from('partite-documenti')
-                                      .createSignedUrl((m as any).documento_url, 3600)
+                                      .createSignedUrl(docPath, 3600)
+                                    
+                                    console.log('Signed URL result:', { data, error })
                                     
                                     if (error) {
                                       alert('Errore apertura documento: ' + error.message)
