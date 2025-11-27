@@ -1533,13 +1533,24 @@ export default function Gironi(){
                                 }
                                 
                                 // Ricarica partite dal database per aggiornare l'UI
-                                const { data: updatedMatches } = await supabase
+                                const { data: updatedMatches, error: fetchError } = await supabase
                                   .from('partite')
                                   .select('*')
                                   .eq('girone', girone)
                                   .order('orario', { ascending: true })
                                 
-                                if (updatedMatches) setMatches(updatedMatches as any)
+                                console.log('Reload after save:', {
+                                  liveMatchId,
+                                  homeTeamScore,
+                                  awayTeamScore,
+                                  updatedMatches,
+                                  fetchError
+                                })
+                                
+                                if (updatedMatches) {
+                                  setMatches(updatedMatches as any)
+                                  console.log('✅ Matches reloaded, count:', updatedMatches.length)
+                                }
                                 
                                 setLiveStatus('✅ Risultato salvato!')
                                 setTimeout(() => {
