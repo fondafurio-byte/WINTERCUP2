@@ -341,7 +341,7 @@ export default function TeamLoginDialog({ open: controlledOpen, onOpenChange }: 
                     <ul style={{ margin: '8px 0', paddingLeft: 20 }}>
                       <li>🔴 <strong>Visualizza partite LIVE</strong> in tempo reale con punteggi e top scorers</li>
                       <li>🏆 <strong>Vota gli MVP</strong> delle partite completate</li>
-                      <li>📊 <strong>Consulta tabellini completi</strong> con statistiche dettagliate degli atleti</li>
+                      <li>📊 <strong>Consulta tabellini completi</strong></li>
                     </ul>
                   </div>
                 </div>
