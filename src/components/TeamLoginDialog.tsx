@@ -262,7 +262,7 @@ export default function TeamLoginDialog({ open: controlledOpen, onOpenChange }: 
           {!showPasswordChange ? (
             <>
               <Dialog.Title style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 16 }}>
-                🏀 Login Squadra
+                🏀 Login
               </Dialog.Title>
               <Dialog.Description style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: 16 }}>
                 Accedi con le credenziali della tua squadra
