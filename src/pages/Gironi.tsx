@@ -1815,16 +1815,15 @@ export default function Gironi(){
                                     borderRadius:4,
                                     cursor: uploadingDoc && uploadDocMatchId === (m as any).id ? 'wait' : 'pointer',
                                     color:'white',
-                                    padding:'6px 12px',
+                                    padding:'8px',
                                     fontSize:13,
                                     fontWeight:600,
                                     display:'flex',
                                     alignItems:'center',
-                                    gap:4
+                                    justifyContent:'center'
                                   }}
                                 >
-                                  <Upload size={14} />
-                                  {uploadingDoc && uploadDocMatchId === (m as any).id ? 'Caricamento...' : 'Documento'}
+                                  <Upload size={16} />
                                 </label>
                               </div>
                             )}
@@ -1926,7 +1925,7 @@ export default function Gironi(){
                                   padding:0
                                 }}
                               >
-                                Visualizza documento
+                                Visualizza Referto
                               </button>
                             </div>
                           )}
