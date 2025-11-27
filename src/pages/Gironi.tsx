@@ -1532,12 +1532,14 @@ export default function Gironi(){
                                   return
                                 }
                                 
-                                // Update local matches state
-                                setMatches(prev => prev.map(m => 
-                                  (m as any).id === liveMatchId 
-                                    ? { ...m, home_score: homeTeamScore, away_score: awayTeamScore }
-                                    : m
-                                ))
+                                // Ricarica partite dal database per aggiornare l'UI
+                                const { data: updatedMatches } = await supabase
+                                  .from('partite')
+                                  .select('*')
+                                  .eq('girone', girone)
+                                  .order('orario', { ascending: true })
+                                
+                                if (updatedMatches) setMatches(updatedMatches as any)
                                 
                                 setLiveStatus('✅ Risultato salvato!')
                                 setTimeout(() => {
@@ -1703,10 +1705,17 @@ export default function Gironi(){
                                     
                                     if (!rilevData) return
                                     
+                                    // Controlla se la partita ha già un rilevatore
+                                    if ((m as any).rilevatore_id) {
+                                      alert('Questa partita ha già un rilevatore assegnato.')
+                                      return
+                                    }
+                                    
                                     const { error } = await supabase
                                       .from('partite')
                                       .update({ rilevatore_id: rilevData.id })
                                       .eq('id', (m as any).id)
+                                      .is('rilevatore_id', null)
                                     
                                     if (error) {
                                       alert('Errore: ' + error.message)
