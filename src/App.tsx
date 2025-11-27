@@ -1,4 +1,4 @@
-import React, { Suspense, useState, useEffect, useRef } from 'react'
+import React, { useState, useEffect, useRef } from 'react'
 import ErrorBoundary from './ErrorBoundary'
 import Topbar from './components/Topbar'
 import SideMenu from './components/SideMenu'
@@ -8,9 +8,8 @@ import Statistiche from './pages/Statistiche'
 import Finali from './pages/Finali'
 import Partecipanti from './pages/Partecipanti'
 import TokenManager from './pages/TokenManager'
+import AdminDialog from './components/AdminDialog'
 import { supabase } from './lib/supabase'
-
-const LazyAdminDialog = React.lazy(() => import('./components/AdminDialog'))
 
 export default function App(){
   const [showAdmin, setShowAdmin] = useState(false)
@@ -160,9 +159,7 @@ export default function App(){
                   )}
 
                   {showAdmin && (
-                    <Suspense fallback={<div>Caricamento…</div>}>
-                      <LazyAdminDialog />
-                    </Suspense>
+                    <AdminDialog />
                   )}
                 </>
               )}
