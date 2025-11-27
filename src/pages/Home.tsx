@@ -787,7 +787,7 @@ export default function Home() {
         <button
           onClick={() => setInfoModalOpen(true)}
           style={{
-            background: 'linear-gradient(135deg, #17b3ff 0%, #0891d1 100%)',
+            background: 'linear-gradient(135deg, #5cd4ff 0%, #0c6b94 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
@@ -805,7 +805,7 @@ export default function Home() {
         <button
           onClick={() => setStandingsModalOpen(true)}
           style={{
-            background: 'linear-gradient(135deg, #800f0b 0%, #5c0a08 100%)',
+            background: 'linear-gradient(135deg, #b8160f 0%, #3d0705 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
@@ -823,7 +823,7 @@ export default function Home() {
         <button
           onClick={() => setShowTeamLogin(true)}
           style={{
-            background: 'linear-gradient(135deg, #b2b2b2 0%, #8a8a8a 100%)',
+            background: 'linear-gradient(135deg, #d9d9d9 0%, #5c5c5c 100%)',
             border: 'none',
             borderRadius: 12,
             padding: 24,
