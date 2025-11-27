@@ -1345,9 +1345,9 @@ export default function Gironi(){
                                       <input 
                                         type="number" 
                                         min="0"
-                                        value={atletiPunti[atleta.id] || 0}
+                                        value={atletiPunti[atleta.id] || ''}
                                         onChange={(e) => {
-                                          const val = parseInt(e.target.value, 10)
+                                          const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10)
                                           if (!isNaN(val) && val >= 0) {
                                             handleSetAtletaPunti(atleta.id, val)
                                           }
@@ -1484,9 +1484,9 @@ export default function Gironi(){
                                       <input 
                                         type="number" 
                                         min="0"
-                                        value={atletiPunti[atleta.id] || 0}
+                                        value={atletiPunti[atleta.id] || ''}
                                         onChange={(e) => {
-                                          const val = parseInt(e.target.value, 10)
+                                          const val = e.target.value === '' ? 0 : parseInt(e.target.value, 10)
                                           if (!isNaN(val) && val >= 0) {
                                             handleSetAtletaPunti(atleta.id, val)
                                           }
