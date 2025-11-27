@@ -326,7 +326,7 @@ export default function Partecipanti() {
                   <img 
                     src={team.logo_url} 
                     alt={`${team.name} logo`} 
-                    style={{ width: 48, height: 48, objectFit: 'contain', borderRadius: 8 }}
+                    style={{ width: 48, height: 48, objectFit: 'contain' }}
                     onError={(e) => { 
                       e.currentTarget.style.display = 'none'
                       e.currentTarget.nextElementSibling?.setAttribute('style', 'display: block')
@@ -368,9 +368,6 @@ export default function Partecipanti() {
                   width: 80, 
                   height: 80, 
                   objectFit: 'contain', 
-                  background: 'white',
-                  borderRadius: 12,
-                  padding: 8,
                   flexShrink: 0
                 }}
               />

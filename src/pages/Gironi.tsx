@@ -926,7 +926,7 @@ export default function Gironi(){
                     justifyContent:'center'
                   }}>
                     {team.logo_url ? (
-                      <img src={team.logo_url} alt={team.name} style={{width:40,height:40,objectFit:'contain',background:'white',borderRadius:6,padding:4}} />
+                      <img src={team.logo_url} alt={team.name} style={{width:40,height:40,objectFit:'contain'}} />
                     ) : (
                       <div style={{
                         width:40,
