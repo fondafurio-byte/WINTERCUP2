@@ -185,6 +185,7 @@ export default function Statistiche(){
                         <tr style={{background:'#e0f4ff',borderBottom:'2px solid #17b3ff'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
+                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Nome</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>G</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>V</th>
@@ -215,6 +216,7 @@ export default function Statistiche(){
                                   )}
                                 </div>
                               </td>
+                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap'}}>{s.name}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontWeight:700,fontSize:'0.9rem'}}>{s.points}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontSize:'0.75rem'}}>{giocate}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',color:'#16a34a',fontSize:'0.75rem'}}>{s.wins}</td>
@@ -249,6 +251,7 @@ export default function Statistiche(){
                         <tr style={{background:'#fde8e7',borderBottom:'2px solid #b8160f'}}>
                           <th style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pos</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Sq</th>
+                          <th className="team-name-column" style={{padding:'6px 4px',textAlign:'left',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Nome</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>Pt</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>G</th>
                           <th style={{padding:'6px 4px',textAlign:'center',fontWeight:700,whiteSpace:'nowrap',fontSize:'0.7rem'}}>V</th>
@@ -279,6 +282,7 @@ export default function Statistiche(){
                                   )}
                                 </div>
                               </td>
+                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap'}}>{s.name}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontWeight:700,fontSize:'0.9rem'}}>{s.points}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontSize:'0.75rem'}}>{giocate}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',color:'#16a34a',fontSize:'0.75rem'}}>{s.wins}</td>

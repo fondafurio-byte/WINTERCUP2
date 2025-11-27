@@ -306,3 +306,14 @@ html { font-size: clamp(14px, 1.2vw, 18px); }
 	0%, 100% { opacity: 1; }
 	50% { opacity: 0.6; }
 }
+
+/* Team name column: visible only on desktop */
+.team-name-column {
+	display: none;
+}
+
+@media (min-width: 768px) {
+	.team-name-column {
+		display: table-cell;
+	}
+}
