@@ -43,18 +43,18 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
 
   async function loadMatchData() {
     try {
-      // Carica punteggi partita
+      // Carica punteggi partita e flag is_live
       const { data: matchData } = await supabase
         .from('partite')
-        .select('home_score, away_score')
+        .select('home_score, away_score, is_live')
         .eq('id', matchId)
         .single()
 
       if (matchData) {
         setHomeScore(matchData.home_score ?? 0)
         setAwayScore(matchData.away_score ?? 0)
-        // Partita è live se uno dei punteggi è diverso da null e non ci sono entrambi i punteggi finali
-        setIsLive(matchData.home_score != null || matchData.away_score != null)
+        // Partita è live se il campo is_live è true
+        setIsLive(matchData.is_live ?? false)
       }
 
       // Carica statistiche atleti squadra casa

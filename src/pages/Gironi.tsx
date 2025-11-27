@@ -150,13 +150,29 @@ export default function Gironi(){
         const matchesData = (data as any) ?? []
         setMatches(matchesData)
         if (matchesData.length > 0) checkExistingDocuments(matchesData)
+        
+        // Apri automaticamente la visualizzazione live se c'è una partita in corso
+        const liveMatch = matchesData.find((m: any) => m.is_live === true)
+        if (liveMatch && (!liveViewOpen || liveViewMatchId !== liveMatch.id)) {
+          const homeTeam = teams.find(t => t.id === liveMatch.home_team_id)
+          const awayTeam = teams.find(t => t.id === liveMatch.away_team_id)
+          if (homeTeam && awayTeam) {
+            setLiveViewMatchId(liveMatch.id)
+            setLiveViewHomeTeam(homeTeam)
+            setLiveViewAwayTeam(awayTeam)
+            setLiveViewOpen(true)
+          }
+        } else if (!liveMatch && liveViewOpen) {
+          // Chiudi la visualizzazione live se non ci sono più partite live
+          setLiveViewOpen(false)
+        }
       }catch(err){ 
         console.debug('poll error', err) 
       }
     }, 3000) // Poll every 3 seconds
 
     return () => clearInterval(pollInterval)
-  }, [girone])
+  }, [girone, liveViewOpen, liveViewMatchId, teams])
 
 
 
@@ -1712,7 +1728,7 @@ export default function Gironi(){
                             <div style={{color:'#64748b',fontSize:13}}>{m.girone}</div>
                             
                             {/* Pulsante LIVE - visibile a tutti quando partita in corso */}
-                            {((m as any).home_score != null || (m as any).away_score != null) && !((m as any).home_score != null && (m as any).away_score != null) && (
+                            {(m as any).is_live && (
                               <button
                                 title="Visualizza Live"
                                 onClick={() => {
