@@ -1,8 +1,9 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText } from 'lucide-react'
+import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText, Radio } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import VoteDialog from '../components/VoteDialog'
+import LiveMatchView from '../components/LiveMatchView'
 import Compressor from 'compressorjs'
 
 type Team = { id: string; name: string; girone?: string; logo_url?: string | null }
@@ -81,6 +82,12 @@ export default function Gironi(){
   const [uploadingDoc, setUploadingDoc] = useState(false)
   const [uploadDocMatchId, setUploadDocMatchId] = useState<string | null>(null)
   const [existingDocs, setExistingDocs] = useState<Set<string>>(new Set())
+
+  // Live match view state
+  const [liveViewOpen, setLiveViewOpen] = useState(false)
+  const [liveViewMatchId, setLiveViewMatchId] = useState<string | null>(null)
+  const [liveViewHomeTeam, setLiveViewHomeTeam] = useState<Team | null>(null)
+  const [liveViewAwayTeam, setLiveViewAwayTeam] = useState<Team | null>(null)
 
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
@@ -1691,6 +1698,37 @@ export default function Gironi(){
                           </div>
                           <div style={{display:'flex',gap:8,alignItems:'center',flexShrink:0}}>
                             <div style={{color:'#64748b',fontSize:13}}>{m.girone}</div>
+                            
+                            {/* Pulsante LIVE - visibile a tutti quando partita in corso */}
+                            {((m as any).home_score != null || (m as any).away_score != null) && !((m as any).home_score != null && (m as any).away_score != null) && (
+                              <button
+                                title="Visualizza Live"
+                                onClick={() => {
+                                  setLiveViewMatchId((m as any).id)
+                                  setLiveViewHomeTeam(homeTeam || null)
+                                  setLiveViewAwayTeam(awayTeam || null)
+                                  setLiveViewOpen(true)
+                                }}
+                                style={{
+                                  background:'#ef4444',
+                                  border:0,
+                                  borderRadius:4,
+                                  cursor:'pointer',
+                                  color:'white',
+                                  padding:'6px 12px',
+                                  fontSize:13,
+                                  fontWeight:700,
+                                  display:'flex',
+                                  alignItems:'center',
+                                  gap:4,
+                                  animation: 'pulse 2s infinite'
+                                }}
+                              >
+                                <Radio size={14} />
+                                LIVE
+                              </button>
+                            )}
+                            
                             {isTeamUser && (m as any).home_score != null && (m as any).away_score != null && (
                               <>
                                 <button 
@@ -2108,6 +2146,17 @@ export default function Gironi(){
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
+
+      {/* Live Match View */}
+      {liveViewOpen && liveViewMatchId && liveViewHomeTeam && liveViewAwayTeam && (
+        <div onClick={() => setLiveViewOpen(false)} style={{cursor: 'pointer'}}>
+          <LiveMatchView
+            matchId={liveViewMatchId}
+            homeTeam={liveViewHomeTeam}
+            awayTeam={liveViewAwayTeam}
+          />
+        </div>
+      )}
     </main>
   )
 }
