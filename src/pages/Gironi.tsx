@@ -2210,6 +2210,7 @@ export default function Gironi(){
             matchId={liveViewMatchId}
             homeTeam={liveViewHomeTeam}
             awayTeam={liveViewAwayTeam}
+            girone={girone}
           />
         </div>
       )}

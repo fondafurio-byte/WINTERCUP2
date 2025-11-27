@@ -20,9 +20,10 @@ interface LiveMatchViewProps {
   matchId: string
   homeTeam: Team
   awayTeam: Team
+  girone?: 'A' | 'B'
 }
 
-export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatchViewProps) {
+export default function LiveMatchView({ matchId, homeTeam, awayTeam, girone }: LiveMatchViewProps) {
   const [homeScore, setHomeScore] = useState(0)
   const [awayScore, setAwayScore] = useState(0)
   const [homeTopScorers, setHomeTopScorers] = useState<Atleta[]>([])
@@ -176,6 +177,17 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
     }
   }
 
+  // Colori gradiente basati sul girone
+  const getGradientColors = () => {
+    if (girone === 'A') {
+      return 'linear-gradient(135deg, #0ea5e9 0%, #1e40af 50%, #1e3a8a 100%)'
+    } else if (girone === 'B') {
+      return 'linear-gradient(135deg, #ef4444 0%, #b91c1c 50%, #7f1d1d 100%)'
+    }
+    // Default se girone non specificato
+    return 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)'
+  }
+
   return (
     <div style={{
       position: 'fixed',
@@ -183,7 +195,7 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
       left: 0,
       right: 0,
       bottom: 0,
-      background: 'linear-gradient(135deg, #667eea 0%, #764ba2 100%)',
+      background: getGradientColors(),
       zIndex: 9999,
       overflow: 'auto',
       padding: '10px'
