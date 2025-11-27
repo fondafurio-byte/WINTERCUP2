@@ -30,18 +30,25 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
   const [isLive, setIsLive] = useState(false)
 
   useEffect(() => {
+    console.debug('LiveMatchView useEffect - matchId:', matchId, 'homeTeam:', homeTeam.id, 'awayTeam:', awayTeam.id)
+    
     // Carica dati iniziali
     loadMatchData()
 
     // Poll ogni 2 secondi per aggiornamenti live
     const interval = setInterval(() => {
+      console.debug('LiveMatchView polling...', new Date().toLocaleTimeString())
       loadMatchData()
     }, 2000)
 
-    return () => clearInterval(interval)
-  }, [matchId])
+    return () => {
+      console.debug('LiveMatchView cleanup - stopping polling')
+      clearInterval(interval)
+    }
+  }, [matchId, homeTeam.id, awayTeam.id])
 
   async function loadMatchData() {
+    console.debug('LiveMatchView loadMatchData START', new Date().toLocaleTimeString())
     try {
       // Carica flag is_live della partita
       const { data: matchData } = await supabase
@@ -71,7 +78,10 @@ export default function LiveMatchView({ matchId, homeTeam, awayTeam }: LiveMatch
         `)
         .eq('partita_id', matchId)
 
-      console.debug('LiveMatchView - allStats:', allStats, 'error:', statsError)
+      console.debug('LiveMatchView - timestamp:', new Date().toLocaleTimeString())
+      console.debug('LiveMatchView - matchId:', matchId)
+      console.debug('LiveMatchView - allStats length:', allStats?.length, 'error:', statsError)
+      console.debug('LiveMatchView - allStats data:', JSON.stringify(allStats))
       console.debug('LiveMatchView - homeTeam.id:', homeTeam.id, 'awayTeam.id:', awayTeam.id)
 
       if (allStats && allStats.length > 0) {
