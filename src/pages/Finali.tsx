@@ -1440,9 +1440,6 @@ export default function Finali(){
         {view === 'classifica' && (
         <section style={{marginTop:24}}>
           <h2 style={{fontSize:18,margin:0,marginBottom:16}}>Classifica Finale</h2>
-          <p style={{color:'#475569',marginBottom:16}}>
-            Classifica determinata dai risultati degli incroci finali.
-          </p>
 
           <div style={{overflowX:'auto'}}>
             <table style={{width:'100%',borderCollapse:'collapse',fontSize:'0.9rem'}}>
