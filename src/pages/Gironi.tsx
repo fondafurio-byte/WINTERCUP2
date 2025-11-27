@@ -1639,12 +1639,16 @@ export default function Gironi(){
                                 Registrati
                               </button>
                             )}
-                            {(isAdmin || isRilevatore) && (
-                              <button title="Rilevazione live punti" onClick={() => {
-                                setLiveMatchId((m as any).id)
-                                loadAtletiForLiveScoring((m as any).id)
-                                setLiveModalOpen(true)
-                              }} style={{background:'transparent',border:0,cursor:'pointer',color:'#10b981',padding:4}}>
+                            {(isAdmin || (isRilevatore && rilevatore)) && (
+                              <button 
+                                title={isRilevatore && !rilevatore ? "Registrati prima alla partita per abilitare la rilevazione live" : "Rilevazione live punti"}
+                                onClick={() => {
+                                  setLiveMatchId((m as any).id)
+                                  loadAtletiForLiveScoring((m as any).id)
+                                  setLiveModalOpen(true)
+                                }} 
+                                style={{background:'transparent',border:0,cursor:'pointer',color:'#10b981',padding:4}}
+                              >
                                 <Zap size={18} fill="#10b981" />
                               </button>
                             )}
