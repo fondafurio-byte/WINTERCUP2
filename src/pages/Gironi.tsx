@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useMemo } from 'react'
-import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3 } from 'lucide-react'
+import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import VoteDialog from '../components/VoteDialog'
@@ -37,9 +37,11 @@ export default function Gironi(){
   const [editAwayTeam, setEditAwayTeam] = useState<string>('')
   const [editCampo, setEditCampo] = useState<string>('')
   const [editOrario, setEditOrario] = useState<string>('')
+  const [editRilevatore, setEditRilevatore] = useState<string>('')
   const [editStatus, setEditStatus] = useState<string | null>(null)
   const [editHomeScore, setEditHomeScore] = useState<string>('')
   const [editAwayScore, setEditAwayScore] = useState<string>('')
+  const [rilevatori, setRilevatori] = useState<Array<{id:string; nome:string; cognome:string; username:string}>>([])
 
   // Punti atleti modal state
   const [puntiModalOpen, setPuntiModalOpen] = useState(false)
@@ -199,6 +201,11 @@ export default function Gironi(){
         const { data: adminData, error: adminError } = await supabase.from('admins').select('*').or(`user_id.eq.${user.id},id.eq.${user.id}`).limit(1)
         if (adminError) { console.debug('admin check error', adminError.message) }
         if (mounted) setIsAdmin(Boolean(adminData && (adminData as any).length > 0))
+        
+        // Load rilevatori list if admin
+        if (adminData && (adminData as any).length > 0) {
+          loadRilevatori()
+        }
         
         // Check rilevatore
         const { data: rilevData, error: rilevError} = await supabase.from('rilevatori').select('*').or(`user_id.eq.${user.id},id.eq.${user.id}`).limit(1)
@@ -601,6 +608,24 @@ export default function Gironi(){
     }
   }
 
+  async function loadRilevatori() {
+    try {
+      const { data, error } = await supabase
+        .from('rilevatori')
+        .select('id, nome, cognome, username')
+        .order('cognome')
+      
+      if (error) {
+        console.debug('load rilevatori error', error.message)
+        return
+      }
+      
+      setRilevatori((data as any) ?? [])
+    } catch (err) {
+      console.debug('load rilevatori error', err)
+    }
+  }
+
   async function handleCreateMatch(e: React.FormEvent){
     e.preventDefault()
     setStatus(null)
@@ -633,6 +658,7 @@ export default function Gironi(){
         away_team_id: editAwayTeam,
         campo: editCampo || null,
         orario: editOrario || null,
+        rilevatore_id: editRilevatore || null,
         home_score: editHomeScore !== '' ? parseInt(editHomeScore, 10) : null,
         away_score: editAwayScore !== '' ? parseInt(editAwayScore, 10) : null
       }
@@ -923,6 +949,20 @@ export default function Gironi(){
                         <div style={{marginBottom:6,fontWeight:600}}>Orario</div>
                         <input className="rw-input" type="datetime-local" value={editOrario} onChange={e=>setEditOrario(e.target.value)} />
                       </div>
+
+                      {isAdmin && (
+                        <div>
+                          <div style={{marginBottom:6,fontWeight:600}}>Rilevatore</div>
+                          <select className="rw-input" value={editRilevatore} onChange={e=>setEditRilevatore(e.target.value)}>
+                            <option value="">-- Nessun rilevatore --</option>
+                            {rilevatori.map(r => (
+                              <option key={r.id} value={r.id}>
+                                {r.nome} {r.cognome} (@{r.username})
+                              </option>
+                            ))}
+                          </select>
+                        </div>
+                      )}
 
                       <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:6}}>
                         <div style={{display:'flex',gap:8}}>
@@ -1427,6 +1467,9 @@ export default function Gironi(){
                     const awayTeam = teams.find(t => t.id === m.away_team_id)
                     const homeName = homeTeam?.name ?? m.home_team_id
                     const awayName = awayTeam?.name ?? m.away_team_id
+                    
+                    // resolve rilevatore data
+                    const rilevatore = rilevatori.find(r => r.id === (m as any).rilevatore_id)
 
                     // format date/time
                     let dateStr = ''
@@ -1539,6 +1582,63 @@ export default function Gironi(){
                                 </button>
                               </>
                             )}
+                            {isRilevatore && !rilevatore && (
+                              <button 
+                                title="Registrati a questa partita" 
+                                onClick={async () => {
+                                  try {
+                                    const { data: { user } } = await supabase.auth.getUser()
+                                    if (!user) return
+                                    
+                                    const { data: rilevData } = await supabase
+                                      .from('rilevatori')
+                                      .select('id')
+                                      .eq('user_id', user.id)
+                                      .single()
+                                    
+                                    if (!rilevData) return
+                                    
+                                    const { error } = await supabase
+                                      .from('partite')
+                                      .update({ rilevatore_id: rilevData.id })
+                                      .eq('id', (m as any).id)
+                                    
+                                    if (error) {
+                                      alert('Errore: ' + error.message)
+                                      return
+                                    }
+                                    
+                                    // Reload matches
+                                    const { data: matches } = await supabase
+                                      .from('partite')
+                                      .select('*')
+                                      .eq('girone', girone)
+                                      .order('orario', { ascending: true })
+                                    
+                                    if (matches) setMatches(matches as any)
+                                    loadRilevatori()
+                                  } catch (err) {
+                                    console.debug(err)
+                                  }
+                                }}
+                                style={{
+                                  background:'#6366f1',
+                                  border:0,
+                                  borderRadius:4,
+                                  cursor:'pointer',
+                                  color:'white',
+                                  padding:'6px 12px',
+                                  fontSize:13,
+                                  fontWeight:600,
+                                  display:'flex',
+                                  alignItems:'center',
+                                  gap:4
+                                }}
+                              >
+                                <UserPlus size={14} />
+                                Registrati
+                              </button>
+                            )}
                             {(isAdmin || isRilevatore) && (
                               <button title="Rilevazione live punti" onClick={() => {
                                 setLiveMatchId((m as any).id)
@@ -1557,6 +1657,7 @@ export default function Gironi(){
                                   setEditAwayTeam(m.away_team_id)
                                   setEditCampo(m.campo ?? '')
                                   setEditOrario(toDatetimeLocalInput(m.orario ?? ''))
+                                  setEditRilevatore((m as any).rilevatore_id ?? '')
                                   setEditHomeScore((m as any).home_score != null ? String((m as any).home_score) : '')
                                   setEditAwayScore((m as any).away_score != null ? String((m as any).away_score) : '')
                                   setEditStatus(null)
@@ -1596,6 +1697,15 @@ export default function Gironi(){
                             <Clock size={14} />
                             <span>{timeStr || '—'}</span>
                           </div>
+
+                          {isAdmin && rilevatore && (
+                            <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
+                              <UserPlus size={14} />
+                              <span style={{fontWeight:600}}>
+                                {rilevatore.nome} {rilevatore.cognome}
+                              </span>
+                            </div>
+                          )}
                         </div>
                       </li>
                     )

@@ -17,6 +17,8 @@ export default function AdminDialog(){
   // Registration state
   const [regEmail, setRegEmail] = useState('')
   const [regUsername, setRegUsername] = useState('')
+  const [regNome, setRegNome] = useState('')
+  const [regCognome, setRegCognome] = useState('')
   const [regPassword, setRegPassword] = useState('')
   const [regStatus, setRegStatus] = useState<string | null>(null)
   const [regLoading, setRegLoading] = useState(false)
@@ -151,7 +153,7 @@ export default function AdminDialog(){
 
     try{
       // Validate input
-      if (!regEmail || !regUsername || !regPassword) {
+      if (!regEmail || !regUsername || !regNome || !regCognome || !regPassword) {
         setRegStatus('Tutti i campi sono obbligatori')
         setRegLoading(false)
         return
@@ -204,7 +206,9 @@ export default function AdminDialog(){
         .insert({
           user_id: authData.user.id,
           email: regEmail,
-          username: regUsername
+          username: regUsername,
+          nome: regNome,
+          cognome: regCognome
         })
 
       if (rilevError) {
@@ -217,6 +221,8 @@ export default function AdminDialog(){
       setTimeout(() => {
         setRegEmail('')
         setRegUsername('')
+        setRegNome('')
+        setRegCognome('')
         setRegPassword('')
         setRegStatus(null)
         setMode('login')
@@ -332,6 +338,32 @@ export default function AdminDialog(){
                     value={regUsername} 
                     onChange={e=>setRegUsername(e.target.value)} 
                     placeholder="username" 
+                    type="text" 
+                  />
+                </div>
+              </label>
+
+              <label style={{display:'block',marginTop:8}}>
+                <div style={{marginBottom:6,fontWeight:600,fontSize:14}}>Nome</div>
+                <div className="rw-input">
+                  <UserPlus size={16} />
+                  <input 
+                    value={regNome} 
+                    onChange={e=>setRegNome(e.target.value)} 
+                    placeholder="Nome" 
+                    type="text" 
+                  />
+                </div>
+              </label>
+
+              <label style={{display:'block',marginTop:8}}>
+                <div style={{marginBottom:6,fontWeight:600,fontSize:14}}>Cognome</div>
+                <div className="rw-input">
+                  <UserPlus size={16} />
+                  <input 
+                    value={regCognome} 
+                    onChange={e=>setRegCognome(e.target.value)} 
+                    placeholder="Cognome" 
                     type="text" 
                   />
                 </div>
