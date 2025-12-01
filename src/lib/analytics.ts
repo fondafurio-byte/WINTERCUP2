@@ -15,15 +15,16 @@ export async function logEvent(
 ) {
   try {
     // Don't block the UI - run async in background
-    supabase.rpc('log_event', {
+    const { error } = await supabase.rpc('log_event', {
       p_event_type: eventType,
       p_user_category: userCategory || null,
       p_event_data: eventData || null
-    }).catch(err => {
-      // Silently fail - analytics shouldn't break the app
-      console.debug('Analytics event logging failed:', err)
     })
-  } catch (err) {
+    if (error) {
+      // Silently fail - analytics shouldn't break the app
+      console.debug('Analytics event logging failed:', error.message)
+    }
+  } catch (err: any) {
     console.debug('Analytics error:', err)
   }
 }

@@ -743,33 +743,6 @@ export default function Finali(){
                   <span style={{background:'#fbbf24',color:'#78350f',padding:'4px 12px',borderRadius:6,fontSize:13,fontWeight:700}}>1° vs 1°</span>
                   {finalMatches.find(m => m.finalType === '1-2') && (
                     <>
-                      {isTeamUser && (() => {
-                        const match = finalMatches.find(m => m.finalType === '1-2')
-                        return match?.is_live && (
-                          <button
-                            title="Guarda Live"
-                            onClick={() => {
-                              setLiveViewMatchId(match.id)
-                              setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
-                              setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
-                              setLiveViewOpen(true)
-                            }}
-                            style={{
-                              background:'#8b5cf6',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'8px',
-                              display:'flex',
-                              alignItems:'center',
-                              justifyContent:'center'
-                            }}
-                          >
-                            <Eye size={16} />
-                          </button>
-                        )
-                      })()}
                       {isTeamUser && (
                         <button
                           title="Vota MVP"
@@ -950,33 +923,6 @@ export default function Finali(){
                   <span style={{background:'#e2e8f0',color:'#475569',padding:'4px 12px',borderRadius:6,fontSize:13,fontWeight:700}}>2° vs 2°</span>
                   {finalMatches.find(m => m.finalType === '3-4') && (
                     <>
-                      {isTeamUser && (() => {
-                        const match = finalMatches.find(m => m.finalType === '3-4')
-                        return match?.is_live && (
-                          <button
-                            title="Guarda Live"
-                            onClick={() => {
-                              setLiveViewMatchId(match.id)
-                              setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
-                              setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
-                              setLiveViewOpen(true)
-                            }}
-                            style={{
-                              background:'#8b5cf6',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'8px',
-                              display:'flex',
-                              alignItems:'center',
-                              justifyContent:'center'
-                            }}
-                          >
-                            <Eye size={16} />
-                          </button>
-                        )
-                      })()}
                       {isTeamUser && (
                         <button
                           title="Vota MVP"
@@ -1157,33 +1103,6 @@ export default function Finali(){
                   <span style={{background:'#f59e0b',color:'#78350f',padding:'4px 12px',borderRadius:6,fontSize:13,fontWeight:700}}>3° vs 3°</span>
                   {finalMatches.find(m => m.finalType === '5-6') && (
                     <>
-                      {isTeamUser && (() => {
-                        const match = finalMatches.find(m => m.finalType === '5-6')
-                        return match?.is_live && (
-                          <button
-                            title="Guarda Live"
-                            onClick={() => {
-                              setLiveViewMatchId(match.id)
-                              setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
-                              setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
-                              setLiveViewOpen(true)
-                            }}
-                            style={{
-                              background:'#8b5cf6',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'8px',
-                              display:'flex',
-                              alignItems:'center',
-                              justifyContent:'center'
-                            }}
-                          >
-                            <Eye size={16} />
-                          </button>
-                        )
-                      })()}
                       {isTeamUser && (
                         <button
                           title="Vota MVP"
@@ -1364,33 +1283,6 @@ export default function Finali(){
                   <span style={{background:'#cbd5e1',color:'#475569',padding:'4px 12px',borderRadius:6,fontSize:13,fontWeight:700}}>4° vs 4°</span>
                   {finalMatches.find(m => m.finalType === '7-8') && (
                     <>
-                      {isTeamUser && (() => {
-                        const match = finalMatches.find(m => m.finalType === '7-8')
-                        return match?.is_live && (
-                          <button
-                            title="Guarda Live"
-                            onClick={() => {
-                              setLiveViewMatchId(match.id)
-                              setLiveViewHomeTeam(teams.find(t => t.id === match.home_team_id) || null)
-                              setLiveViewAwayTeam(teams.find(t => t.id === match.away_team_id) || null)
-                              setLiveViewOpen(true)
-                            }}
-                            style={{
-                              background:'#8b5cf6',
-                              border:0,
-                              borderRadius:4,
-                              cursor:'pointer',
-                              color:'white',
-                              padding:'8px',
-                              display:'flex',
-                              alignItems:'center',
-                              justifyContent:'center'
-                            }}
-                          >
-                            <Eye size={16} />
-                          </button>
-                        )
-                      })()}
                       {isTeamUser && (
                         <button
                           title="Vota MVP"

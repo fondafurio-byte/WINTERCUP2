@@ -5,7 +5,7 @@ import { Trophy } from 'lucide-react'
 interface Team {
   id: string
   name: string
-  logo_url?: string
+  logo_url?: string | null
 }
 
 interface Atleta {
