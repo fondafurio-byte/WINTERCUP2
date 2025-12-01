@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
 import { Copy, RefreshCw, Eye, EyeOff, Edit2, Check, X } from 'lucide-react'
+import { getEventStats } from '../lib/analytics'
 
 type TeamToken = {
   squadra_id: string
@@ -21,6 +22,19 @@ export default function TokenManager() {
   const [editingField, setEditingField] = useState<{ squadraId: string; field: 'username' | 'email' } | null>(null)
   const [editValue, setEditValue] = useState('')
   const [saving, setSaving] = useState(false)
+  const [statsLoading, setStatsLoading] = useState(false)
+  const [counts, setCounts] = useState<{
+    senzaLogin?: string | number
+    publicUsers: number
+    teamUsers: number
+    rilevatori: number
+    admins: number
+    totale: number
+    appOpens?: number
+    logins?: number
+  }>({ senzaLogin: '-', publicUsers: 0, teamUsers: 0, rilevatori: 0, admins: 0, totale: 0, appOpens: 0, logins: 0 })
+  const [showUsersModal, setShowUsersModal] = useState(false)
+  const [usersList, setUsersList] = useState<Array<any>>([])
 
   useEffect(() => {
     checkAdmin()
@@ -44,6 +58,7 @@ export default function TokenManager() {
       if (adminData && adminData.length > 0) {
         setIsAdmin(true)
         loadTokens()
+        loadStats()
       } else {
         setIsAdmin(false)
         setLoading(false)
@@ -73,6 +88,67 @@ export default function TokenManager() {
       console.error('Error:', err)
     }
     setLoading(false)
+  }
+
+  // Admin statistics
+  async function loadStats() {
+    setStatsLoading(true)
+    try {
+      // Fetch counts from main tables
+      const { data: teamData } = await supabase.from('users').select('user_id')
+      const { data: pubData } = await supabase.from('public_users').select('user_id')
+      const { data: rilevatoriData } = await supabase.from('rilevatori').select('id')
+      const { data: adminsList } = await supabase.from('admins').select('id')
+
+      const teamCount = (teamData && teamData.length) || 0
+      const pubCount = (pubData && pubData.length) || 0
+      const rilevCount = (rilevatoriData && rilevatoriData.length) || 0
+      const adminCount = (adminsList && adminsList.length) || 0
+
+      const total = teamCount + pubCount + rilevCount + adminCount
+
+      // Get event stats from analytics table
+      const eventStats = await getEventStats()
+      const appOpens = eventStats?.byType?.['app_open'] || 0
+      const logins = eventStats?.byType?.['login'] || 0
+
+      setCounts({
+        senzaLogin: '-',
+        publicUsers: pubCount,
+        teamUsers: teamCount,
+        rilevatori: rilevCount,
+        admins: adminCount,
+        totale: total,
+        appOpens,
+        logins
+      })
+    } catch (err) {
+      console.error('Error loading stats:', err)
+    }
+    setStatsLoading(false)
+  }
+
+  async function loadUsersList() {
+    try {
+      const [ { data: teamData }, { data: pubData }, { data: rilevData }, { data: adminsData } ] = await Promise.all([
+        supabase.from('users').select('*'),
+        supabase.from('public_users').select('*'),
+        supabase.from('rilevatori').select('*'),
+        supabase.from('admins').select('*')
+      ])
+
+      const unified: any[] = []
+      ;(teamData || []).forEach((u: any) => unified.push({ type: 'squadra', data: u }))
+      ;(pubData || []).forEach((u: any) => unified.push({ type: 'pubblico', data: u }))
+      ;(rilevData || []).forEach((u: any) => unified.push({ type: 'rilevatore', data: u }))
+      ;(adminsData || []).forEach((u: any) => unified.push({ type: 'admin', data: u }))
+
+      setUsersList(unified)
+      setShowUsersModal(true)
+    } catch (err) {
+      console.error('Error loading users list:', err)
+      alert('Errore caricamento elenco utenti')
+    }
   }
 
   async function regenerateToken(squadraId: string) {
@@ -249,10 +325,10 @@ export default function TokenManager() {
     <main style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
         <h1 style={{ fontSize: '1.75rem', fontWeight: 700, marginBottom: 8, color: '#1e293b' }}>
-          🔑 Gestione Token Squadre
+          🔧 Gestione
         </h1>
         <p style={{ color: '#64748b' }}>
-          Token di accesso per ogni squadra. Gli utenti useranno il token come password al primo login.
+          Pannello amministrazione: gestione token e statistiche utenti.
         </p>
       </div>
 
@@ -440,6 +516,101 @@ export default function TokenManager() {
           <li>Gli utenti squadra hanno accesso in <strong>sola lettura</strong> ai dati</li>
         </ul>
       </div>
+
+      {/* Admin statistics */}
+      <div style={{ marginTop: 24 }}>
+        <h2 style={{ fontSize: '1.1rem', fontWeight: 700, marginBottom: 12, color: '#0f172a' }}>Statistiche</h2>
+        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 12, marginBottom: 12 }}>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Senza login</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{counts.senzaLogin}</div>
+          </div>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Utente pubblico</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{statsLoading ? '...' : counts.publicUsers}</div>
+          </div>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Squadra</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{statsLoading ? '...' : counts.teamUsers}</div>
+          </div>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Rilevatore</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{statsLoading ? '...' : counts.rilevatori}</div>
+          </div>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Admin</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{statsLoading ? '...' : counts.admins}</div>
+          </div>
+          <div style={{ padding: 12, background: 'white', borderRadius: 8, border: '1px solid #e6e6e6' }}>
+            <div style={{ fontSize: 12, color: '#64748b' }}>Totale</div>
+            <div style={{ fontWeight: 700, fontSize: 20 }}>{statsLoading ? '...' : counts.totale}</div>
+          </div>
+        </div>
+
+        <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
+          <button
+            onClick={() => loadStats()}
+            style={{ background: '#3b82f6', color: 'white', border: 0, borderRadius: 6, padding: '8px 12px', cursor: 'pointer' }}
+            title="Aggiorna statistiche"
+          >
+            <RefreshCw size={14} />&nbsp;Aggiorna
+          </button>
+
+          <button
+            onClick={() => loadUsersList()}
+            style={{ background: '#0f172a', color: 'white', border: 0, borderRadius: 6, padding: '8px 12px', cursor: 'pointer' }}
+          >
+            Elenco Utenti
+          </button>
+
+          <div style={{ marginLeft: 'auto', color: '#64748b', fontSize: 13 }}>
+            <strong>Aperture app:</strong> {statsLoading ? '...' : counts.appOpens || 0} | <strong>Accessi:</strong> {statsLoading ? '...' : counts.logins || 0}
+          </div>
+        </div>
+      </div>
+
+      {/* Users modal */}
+      {showUsersModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <div style={{ width: '90%', maxWidth: 900, maxHeight: '85vh', overflow: 'auto', background: 'white', borderRadius: 10, padding: 16 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 12 }}>
+              <h3 style={{ margin: 0 }}>Elenco Utenti</h3>
+              <div style={{ display: 'flex', gap: 8 }}>
+                <button onClick={() => setShowUsersModal(false)} style={{ background: '#ef4444', color: 'white', border: 0, borderRadius: 6, padding: '6px 10px', cursor: 'pointer' }}>
+                  Chiudi
+                </button>
+              </div>
+            </div>
+
+            <div style={{ overflowX: 'auto' }}>
+              <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+                <thead>
+                  <tr style={{ background: '#f1f5f9' }}>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Tipo</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>ID</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Username / Email</th>
+                    <th style={{ textAlign: 'left', padding: 8 }}>Dettagli</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {usersList.map((u, idx) => (
+                    <tr key={idx} style={{ borderBottom: '1px solid #e6e6e6' }}>
+                      <td style={{ padding: 8, textTransform: 'capitalize' }}>{u.type}</td>
+                      <td style={{ padding: 8 }}>{u.data?.user_id || u.data?.id || '—'}</td>
+                      <td style={{ padding: 8 }}>{u.data?.username || u.data?.email || u.data?.nome || '—'}</td>
+                      <td style={{ padding: 8 }}>
+                        {Object.keys(u.data || {}).slice(0, 4).map(k => (
+                          <div key={k}><strong>{k}:</strong> {String((u.data || {})[k])}</div>
+                        ))}
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+          </div>
+        </div>
+      )}
     </main>
   )
 }

@@ -12,6 +12,7 @@ import Condividi from './pages/Condividi'
 import AdminDialog from './components/AdminDialog'
 import InstallPWABanner from './components/InstallPWABanner'
 import { supabase } from './lib/supabase'
+import { logAppOpen } from './lib/analytics'
 
 export default function App(){
   const [showAdmin, setShowAdmin] = useState(false)
@@ -32,6 +33,9 @@ export default function App(){
       }
     }
     checkAuth()
+
+    // Log app open event
+    logAppOpen()
 
     // Listen for login success
     const handleLogin = () => {
