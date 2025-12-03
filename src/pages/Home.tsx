@@ -134,7 +134,7 @@ export default function Home() {
     if (loggedInTeamId && teamId === loggedInTeamId) {
       return '#dc2626' // Red for logged in team
     }
-    return 'inherit' // Default color
+    return '#64748b' // Default gray color
   }
 
   useEffect(() => {
@@ -1632,7 +1632,7 @@ export default function Home() {
                     <div style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 4 }}>
                       #{selectedMVP.numero_maglia} {selectedMVP.nome} {selectedMVP.cognome}
                     </div>
-                    <div style={{ fontSize: '0.9rem', opacity: 0.9, color: getTeamNameColor(selectedMVP.squadra_id), fontWeight: loggedInTeamId && selectedMVP.squadra_id === loggedInTeamId ? 700 : 400 }}>
+                    <div style={{ fontSize: '0.9rem', opacity: 0.9, fontWeight: loggedInTeamId && selectedMVP.squadra_id === loggedInTeamId ? 700 : 400 }}>
                       {selectedMVP.squadra_nome}
                     </div>
                   </div>
