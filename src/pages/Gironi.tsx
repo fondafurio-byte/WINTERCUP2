@@ -979,7 +979,7 @@ export default function Gironi(){
                       </div>
                     )}
                   </div>
-                  <div style={{flex:1,fontWeight:600,fontSize:15}}>
+                  <div style={{flex:1,fontWeight:600,fontSize:15,color:getTeamNameColor(team.id)}}>
                     {team.name}
                   </div>
                 </div>

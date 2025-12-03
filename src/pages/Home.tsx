@@ -1156,7 +1156,7 @@ export default function Home() {
                   <div style={{ fontSize: '0.875rem', fontWeight: 700, color: '#1e293b' }}>
                     #{mvp.numero_maglia} {mvp.nome} {mvp.cognome}
                   </div>
-                  <div style={{ fontSize: '0.75rem', color: '#64748b' }}>
+                  <div style={{ fontSize: '0.75rem', color: getTeamNameColor(mvp.squadra_id) }}>
                     {mvp.squadra_nome}
                   </div>
                 </div>
