@@ -14,8 +14,8 @@ export async function logEvent(
   eventData?: Record<string, any>
 ) {
   try {
-    // Skip logging in development mode to avoid polluting analytics data
-    if (import.meta.env.DEV) {
+    // Skip logging in development mode UNLESS VITE_LOG_DEV_EVENTS is set to true
+    if (import.meta.env.DEV && import.meta.env.VITE_LOG_DEV_EVENTS !== 'true') {
       console.debug(`[DEV] Would log event: ${eventType}`, { userCategory, eventData })
       return
     }

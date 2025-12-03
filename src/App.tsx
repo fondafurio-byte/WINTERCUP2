@@ -12,7 +12,7 @@ import Condividi from './pages/Condividi'
 import AdminDialog from './components/AdminDialog'
 import InstallPWABanner from './components/InstallPWABanner'
 import { supabase } from './lib/supabase'
-import { logAppOpen } from './lib/analytics'
+import { logAppOpen, logEvent, getUserCategory } from './lib/analytics'
 import { TeamContext } from './lib/teamContext'
 
 export default function App(){
@@ -72,15 +72,21 @@ export default function App(){
     logAppOpen()
 
     // Listen for login success
-    const handleLogin = () => {
+    const handleLogin = async () => {
       setIsAuthenticated(true)
       setShowAdmin(false)
+      // Log login event
+      const category = await getUserCategory()
+      logEvent('login', category || 'anonimo')
       // Refresh admin status after login
       checkAuth()
     }
-    const handleTeamLogin = () => {
+    const handleTeamLogin = async () => {
       setIsAuthenticated(true)
       setIsAdmin(false)
+      // Log login event
+      const category = await getUserCategory()
+      logEvent('login', category || 'anonimo')
       // Refresh team info after login
       checkAuth()
     }
