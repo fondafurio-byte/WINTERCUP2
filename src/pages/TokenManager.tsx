@@ -35,6 +35,20 @@ export default function TokenManager() {
   }>({ senzaLogin: '-', publicUsers: 0, teamUsers: 0, rilevatori: 0, admins: 0, totale: 0, appOpens: 0, logins: 0 })
   const [showUsersModal, setShowUsersModal] = useState(false)
   const [usersList, setUsersList] = useState<Array<any>>([])
+  
+  // Test matches state
+  const [showTestMatchModal, setShowTestMatchModal] = useState(false)
+  const [testMatchStatus, setTestMatchStatus] = useState<string | null>(null)
+  const [testMatches, setTestMatches] = useState<Array<any>>([])
+  const [testMatchLoading, setTestMatchLoading] = useState(false)
+  const [testMatchForm, setTestMatchForm] = useState({
+    home_team_id: '',
+    away_team_id: '',
+    girone: 'A',
+    campo: '',
+    orario: '',
+  })
+  const [squadreList, setSquadreList] = useState<Array<{ id: string; name: string; girone: string }>>([])
 
   useEffect(() => {
     checkAdmin()
@@ -321,6 +335,103 @@ export default function TokenManager() {
   const gironiA = tokens.filter(t => t.girone === 'A')
   const gironiB = tokens.filter(t => t.girone === 'B')
 
+  // Load squadre for test match form
+  async function loadSquadreForTestMatch() {
+    try {
+      const { data, error } = await supabase
+        .from('squadre')
+        .select('id,name,girone')
+        .order('girone')
+        .order('name')
+      if (error) throw error
+      setSquadreList(data || [])
+    } catch (err) {
+      console.error('Error loading squadre:', err)
+      alert('Errore nel caricamento squadre')
+    }
+  }
+
+  // Load test matches
+  async function loadTestMatches() {
+    setTestMatchLoading(true)
+    try {
+      const { data, error } = await supabase
+        .from('partite')
+        .select('*')
+        .eq('is_test', true)
+        .order('girone')
+        .order('orario')
+      if (error) throw error
+      setTestMatches(data || [])
+    } catch (err) {
+      console.error('Error loading test matches:', err)
+      alert('Errore nel caricamento partite test')
+    }
+    setTestMatchLoading(false)
+  }
+
+  // Open test match modal
+  async function openTestMatchModal() {
+    setTestMatchStatus(null)
+    await loadSquadreForTestMatch()
+    await loadTestMatches()
+    setShowTestMatchModal(true)
+  }
+
+  // Create test match
+  async function handleCreateTestMatch(e: React.FormEvent) {
+    e.preventDefault()
+    setTestMatchStatus(null)
+
+    if (!testMatchForm.home_team_id || !testMatchForm.away_team_id) {
+      setTestMatchStatus('Seleziona entrambe le squadre')
+      return
+    }
+    if (testMatchForm.home_team_id === testMatchForm.away_team_id) {
+      setTestMatchStatus('Le squadre non possono essere uguali')
+      return
+    }
+
+    try {
+      const payload = {
+        home_team_id: testMatchForm.home_team_id,
+        away_team_id: testMatchForm.away_team_id,
+        girone: testMatchForm.girone,
+        campo: testMatchForm.campo || null,
+        orario: testMatchForm.orario || null,
+        is_test: true
+      }
+      const { data, error } = await supabase.from('partite').insert([payload]).select()
+      if (error) {
+        setTestMatchStatus('Errore creazione: ' + error.message)
+        return
+      }
+      setTestMatches(prev => [...prev, ...(data || [])])
+      setTestMatchForm({ home_team_id: '', away_team_id: '', girone: 'A', campo: '', orario: '' })
+      setTestMatchStatus('Partita TEST creata ✓')
+      setTimeout(() => setTestMatchStatus(null), 2000)
+    } catch (err) {
+      console.error('Error creating test match:', err)
+      setTestMatchStatus('Errore nella creazione')
+    }
+  }
+
+  // Delete test match
+  async function deleteTestMatch(matchId: string) {
+    if (!confirm('Eliminare questa partita TEST?')) return
+    try {
+      const { error } = await supabase.from('partite').delete().eq('id', matchId)
+      if (error) {
+        alert('Errore eliminazione: ' + error.message)
+        return
+      }
+      setTestMatches(prev => prev.filter(m => m.id !== matchId))
+    } catch (err) {
+      console.error('Error deleting test match:', err)
+      alert('Errore eliminazione')
+    }
+  }
+
   return (
     <main style={{ padding: 20, maxWidth: 1400, margin: '0 auto' }}>
       <div style={{ marginBottom: 32 }}>
@@ -329,6 +440,33 @@ export default function TokenManager() {
         </h1>
         <p style={{ color: '#64748b' }}>
           Pannello amministrazione: gestione token e statistiche utenti.
+        </p>
+      </div>
+
+      {/* Test Matches Section */}
+      <div style={{ marginBottom: 32, padding: 16, background: '#f0f9ff', borderRadius: 8, border: '2px dashed #0ea5e9' }}>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 12 }}>
+          <h2 style={{ fontSize: '1.1rem', fontWeight: 700, margin: 0, color: '#0369a1' }}>
+            🧪 Partite TEST (Visibili solo ai Rilevatori)
+          </h2>
+          <button
+            onClick={openTestMatchModal}
+            style={{
+              background: '#0ea5e9',
+              color: 'white',
+              border: 0,
+              borderRadius: 6,
+              padding: '8px 14px',
+              cursor: 'pointer',
+              fontWeight: 600,
+              fontSize: '0.875rem'
+            }}
+          >
+            + Aggiungi Partita TEST
+          </button>
+        </div>
+        <p style={{ color: '#0369a1', margin: 0, fontSize: '0.875rem' }}>
+          Utilizza questo strumento per creare partite di test che saranno visibili solo ai rilevatori per testare le funzionalità di registrazione.
         </p>
       </div>
 
@@ -607,6 +745,169 @@ export default function TokenManager() {
                   ))}
                 </tbody>
               </table>
+            </div>
+          </div>
+        </div>
+      )}
+
+      {/* Test Match Modal */}
+      {showTestMatchModal && (
+        <div style={{ position: 'fixed', inset: 0, background: 'rgba(0,0,0,0.5)', zIndex: 2000, display: 'flex', alignItems: 'center', justifyContent: 'center', padding: 16 }}>
+          <div style={{ width: '100%', maxWidth: 600, maxHeight: '90vh', overflow: 'auto', background: 'white', borderRadius: 10, padding: 24 }}>
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 16 }}>
+              <h3 style={{ margin: 0, fontSize: '1.2rem', fontWeight: 700 }}>🧪 Crea Partita TEST</h3>
+              <button
+                onClick={() => setShowTestMatchModal(false)}
+                style={{ background: '#ef4444', color: 'white', border: 0, borderRadius: 6, padding: '6px 10px', cursor: 'pointer', fontWeight: 600 }}
+              >
+                Chiudi
+              </button>
+            </div>
+
+            {/* Form per creare partita TEST */}
+            <form onSubmit={handleCreateTestMatch} style={{ marginBottom: 24, padding: 16, background: '#f0f9ff', borderRadius: 8, border: '1px solid #0ea5e9' }}>
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: '0.875rem' }}>Girone</label>
+                <select
+                  value={testMatchForm.girone}
+                  onChange={(e) => setTestMatchForm({ ...testMatchForm, girone: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.875rem' }}
+                >
+                  <option value="A">Girone A</option>
+                  <option value="B">Girone B</option>
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: '0.875rem' }}>Squadra Casa</label>
+                <select
+                  value={testMatchForm.home_team_id}
+                  onChange={(e) => setTestMatchForm({ ...testMatchForm, home_team_id: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.875rem' }}
+                >
+                  <option value="">-- Seleziona squadra --</option>
+                  {squadreList
+                    .filter(s => s.girone === testMatchForm.girone)
+                    .map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: '0.875rem' }}>Squadra Trasferta</label>
+                <select
+                  value={testMatchForm.away_team_id}
+                  onChange={(e) => setTestMatchForm({ ...testMatchForm, away_team_id: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.875rem' }}
+                >
+                  <option value="">-- Seleziona squadra --</option>
+                  {squadreList
+                    .filter(s => s.girone === testMatchForm.girone)
+                    .map(s => (
+                      <option key={s.id} value={s.id}>{s.name}</option>
+                    ))}
+                </select>
+              </div>
+
+              <div style={{ marginBottom: 12 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: '0.875rem' }}>Campo (opzionale)</label>
+                <input
+                  type="text"
+                  value={testMatchForm.campo}
+                  onChange={(e) => setTestMatchForm({ ...testMatchForm, campo: e.target.value })}
+                  placeholder="Es. Campo 1"
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              <div style={{ marginBottom: 16 }}>
+                <label style={{ display: 'block', marginBottom: 4, fontWeight: 600, fontSize: '0.875rem' }}>Orario (opzionale)</label>
+                <input
+                  type="time"
+                  value={testMatchForm.orario}
+                  onChange={(e) => setTestMatchForm({ ...testMatchForm, orario: e.target.value })}
+                  style={{ width: '100%', padding: '8px 12px', border: '1px solid #cbd5e1', borderRadius: 6, fontSize: '0.875rem', boxSizing: 'border-box' }}
+                />
+              </div>
+
+              {testMatchStatus && (
+                <div style={{ marginBottom: 12, padding: 8, background: testMatchStatus.includes('✓') ? '#dcfce7' : '#fee2e2', color: testMatchStatus.includes('✓') ? '#166534' : '#991b1b', borderRadius: 6, fontSize: '0.875rem' }}>
+                  {testMatchStatus}
+                </div>
+              )}
+
+              <button
+                type="submit"
+                style={{
+                  width: '100%',
+                  background: '#0ea5e9',
+                  color: 'white',
+                  border: 0,
+                  borderRadius: 6,
+                  padding: '10px 16px',
+                  cursor: 'pointer',
+                  fontWeight: 600,
+                  fontSize: '0.875rem'
+                }}
+              >
+                Crea Partita TEST
+              </button>
+            </form>
+
+            {/* List of existing test matches */}
+            <div>
+              <h4 style={{ fontSize: '0.95rem', fontWeight: 700, marginBottom: 12 }}>Partite TEST Esistenti ({testMatches.length})</h4>
+              {testMatchLoading ? (
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem' }}>Caricamento...</div>
+              ) : testMatches.length === 0 ? (
+                <div style={{ textAlign: 'center', color: '#64748b', fontSize: '0.875rem', padding: '12px' }}>Nessuna partita TEST</div>
+              ) : (
+                <div style={{ overflowX: 'auto' }}>
+                  <table style={{ width: '100%', borderCollapse: 'collapse', fontSize: '0.875rem' }}>
+                    <thead>
+                      <tr style={{ background: '#f1f5f9' }}>
+                        <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Girone</th>
+                        <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Partita</th>
+                        <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Campo</th>
+                        <th style={{ textAlign: 'left', padding: '8px', fontWeight: 600 }}>Orario</th>
+                        <th style={{ textAlign: 'center', padding: '8px', fontWeight: 600 }}>Azioni</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {testMatches.map((match: any) => {
+                        const homeTeam = squadreList.find(s => s.id === match.home_team_id)?.name || match.home_team_id
+                        const awayTeam = squadreList.find(s => s.id === match.away_team_id)?.name || match.away_team_id
+                        return (
+                          <tr key={match.id} style={{ borderBottom: '1px solid #e6e6e6' }}>
+                            <td style={{ padding: '8px' }}>{match.girone}</td>
+                            <td style={{ padding: '8px' }}>{homeTeam} vs {awayTeam}</td>
+                            <td style={{ padding: '8px' }}>{match.campo || '—'}</td>
+                            <td style={{ padding: '8px' }}>{match.orario || '—'}</td>
+                            <td style={{ padding: '8px', textAlign: 'center' }}>
+                              <button
+                                onClick={() => deleteTestMatch(match.id)}
+                                style={{
+                                  background: '#ef4444',
+                                  color: 'white',
+                                  border: 0,
+                                  borderRadius: 4,
+                                  padding: '4px 8px',
+                                  cursor: 'pointer',
+                                  fontSize: '0.75rem',
+                                  fontWeight: 600
+                                }}
+                              >
+                                Elimina
+                              </button>
+                            </td>
+                          </tr>
+                        )
+                      })}
+                    </tbody>
+                  </table>
+                </div>
+              )}
             </div>
           </div>
         </div>

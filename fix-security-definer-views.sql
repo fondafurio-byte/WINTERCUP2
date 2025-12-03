@@ -70,6 +70,18 @@ GRANT SELECT ON public.team_tokens_view TO service_role;
 -- You may want to add RLS or remove 'authenticated' grant depending on your security needs
 
 -- ============================================================================
+-- FORCE SUPABASE TO RELOAD METADATA (Critical for fixing cache issues)
+-- ============================================================================
+
+-- Analyze the views to update statistics
+ANALYZE public.athlete_votes;
+ANALYZE public.team_tokens_view;
+
+-- Comment on views to force metadata update
+COMMENT ON VIEW public.athlete_votes IS 'Vote count aggregation by athlete (SECURITY DEFINER removed)';
+COMMENT ON VIEW public.team_tokens_view IS 'Team tokens view without SECURITY DEFINER (RLS compliant)';
+
+-- ============================================================================
 -- VERIFICATION SCRIPT (Run after applying the fix)
 -- ============================================================================
 
@@ -85,6 +97,20 @@ AND (viewname = 'athlete_votes' OR viewname = 'team_tokens_view');
 
 -- The definition should NOT contain "security_definer=true"
 -- If fixed correctly, the output should show plain SELECT statements
+
+-- Alternative check - query system catalog directly:
+SELECT 
+  n.nspname as schemaname,
+  c.relname as viewname,
+  c.relkind,
+  c.relowner,
+  obj_description(c.oid, 'pg_class') as comment
+FROM pg_class c
+JOIN pg_namespace n ON n.oid = c.relnamespace
+WHERE n.nspname = 'public'
+AND c.relkind = 'v'
+AND (c.relname = 'athlete_votes' OR c.relname = 'team_tokens_view')
+ORDER BY c.relname;
 
 -- Test the views work:
 SELECT * FROM public.athlete_votes LIMIT 5;
