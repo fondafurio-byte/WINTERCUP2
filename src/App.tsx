@@ -20,6 +20,7 @@ export default function App(){
   const [menuOpen, setMenuOpen] = useState(false)
   const [currentPage, setCurrentPage] = useState<string>('home')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
+  const [isAdmin, setIsAdmin] = useState(false)
 
   // Check authentication status
   useEffect(() => {
@@ -28,8 +29,21 @@ export default function App(){
         const userRes: any = await (supabase.auth as any).getUser()
         const user = userRes?.data?.user
         setIsAuthenticated(!!user)
+        
+        // Check if user is admin
+        if (user) {
+          const { data: adminData } = await supabase
+            .from('admins')
+            .select('*')
+            .eq('user_id', user.id)
+            .limit(1)
+          setIsAdmin(!!adminData && adminData.length > 0)
+        } else {
+          setIsAdmin(false)
+        }
       } catch (e) {
         setIsAuthenticated(false)
+        setIsAdmin(false)
       }
     }
     checkAuth()
@@ -41,9 +55,12 @@ export default function App(){
     const handleLogin = () => {
       setIsAuthenticated(true)
       setShowAdmin(false)
+      // Refresh admin status after login
+      checkAuth()
     }
     const handleTeamLogin = () => {
       setIsAuthenticated(true)
+      setIsAdmin(false)
     }
     window.addEventListener('admin-login-success', handleLogin)
     window.addEventListener('team-login-success', handleTeamLogin)
@@ -117,7 +134,7 @@ export default function App(){
       case 'statistiche': return 'Classifiche'
       case 'finali': return 'Finali'
       case 'partecipanti': return 'Partecipanti'
-      case 'tokens': return 'Token Squadre'
+      case 'tokens': return 'Gestione'
       case 'condividi': return 'Condividi'
       default: return 'Home'
     }
@@ -133,7 +150,7 @@ export default function App(){
             { key: 'finali', label: 'Finali', onClick: () => { setCurrentPage('finali'); setMenuOpen(false) } },
             { key: 'partecipanti', label: 'Partecipanti', onClick: () => { setCurrentPage('partecipanti'); setMenuOpen(false) } },
             { key: 'condividi', label: 'Condividi', onClick: () => { setCurrentPage('condividi'); setMenuOpen(false) } },
-            ...(isAuthenticated ? [{ key: 'tokens', label: 'Token Squadre', onClick: () => { setCurrentPage('tokens'); setMenuOpen(false) } }] : []),
+            ...(isAuthenticated && isAdmin ? [{ key: 'tokens', label: 'Gestione', onClick: () => { setCurrentPage('tokens'); setMenuOpen(false) } }] : []),
           ]} />
         
         <div className="app-container">
