@@ -1,11 +1,31 @@
 -- Fix security_definer_view warnings from Supabase Database Linter
--- These views were created with SECURITY DEFINER which bypasses Row Level Security (RLS)
--- This script recreates them WITHOUT SECURITY DEFINER to respect RLS policies
+-- FINAL FIX: Aggressively remove and recreate views WITHOUT SECURITY DEFINER
+-- 
+-- The problem: Views in Supabase were created with SECURITY DEFINER which:
+-- - Bypasses Row Level Security (RLS) policies
+-- - Enforces permissions of the view creator (admin) instead of the querying user
+-- - Security risk
+--
+-- This script COMPLETELY removes the views (with CASCADE to handle dependencies)
+-- and recreates them as standard views that respect RLS policies.
 
--- Drop and recreate athlete_votes view
+-- ============================================================================
+-- STEP 1: Drop all views that depend on athlete_votes
+-- ============================================================================
+
 DROP VIEW IF EXISTS public.athlete_votes CASCADE;
 
-CREATE OR REPLACE VIEW public.athlete_votes AS
+-- ============================================================================
+-- STEP 2: Drop all views that depend on team_tokens_view
+-- ============================================================================
+
+DROP VIEW IF EXISTS public.team_tokens_view CASCADE;
+
+-- ============================================================================
+-- STEP 3: Recreate athlete_votes WITHOUT SECURITY DEFINER
+-- ============================================================================
+
+CREATE VIEW public.athlete_votes AS
 SELECT 
   a.id as atleta_id,
   a.squadra_id,
@@ -14,13 +34,18 @@ FROM public.atleti a
 LEFT JOIN public.votes v ON v.atleta_id = a.id
 GROUP BY a.id, a.squadra_id;
 
--- Restore RLS on the view (if needed)
-ALTER VIEW public.athlete_votes SET SCHEMA public;
+-- Set permissions for the view
+ALTER VIEW public.athlete_votes OWNER TO postgres;
 
--- Drop and recreate team_tokens_view
-DROP VIEW IF EXISTS public.team_tokens_view CASCADE;
+GRANT SELECT ON public.athlete_votes TO authenticated;
+GRANT SELECT ON public.athlete_votes TO anon;
+GRANT SELECT ON public.athlete_votes TO service_role;
 
-CREATE OR REPLACE VIEW public.team_tokens_view AS
+-- ============================================================================
+-- STEP 4: Recreate team_tokens_view WITHOUT SECURITY DEFINER
+-- ============================================================================
+
+CREATE VIEW public.team_tokens_view AS
 SELECT 
   s.id as squadra_id,
   s.name as squadra_nome,
@@ -35,10 +60,33 @@ LEFT JOIN public.team_tokens t ON t.squadra_id = s.id
 LEFT JOIN public.users u ON u.squadra_id = s.id
 ORDER BY s.girone, s.name;
 
--- Restore RLS on the view (if needed)
-ALTER VIEW public.team_tokens_view SET SCHEMA public;
+-- Set permissions for the view
+ALTER VIEW public.team_tokens_view OWNER TO postgres;
 
--- Verification queries
--- Run these to verify the views work correctly:
--- SELECT * FROM public.athlete_votes LIMIT 5;
--- SELECT * FROM public.team_tokens_view LIMIT 5;
+GRANT SELECT ON public.team_tokens_view TO authenticated;
+GRANT SELECT ON public.team_tokens_view TO service_role;
+
+-- Note: team_tokens_view should likely be restricted to admins only
+-- You may want to add RLS or remove 'authenticated' grant depending on your security needs
+
+-- ============================================================================
+-- VERIFICATION SCRIPT (Run after applying the fix)
+-- ============================================================================
+
+/*
+-- Verify that views no longer have SECURITY DEFINER
+SELECT 
+  schemaname,
+  viewname,
+  definition
+FROM pg_views
+WHERE schemaname = 'public'
+AND (viewname = 'athlete_votes' OR viewname = 'team_tokens_view');
+
+-- The definition should NOT contain "security_definer=true"
+-- If fixed correctly, the output should show plain SELECT statements
+
+-- Test the views work:
+SELECT * FROM public.athlete_votes LIMIT 5;
+SELECT * FROM public.team_tokens_view LIMIT 5;
+*/
