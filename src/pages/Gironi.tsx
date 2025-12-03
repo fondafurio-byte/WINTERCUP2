@@ -2,6 +2,7 @@ import React, { useState, useEffect, useMemo } from 'react'
 import { MapPin, Calendar, Clock, Edit2, Trash2, Zap, Plus, Trophy, BarChart3, UserPlus, Upload, FileText, Radio, Eye } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
+import { useLoggedInTeam } from '../lib/useLoggedInTeam'
 import VoteDialog from '../components/VoteDialog'
 import LiveMatchView from '../components/LiveMatchView'
 import Compressor from 'compressorjs'
@@ -12,6 +13,8 @@ type MatchRow = { id?: string; home_team_id: string; away_team_id: string; campo
 export default function Gironi(){
   const [girone, setGirone] = useState<'A'|'B'>('A')
   const [view, setView] = useState<'squadre'|'partite'>('squadre')
+
+  const { loggedInTeamId } = useLoggedInTeam()
 
   const [isAdmin, setIsAdmin] = useState(false)
   const [isRilevatore, setIsRilevatore] = useState(false)
@@ -203,6 +206,13 @@ export default function Gironi(){
     const hh = String(d.getHours()).padStart(2, '0')
     const mi = String(d.getMinutes()).padStart(2, '0')
     return `${y}-${mo}-${da}T${hh}:${mi}`
+  }
+
+  function getTeamNameColor(teamId: string | undefined): string {
+    if (loggedInTeamId && teamId === loggedInTeamId) {
+      return '#dc2626' // Red
+    }
+    return 'inherit' // Default
   }
 
   // check admin and rilevatore status from authenticated user
@@ -1309,7 +1319,10 @@ export default function Gironi(){
                             <div className="live-scoring-grid">
                             {/* Home team column */}
                             <div className="team-column">
-                              <h3 style={{fontSize:14,fontWeight:700,marginBottom:12,color:'#1e293b',textTransform:'uppercase'}}>
+                              <h3 style={{fontSize:14,fontWeight:700,marginBottom:12,color:getTeamNameColor((() => {
+                                const match = matches.find(mm => (mm as any).id === liveMatchId)
+                                return match?.home_team_id
+                              })()),textTransform:'uppercase'}}>
                                 {(() => {
                                   const match = matches.find(mm => (mm as any).id === liveMatchId)
                                   if (!match) return 'Squadra Casa'
@@ -1448,7 +1461,10 @@ export default function Gironi(){
 
                             {/* Away team column */}
                             <div className="team-column">
-                              <h3 style={{fontSize:14,fontWeight:700,marginBottom:12,color:'#1e293b',textTransform:'uppercase'}}>
+                              <h3 style={{fontSize:14,fontWeight:700,marginBottom:12,color:getTeamNameColor((() => {
+                                const match = matches.find(mm => (mm as any).id === liveMatchId)
+                                return match?.away_team_id
+                              })()),textTransform:'uppercase'}}>
                                 {(() => {
                                   const match = matches.find(mm => (mm as any).id === liveMatchId)
                                   if (!match) return 'Squadra Ospite'
@@ -2120,10 +2136,10 @@ export default function Gironi(){
                     {viewStatsHomeTeam?.logo_url && (
                       <img src={viewStatsHomeTeam.logo_url} alt={viewStatsHomeTeam.name} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                     )}
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: getTeamNameColor(viewStatsHomeTeam?.id), margin: 0 }}>
                       {viewStatsHomeTeam?.name || 'Squadra Casa'}
                     </h3>
-                    <div style={{ marginLeft: 'auto', fontSize: '1.5rem', fontWeight: 800, color: '#3b82f6' }}>
+                    <div style={{ marginLeft: 'auto', fontSize: '1.5rem', fontWeight: 800, color: getTeamNameColor(viewStatsHomeTeam?.id) === '#dc2626' ? '#dc2626' : '#3b82f6' }}>
                       {viewStatsHomeAtleti.reduce((sum, a) => sum + a.punti, 0)}
                     </div>
                   </div>
@@ -2166,10 +2182,10 @@ export default function Gironi(){
                     {viewStatsAwayTeam?.logo_url && (
                       <img src={viewStatsAwayTeam.logo_url} alt={viewStatsAwayTeam.name} style={{ width: 32, height: 32, objectFit: 'contain' }} />
                     )}
-                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', margin: 0 }}>
+                    <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: getTeamNameColor(viewStatsAwayTeam?.id), margin: 0 }}>
                       {viewStatsAwayTeam?.name || 'Squadra Ospite'}
                     </h3>
-                    <div style={{ marginLeft: 'auto', fontSize: '1.5rem', fontWeight: 800, color: '#f59e0b' }}>
+                    <div style={{ marginLeft: 'auto', fontSize: '1.5rem', fontWeight: 800, color: getTeamNameColor(viewStatsAwayTeam?.id) === '#dc2626' ? '#dc2626' : '#f59e0b' }}>
                       {viewStatsAwayAtleti.reduce((sum, a) => sum + a.punti, 0)}
                     </div>
                   </div>
