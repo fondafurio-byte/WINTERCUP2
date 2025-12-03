@@ -2,6 +2,7 @@ import React, { useState, useEffect, Suspense } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import { Info, Users, Trophy, LogIn } from 'lucide-react'
+import { useLoggedInTeam } from '../lib/useLoggedInTeam'
 
 const LazyTeamLoginDialog = React.lazy(() => import('../components/TeamLoginDialog'))
 
@@ -98,6 +99,7 @@ export default function Home() {
     cognome: string
     numero_maglia: string
     squadra_nome: string
+    squadra_id?: string
     logo_url: string | null
     teamVotes: number
     publicVotes: number
@@ -117,12 +119,23 @@ export default function Home() {
     nome: string
     cognome: string
     numero_maglia: string
+    squadra_id: string
     squadra_nome: string
     logo_url: string | null
     voteCount: number
     teamVotes: number
     publicVotes: number
   }>>([])
+
+  const { loggedInTeamId } = useLoggedInTeam()
+
+  // Helper function to get team color (red if logged in team)
+  function getTeamNameColor(teamId: string | undefined): string {
+    if (loggedInTeamId && teamId === loggedInTeamId) {
+      return '#dc2626' // Red for logged in team
+    }
+    return 'inherit' // Default color
+  }
 
   useEffect(() => {
     loadTeams()
@@ -138,6 +151,7 @@ export default function Home() {
       cognome: mvp.cognome,
       numero_maglia: mvp.numero_maglia,
       squadra_nome: mvp.squadra_nome,
+      squadra_id: mvp.squadra_id,
       logo_url: mvp.logo_url,
       teamVotes: mvp.teamVotes,
       publicVotes: mvp.publicVotes,
@@ -527,6 +541,7 @@ export default function Home() {
         nome: athlete.nome,
         cognome: athlete.cognome,
         numero_maglia: athlete.numero_maglia,
+        squadra_id: athlete.squadra_id,
         squadra_nome: athlete.squadre.name,
         logo_url: athlete.squadre.logo_url,
         voteCount: voteStats[athlete.id].weighted,
@@ -1617,7 +1632,7 @@ export default function Home() {
                     <div style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 4 }}>
                       #{selectedMVP.numero_maglia} {selectedMVP.nome} {selectedMVP.cognome}
                     </div>
-                    <div style={{ fontSize: '0.9rem', opacity: 0.9 }}>
+                    <div style={{ fontSize: '0.9rem', opacity: 0.9, color: getTeamNameColor(selectedMVP.squadra_id), fontWeight: loggedInTeamId && selectedMVP.squadra_id === loggedInTeamId ? 700 : 400 }}>
                       {selectedMVP.squadra_nome}
                     </div>
                   </div>

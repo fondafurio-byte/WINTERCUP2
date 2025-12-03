@@ -13,6 +13,7 @@ import AdminDialog from './components/AdminDialog'
 import InstallPWABanner from './components/InstallPWABanner'
 import { supabase } from './lib/supabase'
 import { logAppOpen } from './lib/analytics'
+import { TeamContext } from './lib/teamContext'
 
 export default function App(){
   const [showAdmin, setShowAdmin] = useState(false)
@@ -21,6 +22,7 @@ export default function App(){
   const [currentPage, setCurrentPage] = useState<string>('home')
   const [isAuthenticated, setIsAuthenticated] = useState(false)
   const [isAdmin, setIsAdmin] = useState(false)
+  const [loggedInTeamId, setLoggedInTeamId] = useState<string | null>(null)
 
   // Check authentication status
   useEffect(() => {
@@ -38,12 +40,30 @@ export default function App(){
             .eq('user_id', user.id)
             .limit(1)
           setIsAdmin(!!adminData && adminData.length > 0)
+          
+          // Check if user is a team user and get team ID
+          if (!adminData || adminData.length === 0) {
+            const { data: userData } = await supabase
+              .from('users')
+              .select('squadra_id')
+              .eq('user_id', user.id)
+              .limit(1)
+            if (userData && userData.length > 0 && userData[0].squadra_id) {
+              setLoggedInTeamId(userData[0].squadra_id)
+            } else {
+              setLoggedInTeamId(null)
+            }
+          } else {
+            setLoggedInTeamId(null)
+          }
         } else {
           setIsAdmin(false)
+          setLoggedInTeamId(null)
         }
       } catch (e) {
         setIsAuthenticated(false)
         setIsAdmin(false)
+        setLoggedInTeamId(null)
       }
     }
     checkAuth()
@@ -61,6 +81,8 @@ export default function App(){
     const handleTeamLogin = () => {
       setIsAuthenticated(true)
       setIsAdmin(false)
+      // Refresh team info after login
+      checkAuth()
     }
     window.addEventListener('admin-login-success', handleLogin)
     window.addEventListener('team-login-success', handleTeamLogin)
@@ -142,86 +164,90 @@ export default function App(){
 
   return (
     <ErrorBoundary>
-      <div className="min-h-screen" style={{ paddingTop: 'env(safe-area-inset-top, 1rem)', background:'#ffffff' }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
-        <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} items={[
-            { key: 'home', label: 'Home', onClick: () => { setCurrentPage('home'); setMenuOpen(false) } },
-            { key: 'gironi', label: 'Gironi', onClick: () => { setCurrentPage('gironi'); setMenuOpen(false) } },
-            { key: 'statistiche', label: 'Classifiche', onClick: () => { setCurrentPage('statistiche'); setMenuOpen(false) } },
-            { key: 'finali', label: 'Finali', onClick: () => { setCurrentPage('finali'); setMenuOpen(false) } },
-            { key: 'partecipanti', label: 'Partecipanti', onClick: () => { setCurrentPage('partecipanti'); setMenuOpen(false) } },
-            { key: 'condividi', label: 'Condividi', onClick: () => { setCurrentPage('condividi'); setMenuOpen(false) } },
-            ...(isAuthenticated && isAdmin ? [{ key: 'tokens', label: 'Gestione', onClick: () => { setCurrentPage('tokens'); setMenuOpen(false) } }] : []),
-          ]} />
-        
-        <div className="app-container">
-          <Topbar title={getPageTitle()} onHamburger={() => setMenuOpen(true)} />
+      <TeamContext.Provider value={{ loggedInTeamId, setLoggedInTeamId }}>
+        <div className="min-h-screen" style={{ paddingTop: 'env(safe-area-inset-top, 1rem)', background:'#ffffff' }} onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}>
+          <SideMenu open={menuOpen} onClose={() => setMenuOpen(false)} items={[
+              { key: 'home', label: 'Home', onClick: () => { setCurrentPage('home'); setMenuOpen(false) } },
+              { key: 'gironi', label: 'Gironi', onClick: () => { setCurrentPage('gironi'); setMenuOpen(false) } },
+              { key: 'statistiche', label: 'Classifiche', onClick: () => { setCurrentPage('statistiche'); setMenuOpen(false) } },
+              { key: 'finali', label: 'Finali', onClick: () => { setCurrentPage('finali'); setMenuOpen(false) } },
+              { key: 'partecipanti', label: 'Partecipanti', onClick: () => { setCurrentPage('partecipanti'); setMenuOpen(false) } },
+              { key: 'condividi', label: 'Condividi', onClick: () => { setCurrentPage('condividi'); setMenuOpen(false) } },
+              ...(isAuthenticated && isAdmin ? [{ key: 'tokens', label: 'Gestione', onClick: () => { setCurrentPage('tokens'); setMenuOpen(false) } }] : []),
+            ]} />
+          
+          <div className="app-container">
+            <Topbar title={getPageTitle()} onHamburger={() => setMenuOpen(true)} />
 
-          <div className="mx-auto" style={{display:'flex',alignItems:'center',flexDirection:'column',gap:16,paddingTop:12}}>
-            <img
-              src="/icons/icon.svg"
-              alt="Winter Cup 2 Logo"
-              className="app-logo"
-              onMouseDown={onLogoMouseDown}
-              onMouseUp={onLogoMouseUp}
-              onTouchStart={onLogoMouseDown}
-              onTouchEnd={onLogoMouseUp}
-            />
+            <div className="mx-auto" style={{display:'flex',alignItems:'center',flexDirection:'column',gap:16,paddingTop:12}}>
+              <img
+                src="/icons/icon.svg"
+                alt="Winter Cup 2 Logo"
+                className="app-logo"
+                onMouseDown={onLogoMouseDown}
+                onMouseUp={onLogoMouseUp}
+                onTouchStart={onLogoMouseDown}
+                onTouchEnd={onLogoMouseUp}
+              />
 
+              <div>
+                {/* Show logout button if authenticated */}
+                {isAuthenticated ? (
+                  <button className="btn" onClick={async () => {
+                    await supabase.auth.signOut()
+                    setIsAuthenticated(false)
+                    setIsAdmin(false)
+                    setLoggedInTeamId(null)
+                    setRevealed(false)
+                    window.location.reload()
+                  }}>Logout</button>
+                ) : (
+                  <>
+                    {/* The admin UI is hidden by default. It appears only when 'revealed' or via shortcut. */}
+                    {revealed && !showAdmin && (
+                      <button className="btn" onClick={() => setShowAdmin(true)}>Apri Admin</button>
+                    )}
+
+                    {showAdmin && (
+                      <AdminDialog />
+                    )}
+                  </>
+                )}
+              </div>
+
+              {/* diagnostica rapida rimossa */}
+            </div>
+            
+            {/* Page router (simple) */}
             <div>
-              {/* Show logout button if authenticated */}
-              {isAuthenticated ? (
-                <button className="btn" onClick={async () => {
-                  await supabase.auth.signOut()
-                  setIsAuthenticated(false)
-                  setRevealed(false)
-                  window.location.reload()
-                }}>Logout</button>
-              ) : (
-                <>
-                  {/* The admin UI is hidden by default. It appears only when 'revealed' or via shortcut. */}
-                  {revealed && !showAdmin && (
-                    <button className="btn" onClick={() => setShowAdmin(true)}>Apri Admin</button>
-                  )}
-
-                  {showAdmin && (
-                    <AdminDialog />
-                  )}
-                </>
+              {currentPage === 'home' && (
+                <Home />
+              )}
+              {currentPage === 'gironi' && (
+                <Gironi />
+              )}
+              {currentPage === 'statistiche' && (
+                <Statistiche />
+              )}
+              {currentPage === 'finali' && (
+                <Finali />
+              )}
+              {currentPage === 'partecipanti' && (
+                <Partecipanti />
+              )}
+              {currentPage === 'tokens' && (
+                <TokenManager />
+              )}
+              {currentPage === 'condividi' && (
+                <Condividi />
               )}
             </div>
-
-            {/* diagnostica rapida rimossa */}
           </div>
           
-          {/* Page router (simple) */}
-          <div>
-            {currentPage === 'home' && (
-              <Home />
-            )}
-            {currentPage === 'gironi' && (
-              <Gironi />
-            )}
-            {currentPage === 'statistiche' && (
-              <Statistiche />
-            )}
-            {currentPage === 'finali' && (
-              <Finali />
-            )}
-            {currentPage === 'partecipanti' && (
-              <Partecipanti />
-            )}
-            {currentPage === 'tokens' && (
-              <TokenManager />
-            )}
-            {currentPage === 'condividi' && (
-              <Condividi />
-            )}
-          </div>
+          {/* PWA Install Banner */}
+          <InstallPWABanner />
         </div>
-        
-        {/* PWA Install Banner */}
-        <InstallPWABanner />
-      </div>
+      </TeamContext.Provider>
     </ErrorBoundary>
   )
 }
