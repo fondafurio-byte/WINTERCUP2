@@ -15,37 +15,71 @@ COMMENT ON COLUMN public.partite.is_test IS 'TRUE for test matches (visible only
 CREATE INDEX IF NOT EXISTS idx_partite_is_test ON public.partite(is_test);
 
 -- ============================================================================
--- STEP 2: Create RLS policy for test matches visibility
+-- STEP 2: Enable RLS and create policies for test matches visibility
 -- ============================================================================
 
--- First, check if RLS is enabled on partite table (might not be)
--- ALTER TABLE public.partite ENABLE ROW LEVEL SECURITY;
+-- ENABLE RLS on partite table
+ALTER TABLE public.partite ENABLE ROW LEVEL SECURITY;
 
--- Policy: Regular users see only non-test matches
-CREATE POLICY IF NOT EXISTS "See non-test matches" 
+-- Drop existing policies if they exist
+DROP POLICY IF EXISTS "See non-test matches" ON public.partite;
+DROP POLICY IF EXISTS "Rilevatori see all matches" ON public.partite;
+DROP POLICY IF EXISTS "Admins can create test matches" ON public.partite;
+DROP POLICY IF EXISTS "Anyone can insert" ON public.partite;
+DROP POLICY IF EXISTS "Anyone can update" ON public.partite;
+DROP POLICY IF EXISTS "Anyone can delete" ON public.partite;
+
+-- Policy 1: Everyone can see non-test matches
+CREATE POLICY "See non-test matches" 
 ON public.partite 
 FOR SELECT 
 USING (is_test = FALSE);
 
--- Policy: Rilevatori (reporters) can see all matches including test matches
--- Assumes rilevatori have a role or are identified in a rilevatori table
-CREATE POLICY IF NOT EXISTS "Rilevatori see all matches" 
+-- Policy 2: Rilevatori can see test matches too
+CREATE POLICY "Rilevatori see test matches" 
 ON public.partite 
 FOR SELECT 
 USING (
-  -- Check if current user is a rilevatore
+  is_test = FALSE
+  OR
   EXISTS (
     SELECT 1 FROM public.rilevatori 
     WHERE rilevatori.user_id = auth.uid()
   )
-  OR is_test = FALSE  -- Non-rilevatori see non-test matches
 );
 
--- Policy: Admins can create test matches
-CREATE POLICY IF NOT EXISTS "Admins can create test matches" 
+-- Policy 3: Admins can INSERT
+CREATE POLICY "Admins can insert matches" 
 ON public.partite 
 FOR INSERT 
 WITH CHECK (
+  EXISTS (
+    SELECT 1 FROM public.admins 
+    WHERE admins.user_id = auth.uid()
+  )
+);
+
+-- Policy 4: Allow UPDATE for admins and rilevatori
+CREATE POLICY "Admins and rilevatori can update" 
+ON public.partite 
+FOR UPDATE 
+USING (
+  EXISTS (
+    SELECT 1 FROM public.admins 
+    WHERE admins.user_id = auth.uid()
+  )
+  OR
+  EXISTS (
+    SELECT 1 FROM public.rilevatori 
+    WHERE rilevatori.user_id = auth.uid()
+  )
+);
+
+-- Policy 5: Allow DELETE for admins only
+CREATE POLICY "Admins can delete matches" 
+ON public.partite 
+FOR DELETE 
+USING (
   EXISTS (
     SELECT 1 FROM public.admins 
     WHERE admins.user_id = auth.uid()

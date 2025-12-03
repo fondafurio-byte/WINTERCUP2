@@ -130,19 +130,33 @@ export default function Gironi(){
   useEffect(() => {
     async function loadMatches(){
       try{
-        const { data, error } = await supabase.from('partite').select('*').eq('girone', girone).order('orario', { ascending: true })
+        let query = supabase.from('partite').select('*').eq('girone', girone)
+        
+        // If not admin or rilevatore, exclude test matches
+        if (!isAdmin && !isRilevatore) {
+          query = query.eq('is_test', false)
+        }
+        
+        const { data, error } = await query.order('orario', { ascending: true })
         if (error) { console.debug('loadMatches error', error.message); setMatches([]); return }
         setMatches((data as any) ?? [])
       }catch(err){ console.debug(err) }
     }
     loadMatches()
-  }, [girone, modalOpen]) // reload after modal closes
+  }, [girone, modalOpen, isAdmin, isRilevatore]) // reload after modal closes or role changes
 
   // Real-time polling for live score updates (every 3 seconds)
   useEffect(() => {
     const pollInterval = setInterval(async () => {
       try{
-        const { data, error } = await supabase.from('partite').select('*').eq('girone', girone).order('orario', { ascending: true })
+        let query = supabase.from('partite').select('*').eq('girone', girone)
+        
+        // If not admin or rilevatore, exclude test matches
+        if (!isAdmin && !isRilevatore) {
+          query = query.eq('is_test', false)
+        }
+        
+        const { data, error } = await query.order('orario', { ascending: true })
         if (error) { 
           console.debug('poll matches error', error.message)
           return 
@@ -157,7 +171,7 @@ export default function Gironi(){
     }, 3000) // Poll every 3 seconds
 
     return () => clearInterval(pollInterval)
-  }, [girone])
+  }, [girone, isAdmin, isRilevatore])
 
 
 
