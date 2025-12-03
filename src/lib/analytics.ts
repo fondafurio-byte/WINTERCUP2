@@ -14,6 +14,12 @@ export async function logEvent(
   eventData?: Record<string, any>
 ) {
   try {
+    // Skip logging in development mode to avoid polluting analytics data
+    if (import.meta.env.DEV) {
+      console.debug(`[DEV] Would log event: ${eventType}`, { userCategory, eventData })
+      return
+    }
+
     // Don't block the UI - run async in background
     const { error } = await supabase.rpc('log_event', {
       p_event_type: eventType,
