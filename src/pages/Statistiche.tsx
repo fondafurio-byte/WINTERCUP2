@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react'
 import { supabase } from '../lib/supabase'
+import { useLoggedInTeam } from '../lib/useLoggedInTeam'
 
 type Team = {
   id: string
@@ -24,6 +25,15 @@ export default function Statistiche(){
   const [standingsA, setStandingsA] = useState<Standing[]>([])
   const [standingsB, setStandingsB] = useState<Standing[]>([])
   const [loading, setLoading] = useState(false)
+
+  const { loggedInTeamId } = useLoggedInTeam()
+
+  function getTeamNameColor(teamId: string | undefined): string {
+    if (loggedInTeamId && teamId === loggedInTeamId) {
+      return '#dc2626' // Red
+    }
+    return 'inherit' // Default
+  }
 
   useEffect(() => {
     loadStandings(true) // Initial load with loading state
@@ -216,7 +226,7 @@ export default function Statistiche(){
                                   )}
                                 </div>
                               </td>
-                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap'}}>{s.name}</td>
+                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap',color:getTeamNameColor(s.id)}}>{s.name}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontWeight:700,fontSize:'0.9rem'}}>{s.points}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontSize:'0.75rem'}}>{giocate}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',color:'#16a34a',fontSize:'0.75rem'}}>{s.wins}</td>
@@ -282,7 +292,7 @@ export default function Statistiche(){
                                   )}
                                 </div>
                               </td>
-                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap'}}>{s.name}</td>
+                              <td className="team-name-column" style={{padding:'6px 8px',fontWeight:600,fontSize:'0.75rem',whiteSpace:'nowrap',color:getTeamNameColor(s.id)}}>{s.name}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontWeight:700,fontSize:'0.9rem'}}>{s.points}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',fontSize:'0.75rem'}}>{giocate}</td>
                               <td style={{padding:'6px 4px',textAlign:'center',color:'#16a34a',fontSize:'0.75rem'}}>{s.wins}</td>
