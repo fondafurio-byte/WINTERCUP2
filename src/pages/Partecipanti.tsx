@@ -13,6 +13,8 @@ export default function Partecipanti() {
   const [staff, setStaff] = useState<StaffMember[]>([])
   const [athletes, setAthletes] = useState<Athlete[]>([])
   const [isAdmin, setIsAdmin] = useState(false)
+  const [isTeamUser, setIsTeamUser] = useState(false)
+  const [loggedInTeamId, setLoggedInTeamId] = useState<string | null>(null)
   
   // Modals state
   const [addStaffOpen, setAddStaffOpen] = useState(false)
@@ -37,10 +39,10 @@ export default function Partecipanti() {
   const [teamGirone, setTeamGirone] = useState<string>('')
   const [teamLogoUrl, setTeamLogoUrl] = useState('')
 
-  // Check admin status
+  // Check admin and team user status
   useEffect(() => {
     let mounted = true
-    async function checkAdmin() {
+    async function checkUserRole() {
       try {
         let user: any = null
         try {
@@ -49,20 +51,50 @@ export default function Partecipanti() {
         } catch (e) {
           try { user = (supabase.auth as any).user?.() ?? null } catch (_) { user = null }
         }
-        if (!user) { if (mounted) setIsAdmin(false); return }
-        const { data, error } = await supabase.from('admins').select('*').or(`user_id.eq.${user.id},id.eq.${user.id}`).limit(1)
-        if (error) { console.debug('admin check error', error.message); if (mounted) setIsAdmin(false); return }
-        if (mounted) setIsAdmin(Boolean(data && (data as any).length > 0))
-      } catch (err) { console.debug(err); if (mounted) setIsAdmin(false) }
+        if (!user) { 
+          if (mounted) {
+            setIsAdmin(false)
+            setIsTeamUser(false)
+            setLoggedInTeamId(null)
+          }
+          return 
+        }
+        
+        // Check if admin
+        const { data: adminData, error: adminError } = await supabase.from('admins').select('*').or(`user_id.eq.${user.id},id.eq.${user.id}`).limit(1)
+        if (adminError) { console.debug('admin check error', adminError.message) }
+        const admin = Boolean(adminData && (adminData as any).length > 0)
+        
+        // Check if team user
+        const { data: teamUserData } = await supabase.from('users').select('squadra_id').eq('user_id', user.id).limit(1)
+        const teamUser = Boolean(teamUserData && teamUserData.length > 0)
+        const teamId = teamUser && teamUserData && teamUserData.length > 0 ? teamUserData[0].squadra_id : null
+        
+        if (mounted) {
+          setIsAdmin(admin)
+          setIsTeamUser(teamUser)
+          setLoggedInTeamId(teamId)
+        }
+      } catch (err) { 
+        console.debug(err)
+        if (mounted) {
+          setIsAdmin(false)
+          setIsTeamUser(false)
+          setLoggedInTeamId(null)
+        }
+      }
     }
-    checkAdmin()
+    checkUserRole()
     
-    const handleAdminLogin = () => { checkAdmin() }
+    const handleAdminLogin = () => { checkUserRole() }
+    const handleTeamLogin = () => { checkUserRole() }
     window.addEventListener('admin-login-success', handleAdminLogin)
+    window.addEventListener('team-login-success', handleTeamLogin)
     
     return () => {
       mounted = false
       window.removeEventListener('admin-login-success', handleAdminLogin)
+      window.removeEventListener('team-login-success', handleTeamLogin)
     }
   }, [])
 
@@ -277,6 +309,9 @@ export default function Partecipanti() {
     } catch (err) { alert('Errore eliminazione squadra') }
   }
 
+  // Check if user can edit (admin or own team)
+  const canEdit = isAdmin || (isTeamUser && selectedTeam?.id === loggedInTeamId)
+
   return (
     <main style={{ width: '100%', maxWidth: 1100, margin: '24px auto', padding: 12 }}>
       <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 24 }}>
@@ -425,7 +460,7 @@ export default function Partecipanti() {
           <section style={{ marginBottom: 32 }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3>Staff</h3>
-              {isAdmin && (
+              {canEdit && (
                 <button className="btn" onClick={() => { setAddStaffOpen(true); setStaffRuolo('Head Coach'); setStaffNome(''); setStaffCognome(''); setStatus(null) }}>
                   <Plus size={16} /> Aggiungi
                 </button>
@@ -442,7 +477,7 @@ export default function Partecipanti() {
                     <div style={{ fontWeight: 600 }}>{s.nome} {s.cognome}</div>
                     <div style={{ fontSize: '0.9rem', color: '#64748b' }}>{displayRole}</div>
                   </div>
-                  {isAdmin && (
+                  {canEdit && (
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button style={{ background: 'transparent', border: 0, cursor: 'pointer' }} onClick={() => {
                         setEditingItem(s)
@@ -468,7 +503,7 @@ export default function Partecipanti() {
           <section>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: 16 }}>
               <h3>Atleti</h3>
-              {isAdmin && (
+              {canEdit && (
                 <button className="btn" onClick={() => { setAddAthleteOpen(true); setAthleteMaglia(''); setAthleteNome(''); setAthleteCognome(''); setStatus(null) }}>
                   <Plus size={16} /> Aggiungi
                 </button>
@@ -486,7 +521,7 @@ export default function Partecipanti() {
                       <div style={{ fontWeight: 600 }}>{a.nome} {a.cognome}</div>
                     </div>
                   </div>
-                  {isAdmin && (
+                  {canEdit && (
                     <div style={{ display: 'flex', gap: 8 }}>
                       <button style={{ background: 'transparent', border: 0, cursor: 'pointer' }} onClick={() => {
                         setEditingItem(a)
