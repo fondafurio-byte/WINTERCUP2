@@ -53,6 +53,10 @@ export default function Gironi(){
   // Punti atleti modal state
   const [puntiModalOpen, setPuntiModalOpen] = useState(false)
   const [puntiMatchId, setPuntiMatchId] = useState<string | null>(null)
+  const [puntiHomeTeam, setPuntiHomeTeam] = useState<Team | null>(null)
+  const [puntiAwayTeam, setPuntiAwayTeam] = useState<Team | null>(null)
+  const [puntiSelectedTeam, setPuntiSelectedTeam] = useState<'home' | 'away' | ''>('')
+  const [puntiAtletiList, setPuntiAtletiList] = useState<Array<{id:string; nome:string; cognome:string; numero_maglia:string; punti:number}>>([])
   const [atleti, setAtleti] = useState<Array<{id:string; nome:string; cognome:string; numero_maglia:string; squadra_nome:string}>>([])
   const [selectedAtleta, setSelectedAtleta] = useState<string>('')
   const [puntiValue, setPuntiValue] = useState<string>('')
@@ -93,6 +97,15 @@ export default function Gironi(){
   const [liveViewMatchId, setLiveViewMatchId] = useState<string | null>(null)
   const [liveViewHomeTeam, setLiveViewHomeTeam] = useState<Team | null>(null)
   const [liveViewAwayTeam, setLiveViewAwayTeam] = useState<Team | null>(null)
+
+  // Tabellino modal state (read-only)
+  const [tabellinoModalOpen, setTabellinoModalOpen] = useState(false)
+  const [tabellinoMatchId, setTabellinoMatchId] = useState<string | null>(null)
+  const [tabellinoHomeTeam, setTabellinoHomeTeam] = useState<Team | null>(null)
+  const [tabellinoAwayTeam, setTabellinoAwayTeam] = useState<Team | null>(null)
+  const [tabellinoSelectedTeam, setTabellinoSelectedTeam] = useState<'home' | 'away' | ''>('')
+  const [tabellinoAtletiList, setTabellinoAtletiList] = useState<Array<{id:string; nome:string; cognome:string; numero_maglia:string; punti:number}>>([])
+  const [loadingTabellino, setLoadingTabellino] = useState(false)
 
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
@@ -323,6 +336,8 @@ export default function Gironi(){
   async function loadAtletiForMatch(matchId: string){
     setLoadingAtleti(true)
     setPuntiStatus(null)
+    setPuntiSelectedTeam('')
+    setPuntiAtletiList([])
     try{
       // Find the match to get home and away team IDs
       const match = matches.find(m => (m as any).id === matchId)
@@ -331,6 +346,13 @@ export default function Gironi(){
         setLoadingAtleti(false)
         return 
       }
+      
+      // Load team data
+      const homeTeam = teams.find(t => t.id === match.home_team_id)
+      const awayTeam = teams.find(t => t.id === match.away_team_id)
+      setPuntiHomeTeam(homeTeam || null)
+      setPuntiAwayTeam(awayTeam || null)
+      
       // Load atleti from both teams with join to squadre for team name
       const { data, error } = await supabase
         .from('atleti')
@@ -360,6 +382,112 @@ export default function Gironi(){
       setPuntiStatus('Errore caricamento atleti')
     }finally{
       setLoadingAtleti(false)
+    }
+  }
+
+  async function loadPuntiForTeam(teamId: string) {
+    if (!puntiMatchId) return
+    setLoadingAtleti(true)
+    try {
+      // Get athletes for this team
+      const teamAtleti = atleti.filter(a => {
+        const match = matches.find(m => (m as any).id === puntiMatchId)
+        if (!match) return false
+        const homeTeam = teams.find(t => t.id === match.home_team_id)
+        const awayTeam = teams.find(t => t.id === match.away_team_id)
+        return a.squadra_nome === (teamId === match.home_team_id ? homeTeam?.name : awayTeam?.name)
+      })
+      
+      // Load existing points for these athletes
+      const atletiIds = teamAtleti.map(a => a.id)
+      const { data: puntiData } = await supabase
+        .from('punti_atleti')
+        .select('atleta_id, punti')
+        .eq('partita_id', puntiMatchId)
+        .in('atleta_id', atletiIds)
+      
+      const puntiMap = (puntiData || []).reduce((acc: any, p: any) => {
+        acc[p.atleta_id] = (acc[p.atleta_id] || 0) + p.punti
+        return acc
+      }, {})
+      
+      // Combine athletes with their points
+      const atletiWithPunti = teamAtleti.map(a => ({
+        ...a,
+        punti: puntiMap[a.id] || 0
+      }))
+      
+      setPuntiAtletiList(atletiWithPunti)
+    } catch (err) {
+      console.error('Error loading punti:', err)
+    } finally {
+      setLoadingAtleti(false)
+    }
+  }
+
+  async function loadTabellinoForMatch(matchId: string) {
+    setLoadingTabellino(true)
+    setTabellinoSelectedTeam('')
+    setTabellinoAtletiList([])
+    try {
+      const match = matches.find(m => (m as any).id === matchId)
+      if (!match) {
+        setLoadingTabellino(false)
+        return
+      }
+      
+      const homeTeam = teams.find(t => t.id === match.home_team_id)
+      const awayTeam = teams.find(t => t.id === match.away_team_id)
+      setTabellinoHomeTeam(homeTeam || null)
+      setTabellinoAwayTeam(awayTeam || null)
+    } catch (err) {
+      console.error('Error loading tabellino:', err)
+    } finally {
+      setLoadingTabellino(false)
+    }
+  }
+
+  async function loadTabellinoForTeam(teamId: string) {
+    if (!tabellinoMatchId) return
+    setLoadingTabellino(true)
+    try {
+      // Get athletes for this team
+      const { data: atletiData, error: atletiError } = await supabase
+        .from('atleti')
+        .select('id, nome, cognome, numero_maglia')
+        .eq('squadra_id', teamId)
+        .order('numero_maglia')
+      
+      if (atletiError) {
+        console.error('Error loading athletes:', atletiError)
+        setLoadingTabellino(false)
+        return
+      }
+      
+      // Load points for these athletes
+      const atletiIds = (atletiData || []).map(a => a.id)
+      const { data: puntiData } = await supabase
+        .from('punti_atleti')
+        .select('atleta_id, punti')
+        .eq('partita_id', tabellinoMatchId)
+        .in('atleta_id', atletiIds)
+      
+      const puntiMap = (puntiData || []).reduce((acc: any, p: any) => {
+        acc[p.atleta_id] = (acc[p.atleta_id] || 0) + p.punti
+        return acc
+      }, {})
+      
+      // Combine athletes with their points
+      const atletiWithPunti = (atletiData || []).map(a => ({
+        ...a,
+        punti: puntiMap[a.id] || 0
+      }))
+      
+      setTabellinoAtletiList(atletiWithPunti)
+    } catch (err) {
+      console.error('Error loading tabellino:', err)
+    } finally {
+      setLoadingTabellino(false)
     }
   }
 
@@ -1198,49 +1326,167 @@ export default function Gironi(){
               <Dialog.Root open={puntiModalOpen} onOpenChange={setPuntiModalOpen}>
                 <Dialog.Portal>
                   <Dialog.Overlay className="rw-overlay" />
-                  <Dialog.Content className="rw-dialog">
-                    <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>Inserisci punti atleta — Girone {girone}</Dialog.Title>
+                  <Dialog.Content className="rw-dialog" style={{maxWidth:'600px'}}>
+                    <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>
+                      Modifica partita — Girone {girone}
+                    </Dialog.Title>
                     
                     {loadingAtleti ? (
-                      <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento atleti...</div>
-                    ) : atleti.length === 0 ? (
-                      <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Nessun atleta trovato per questa partita. Assicurati di aver aggiunto gli atleti alle squadre nella pagina Partecipanti.</div>
+                      <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento...</div>
                     ) : (
-                      <form onSubmit={handleAddPuntiAtleta} style={{marginTop:12,display:'grid',gap:12}}>
+                      <div style={{marginTop:16,display:'grid',gap:16}}>
+                        {/* Team selector */}
                         <div>
-                          <div style={{marginBottom:6,fontWeight:600}}>Seleziona atleta</div>
-                          <select className="rw-input" value={selectedAtleta} onChange={e=>setSelectedAtleta(e.target.value)} required>
-                            <option value="">-- seleziona atleta --</option>
-                            {atleti.map(a => (
-                              <option key={a.id} value={a.id}>
-                                #{a.numero_maglia} {a.nome} {a.cognome} ({a.squadra_nome})
-                              </option>
-                            ))}
+                          <div style={{marginBottom:8,fontWeight:600}}>Squadra di casa</div>
+                          <select 
+                            className="rw-input" 
+                            value={puntiSelectedTeam === 'home' ? 'home' : ''}
+                            onChange={async (e) => {
+                              if (e.target.value === 'home' && puntiHomeTeam) {
+                                setPuntiSelectedTeam('home')
+                                const match = matches.find(m => (m as any).id === puntiMatchId)
+                                if (match) await loadPuntiForTeam(match.home_team_id)
+                              }
+                            }}
+                          >
+                            <option value="">-- seleziona squadra --</option>
+                            {puntiHomeTeam && <option value="home">{puntiHomeTeam.name}</option>}
                           </select>
                         </div>
 
-                        <div>
-                          <div style={{marginBottom:6,fontWeight:600}}>Punti</div>
-                          <input 
-                            className="rw-input" 
-                            type="number" 
-                            min={0} 
-                            value={puntiValue} 
-                            onChange={e=>setPuntiValue(e.target.value)} 
-                            placeholder="Es: 10" 
-                            required 
-                          />
-                        </div>
+                        {/* Separator */}
+                        {puntiSelectedTeam === '' && (
+                          <div style={{textAlign:'center',color:'#64748b',fontSize:'0.9rem'}}>oppure</div>
+                        )}
 
-                        <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:6}}>
+                        {puntiSelectedTeam === '' && (
+                          <div>
+                            <div style={{marginBottom:8,fontWeight:600}}>Squadra ospite</div>
+                            <select 
+                              className="rw-input"
+                              value={puntiSelectedTeam === 'away' ? 'away' : ''}
+                              onChange={async (e) => {
+                                if (e.target.value === 'away' && puntiAwayTeam) {
+                                  setPuntiSelectedTeam('away')
+                                  const match = matches.find(m => (m as any).id === puntiMatchId)
+                                  if (match) await loadPuntiForTeam(match.away_team_id)
+                                }
+                              }}
+                            >
+                              <option value="">-- seleziona squadra --</option>
+                              {puntiAwayTeam && <option value="away">{puntiAwayTeam.name}</option>}
+                            </select>
+                          </div>
+                        )}
+
+                        {/* Athletes list with editable points */}
+                        {puntiSelectedTeam && puntiAtletiList.length > 0 && (
+                          <div>
+                            <div style={{marginBottom:12,fontWeight:600,fontSize:'1rem'}}>
+                              Inserisci punti atleta — Girone {girone}
+                            </div>
+                            <div style={{marginBottom:8,fontSize:'0.9rem',color:'#64748b'}}>
+                              Seleziona atleta
+                            </div>
+                            <div style={{display:'grid',gap:8,maxHeight:'400px',overflowY:'auto'}}>
+                              {puntiAtletiList.map((atleta) => (
+                                <div key={atleta.id} style={{
+                                  display:'flex',
+                                  alignItems:'center',
+                                  justifyContent:'space-between',
+                                  padding:'8px 12px',
+                                  background:'#f8fafc',
+                                  borderRadius:8,
+                                  border:'1px solid #e2e8f0'
+                                }}>
+                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                    <span style={{
+                                      fontWeight:700,
+                                      fontSize:13,
+                                      color:'#64748b',
+                                      minWidth:32,
+                                      textAlign:'center',
+                                      background:'white',
+                                      padding:'2px 8px',
+                                      borderRadius:4
+                                    }}>#{atleta.numero_maglia}</span>
+                                    <span style={{fontSize:14,fontWeight:600}}>
+                                      {atleta.nome} {atleta.cognome}
+                                    </span>
+                                  </div>
+                                  <div style={{display:'flex',alignItems:'center',gap:8}}>
+                                    <span style={{fontSize:'0.85rem',color:'#64748b'}}>Punti:</span>
+                                    <input 
+                                      type="number" 
+                                      min="0" 
+                                      value={atleta.punti}
+                                      onChange={async (e) => {
+                                        const newPunti = parseInt(e.target.value) || 0
+                                        // Update in state
+                                        setPuntiAtletiList(prev => prev.map(a => 
+                                          a.id === atleta.id ? {...a, punti: newPunti} : a
+                                        ))
+                                        // Save to database - replace ALL records with a single total
+                                        try {
+                                          // Delete all existing records for this athlete in this match
+                                          await supabase
+                                            .from('punti_atleti')
+                                            .delete()
+                                            .eq('partita_id', puntiMatchId)
+                                            .eq('atleta_id', atleta.id)
+                                          
+                                          // Insert single record with total points (only if > 0)
+                                          if (newPunti > 0) {
+                                            const { error } = await supabase
+                                              .from('punti_atleti')
+                                              .insert({
+                                                partita_id: puntiMatchId,
+                                                atleta_id: atleta.id,
+                                                punti: newPunti
+                                              })
+                                            if (error) console.error('Error inserting punti:', error)
+                                          }
+                                        } catch (err) {
+                                          console.error('Error:', err)
+                                        }
+                                      }}
+                                      style={{
+                                        width:60,
+                                        padding:'4px 8px',
+                                        border:'1px solid #cbd5e1',
+                                        borderRadius:4,
+                                        textAlign:'center',
+                                        fontSize:'0.9rem',
+                                        fontWeight:600
+                                      }}
+                                    />
+                                  </div>
+                                </div>
+                              ))}
+                            </div>
+                          </div>
+                        )}
+
+                        <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:12}}>
+                          {puntiSelectedTeam && (
+                            <button 
+                              type="button" 
+                              className="btn secondary"
+                              onClick={() => {
+                                setPuntiSelectedTeam('')
+                                setPuntiAtletiList([])
+                              }}
+                            >
+                              ← Cambia squadra
+                            </button>
+                          )}
                           <Dialog.Close asChild>
-                            <button type="button" className="btn secondary">Chiudi</button>
+                            <button type="button" className="btn">
+                              {puntiSelectedTeam ? 'Salva' : 'Chiudi'}
+                            </button>
                           </Dialog.Close>
-                          <button className="btn" type="submit">Salva punti</button>
                         </div>
-
-                        {puntiStatus && <div className="status" style={{marginTop:8}}>{puntiStatus}</div>}
-                      </form>
+                      </div>
                     )}
                   </Dialog.Content>
                 </Dialog.Portal>
@@ -1625,7 +1871,8 @@ export default function Gironi(){
                                   .from('partite')
                                   .update({
                                     home_score: homeTeamScore,
-                                    away_score: awayTeamScore
+                                    away_score: awayTeamScore,
+                                    is_live: false
                                   })
                                   .eq('id', liveMatchId)
                                 
@@ -1754,7 +2001,7 @@ export default function Gironi(){
                             <div style={{color:'#64748b',fontSize:13}}>{m.girone}</div>
                             
                             {/* Pulsante LIVE - visibile a tutti quando partita in corso */}
-                            {(m as any).is_live && (
+                            {(m as any).is_live && (m as any).home_score == null && (m as any).away_score == null && (
                               <button
                                 title="Visualizza Live"
                                 onClick={() => {
@@ -1784,7 +2031,7 @@ export default function Gironi(){
                             )}
                             
                             {/* Pulsante Guarda Live - visibile quando partita è live */}
-                            {isTeamUser && (m as any).is_live && (
+                            {isTeamUser && (m as any).is_live && (m as any).home_score == null && (m as any).away_score == null && (
                               <button
                                 title="Guarda Live"
                                 onClick={() => {
@@ -2093,6 +2340,31 @@ export default function Gironi(){
                               </button>
                             </div>
                           )}
+
+                          {/* Pulsante Visualizza Tabellino - sempre visibile se la partita ha dei punteggi */}
+                          {((m as any).home_score != null || (m as any).away_score != null) && (
+                            <div style={{display:'flex',alignItems:'center',gap:4,paddingLeft:8,borderLeft:'1px solid #cbd5e1'}}>
+                              <FileText size={14} />
+                              <button 
+                                onClick={() => {
+                                  setTabellinoMatchId((m as any).id)
+                                  loadTabellinoForMatch((m as any).id)
+                                  setTabellinoModalOpen(true)
+                                }}
+                                style={{
+                                  background:'transparent',
+                                  border:'none',
+                                  color:'#10b981',
+                                  textDecoration:'none',
+                                  fontWeight:600,
+                                  cursor:'pointer',
+                                  padding:0
+                                }}
+                              >
+                                Visualizza Tabellino
+                              </button>
+                            </div>
+                          )}
                         </div>
                       </li>
                     )
@@ -2116,6 +2388,135 @@ export default function Gironi(){
           squadraOspite={voteSquadraOspite}
         />
       )}
+
+      {/* Tabellino Modal (read-only) */}
+      <Dialog.Root open={tabellinoModalOpen} onOpenChange={setTabellinoModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="rw-overlay" />
+          <Dialog.Content className="rw-dialog" style={{maxWidth:'600px'}}>
+            <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>
+              Tabellino — Girone {girone}
+            </Dialog.Title>
+            
+            {loadingTabellino ? (
+              <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento...</div>
+            ) : (
+              <div style={{marginTop:16,display:'grid',gap:16}}>
+                {/* Team selector */}
+                {tabellinoSelectedTeam === '' && (
+                  <>
+                    <div>
+                      <div style={{marginBottom:8,fontWeight:600}}>Seleziona squadra</div>
+                      <select 
+                        className="rw-input" 
+                        value=""
+                        onChange={async (e) => {
+                          if (e.target.value === 'home' && tabellinoHomeTeam) {
+                            setTabellinoSelectedTeam('home')
+                            const match = matches.find(m => (m as any).id === tabellinoMatchId)
+                            if (match) await loadTabellinoForTeam(match.home_team_id)
+                          } else if (e.target.value === 'away' && tabellinoAwayTeam) {
+                            setTabellinoSelectedTeam('away')
+                            const match = matches.find(m => (m as any).id === tabellinoMatchId)
+                            if (match) await loadTabellinoForTeam(match.away_team_id)
+                          }
+                        }}
+                      >
+                        <option value="">-- seleziona squadra --</option>
+                        {tabellinoHomeTeam && <option value="home">{tabellinoHomeTeam.name}</option>}
+                        {tabellinoAwayTeam && <option value="away">{tabellinoAwayTeam.name}</option>}
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* Athletes list (read-only) */}
+                {tabellinoSelectedTeam && tabellinoAtletiList.length > 0 && (
+                  <div>
+                    <div style={{marginBottom:12,fontWeight:600,fontSize:'1rem'}}>
+                      Punti atleti — {tabellinoSelectedTeam === 'home' ? tabellinoHomeTeam?.name : tabellinoAwayTeam?.name}
+                    </div>
+                    <div style={{display:'grid',gap:8,maxHeight:'400px',overflowY:'auto'}}>
+                      {tabellinoAtletiList.map((atleta) => (
+                        <div key={atleta.id} style={{
+                          display:'flex',
+                          alignItems:'center',
+                          justifyContent:'space-between',
+                          padding:'8px 12px',
+                          background:'#f8fafc',
+                          borderRadius:8,
+                          border:'1px solid #e2e8f0'
+                        }}>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <span style={{
+                              fontWeight:700,
+                              fontSize:13,
+                              color:'#64748b',
+                              minWidth:32,
+                              textAlign:'center',
+                              background:'white',
+                              padding:'2px 8px',
+                              borderRadius:4
+                            }}>#{atleta.numero_maglia}</span>
+                            <span style={{fontSize:14,fontWeight:600}}>
+                              {atleta.nome} {atleta.cognome}
+                            </span>
+                          </div>
+                          <div style={{
+                            fontWeight:700,
+                            fontSize:16,
+                            color:'#3b82f6',
+                            minWidth:40,
+                            textAlign:'center'
+                          }}>
+                            {atleta.punti}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{
+                      marginTop:16,
+                      padding:'12px 16px',
+                      background:'#f1f5f9',
+                      borderRadius:8,
+                      display:'flex',
+                      justifyContent:'space-between',
+                      alignItems:'center',
+                      fontWeight:700,
+                      fontSize:'1.1rem'
+                    }}>
+                      <span>Totale</span>
+                      <span style={{color:'#3b82f6'}}>
+                        {tabellinoAtletiList.reduce((sum, a) => sum + a.punti, 0)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:12}}>
+                  {tabellinoSelectedTeam && (
+                    <button 
+                      type="button" 
+                      className="btn secondary"
+                      onClick={() => {
+                        setTabellinoSelectedTeam('')
+                        setTabellinoAtletiList([])
+                      }}
+                    >
+                      ← Cambia squadra
+                    </button>
+                  )}
+                  <Dialog.Close asChild>
+                    <button type="button" className="btn">
+                      Chiudi
+                    </button>
+                  </Dialog.Close>
+                </div>
+              </div>
+            )}
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
 
       {/* View Stats Modal */}
       <Dialog.Root open={viewStatsModalOpen} onOpenChange={setViewStatsModalOpen}>

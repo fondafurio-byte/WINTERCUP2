@@ -627,7 +627,6 @@ export default function Home() {
               map[m.home_team_id].points += 2
             } else if (hs < as) {
               map[m.home_team_id].losses += 1
-              map[m.home_team_id].points += 1
             }
           }
 
@@ -640,7 +639,6 @@ export default function Home() {
               map[m.away_team_id].points += 2
             } else if (as < hs) {
               map[m.away_team_id].losses += 1
-              map[m.away_team_id].points += 1
             }
           }
         })
