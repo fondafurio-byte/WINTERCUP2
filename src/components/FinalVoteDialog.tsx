@@ -222,6 +222,12 @@ export default function FinalVoteDialog({ open, onOpenChange, partitaId, squadra
             </Dialog.Close>
           </div>
 
+          <Dialog.Description style={{ fontSize: '0.875rem', color: '#64748b', marginBottom: 16 }}>
+            {hasVoted 
+              ? 'Hai già votato per questa finale. Puoi modificare il tuo voto.'
+              : 'Seleziona il miglior giocatore della finale'}
+          </Dialog.Description>
+
           {/* Info sui pesi */}
           <div style={{
             background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',

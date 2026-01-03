@@ -1135,6 +1135,9 @@ export default function Gironi(){
                     <Dialog.Overlay className="rw-overlay" />
                     <Dialog.Content className="rw-dialog">
                       <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>Nuova partita — Girone {girone}</Dialog.Title>
+                      <Dialog.Description style={{fontSize: '0.9rem', color: '#64748b', marginTop: 8}}>
+                        Crea una nuova partita selezionando le squadre, data e orario
+                      </Dialog.Description>
                       <form onSubmit={handleCreateMatch} style={{marginTop:12,display:'grid',gap:8}}>
                         <div>
                           <div style={{marginBottom:6,fontWeight:600}}>Squadra di casa</div>
@@ -1330,6 +1333,9 @@ export default function Gironi(){
                     <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>
                       Modifica partita — Girone {girone}
                     </Dialog.Title>
+                    <Dialog.Description style={{fontSize: '0.9rem', color: '#64748b', marginTop: 8}}>
+                      Assegna i punti agli atleti per questa partita
+                    </Dialog.Description>
                     
                     {loadingAtleti ? (
                       <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento...</div>
@@ -1509,6 +1515,9 @@ export default function Gironi(){
                     <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700,marginBottom:16}}>
                       🎯 Rilevazione live punti — Girone {girone}
                     </Dialog.Title>
+                    <Dialog.Description style={{fontSize: '0.9rem', color: '#64748b', marginBottom: 12}}>
+                      Registra i punti degli atleti in tempo reale durante la partita
+                    </Dialog.Description>
                     
                     {loadingLive ? (
                       <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento atleti...</div>
@@ -2397,6 +2406,9 @@ export default function Gironi(){
             <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>
               Tabellino — Girone {girone}
             </Dialog.Title>
+            <Dialog.Description style={{fontSize: '0.9rem', color: '#64748b', marginTop: 8}}>
+              Visualizza i punti degli atleti per questa partita
+            </Dialog.Description>
             
             {loadingTabellino ? (
               <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento...</div>
@@ -2526,6 +2538,9 @@ export default function Gironi(){
             <Dialog.Title style={{ fontSize: '1.25rem', fontWeight: 700, marginBottom: 16, flexShrink: 0 }}>
               📊 Tabellino Partita
             </Dialog.Title>
+            <Dialog.Description style={{ fontSize: '0.9rem', color: '#64748b', marginBottom: 16, flexShrink: 0 }}>
+              Visualizza il dettaglio dei punti per ogni atleta di entrambe le squadre
+            </Dialog.Description>
 
             {loadingViewStats ? (
               <div style={{ textAlign: 'center', padding: 40, color: '#64748b' }}>Caricamento...</div>
