@@ -1,7 +1,7 @@
-import React, { useState, useEffect, Suspense } from 'react'
+import React, { useState, useEffect, Suspense, useRef } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
-import { Info, Users, Trophy, LogIn } from 'lucide-react'
+import { Info, Users, Trophy, LogIn, ChevronLeft, ChevronRight } from 'lucide-react'
 import { useLoggedInTeam } from '../lib/useLoggedInTeam'
 
 const LazyTeamLoginDialog = React.lazy(() => import('../components/TeamLoginDialog'))
@@ -11,6 +11,7 @@ type Team = {
   name: string
   girone: string
   logo_url?: string | null
+  team_photo_url?: string | null
 }
 
 type Athlete = {
@@ -38,6 +39,141 @@ type Standing = {
   pts_against: number
   points: number
   games: number
+}
+
+// Team Photos Carousel Component
+function TeamPhotosCarousel({ teams, color }: { teams: Team[], color: string }) {
+  const scrollRef = useRef<HTMLDivElement>(null)
+  const [canScrollLeft, setCanScrollLeft] = useState(false)
+  const [canScrollRight, setCanScrollRight] = useState(false)
+
+  const teamsWithPhotos = teams.filter(t => t.team_photo_url)
+
+  useEffect(() => {
+    checkScroll()
+  }, [teamsWithPhotos])
+
+  const checkScroll = () => {
+    if (scrollRef.current) {
+      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
+      setCanScrollLeft(scrollLeft > 0)
+      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
+    }
+  }
+
+  const scroll = (direction: 'left' | 'right') => {
+    if (scrollRef.current) {
+      const scrollAmount = 300
+      scrollRef.current.scrollBy({
+        left: direction === 'left' ? -scrollAmount : scrollAmount,
+        behavior: 'smooth'
+      })
+      setTimeout(checkScroll, 300)
+    }
+  }
+
+  if (teamsWithPhotos.length === 0) return null
+
+  return (
+    <div style={{ position: 'relative', marginBottom: 24 }}>
+      {canScrollLeft && (
+        <button
+          onClick={() => scroll('left')}
+          style={{
+            position: 'absolute',
+            left: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 10,
+            background: 'white',
+            border: `2px solid ${color}`,
+            borderRadius: '50%',
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+          }}
+        >
+          <ChevronLeft size={24} color={color} />
+        </button>
+      )}
+      
+      <div
+        ref={scrollRef}
+        onScroll={checkScroll}
+        style={{
+          display: 'flex',
+          gap: 16,
+          overflowX: 'auto',
+          scrollbarWidth: 'none',
+          msOverflowStyle: 'none',
+          padding: '8px 0'
+        }}
+        className="hide-scrollbar"
+      >
+        {teamsWithPhotos.map(team => (
+          <div
+            key={team.id}
+            style={{
+              flexShrink: 0,
+              width: 300,
+              borderRadius: 12,
+              overflow: 'hidden',
+              border: `3px solid ${color}`,
+              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+            }}
+          >
+            <img
+              src={team.team_photo_url!}
+              alt={`${team.name} team photo`}
+              style={{
+                width: '100%',
+                height: 200,
+                objectFit: 'cover'
+              }}
+            />
+            <div style={{
+              padding: 12,
+              background: 'white',
+              textAlign: 'center',
+              fontWeight: 700,
+              color: '#1e293b'
+            }}>
+              {team.name}
+            </div>
+          </div>
+        ))}
+      </div>
+
+      {canScrollRight && (
+        <button
+          onClick={() => scroll('right')}
+          style={{
+            position: 'absolute',
+            right: 0,
+            top: '50%',
+            transform: 'translateY(-50%)',
+            zIndex: 10,
+            background: 'white',
+            border: `2px solid ${color}`,
+            borderRadius: '50%',
+            width: 40,
+            height: 40,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            cursor: 'pointer',
+            boxShadow: '0 2px 8px rgba(0,0,0,0.15)'
+          }}
+        >
+          <ChevronRight size={24} color={color} />
+        </button>
+      )}
+    </div>
+  )
 }
 
 export default function Home() {
@@ -566,7 +702,7 @@ export default function Home() {
     try {
       const { data, error } = await supabase
         .from('squadre')
-        .select('id, name, girone, logo_url')
+        .select('id, name, girone, logo_url, team_photo_url')
         .order('girone')
         .order('name')
 
@@ -867,6 +1003,10 @@ export default function Home() {
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#17b3ff' }}>
               Girone A
             </h3>
+            
+            {/* Team Photos Carousel for Girone A */}
+            <TeamPhotosCarousel teams={gironiA} color="#17b3ff" />
+            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
               {gironiA.map(team => (
                 <button
@@ -911,6 +1051,10 @@ export default function Home() {
             <h3 style={{ fontSize: '1.2rem', fontWeight: 700, marginBottom: 16, color: '#b8160f' }}>
               Girone B
             </h3>
+            
+            {/* Team Photos Carousel for Girone B */}
+            <TeamPhotosCarousel teams={gironiB} color="#b8160f" />
+            
             <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fill, minmax(200px, 1fr))', gap: 16 }}>
               {gironiB.map(team => (
                 <button

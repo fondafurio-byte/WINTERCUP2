@@ -317,3 +317,13 @@ html { font-size: clamp(14px, 1.2vw, 18px); }
 		display: table-cell;
 	}
 }
+
+/* Hide scrollbar for carousel */
+.hide-scrollbar::-webkit-scrollbar {
+	display: none;
+}
+
+.hide-scrollbar {
+	-ms-overflow-style: none;
+	scrollbar-width: none;
+}
