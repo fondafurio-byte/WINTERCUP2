@@ -480,58 +480,69 @@ export default function Partecipanti() {
           {/* Team Header with Logo */}
           <div style={{ 
             display: 'flex', 
-            alignItems: 'flex-start', 
+            alignItems: 'center', 
             gap: 16, 
-            marginBottom: 24,
+            marginBottom: 16,
             padding: 20,
             background: selectedTeam.girone === 'A' ? 'linear-gradient(135deg, #e0f4ff 0%, #b8e6ff 100%)' : selectedTeam.girone === 'B' ? 'linear-gradient(135deg, #fde8e7 0%, #fbb8b4 100%)' : '#f8fafc',
             borderRadius: 12,
             border: selectedTeam.girone === 'A' ? '2px solid #17b3ff' : selectedTeam.girone === 'B' ? '2px solid #b8160f' : '2px solid #e2e8f0'
           }}>
-            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, flexShrink: 0 }}>
-              {selectedTeam.logo_url ? (
-                <img 
-                  src={selectedTeam.logo_url} 
-                  alt={`${selectedTeam.name} logo`}
-                  style={{ 
-                    width: 80, 
-                    height: 80, 
-                    objectFit: 'contain'
-                  }}
-                />
-              ) : (
-                <div style={{
-                  width: 80,
-                  height: 80,
-                  background: 'white',
-                  borderRadius: 12,
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center'
-                }}>
-                  <Users size={40} color="#64748b" />
-                </div>
-              )}
-              {selectedTeam.team_photo_url && (
-                <img 
-                  src={selectedTeam.team_photo_url} 
-                  alt={`${selectedTeam.name} team photo`}
-                  style={{ 
-                    width: 200,
-                    maxHeight: 150,
-                    objectFit: 'cover',
-                    borderRadius: 8,
-                    border: '2px solid white',
-                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
-                  }}
-                />
-              )}
-            </div>
+            {selectedTeam.logo_url ? (
+              <img 
+                src={selectedTeam.logo_url} 
+                alt={`${selectedTeam.name} logo`}
+                style={{ 
+                  width: 80, 
+                  height: 80, 
+                  objectFit: 'contain',
+                  flexShrink: 0
+                }}
+              />
+            ) : (
+              <div style={{
+                width: 80,
+                height: 80,
+                background: 'white',
+                borderRadius: 12,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                flexShrink: 0
+              }}>
+                <Users size={40} color="#64748b" />
+              </div>
+            )}
             <div style={{ flex: 1 }}>
               <h2 style={{ margin: 0, marginBottom: 8, fontSize: '1.75rem' }}>{selectedTeam.name}</h2>
               <span style={{ color: '#64748b', fontSize: '1rem', fontWeight: 600 }}>Girone {selectedTeam.girone || 'Non assegnato'}</span>
             </div>
           </div>
+
+          {/* Team Photo - Outside card, centered */}
+          {selectedTeam.team_photo_url && (
+            <div style={{ 
+              display: 'flex', 
+              justifyContent: 'center',
+              marginBottom: 24,
+              padding: '0 16px'
+            }}>
+              <img 
+                src={selectedTeam.team_photo_url} 
+                alt={`${selectedTeam.name} team photo`}
+                style={{ 
+                  width: 'calc(100% - 32px)',
+                  maxWidth: '800px',
+                  height: 'auto',
+                  maxHeight: '400px',
+                  objectFit: 'cover',
+                  borderRadius: 12,
+                  border: '3px solid #e2e8f0',
+                  boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+                }}
+              />
+            </div>
+          )}
 
           <div style={{ display: 'flex', alignItems: 'center', gap: 12, marginBottom: 24, flexWrap: 'wrap' }}>
             <button className="btn secondary" onClick={() => setSelectedTeam(null)}>
