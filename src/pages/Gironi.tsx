@@ -107,6 +107,12 @@ export default function Gironi(){
   const [tabellinoAtletiList, setTabellinoAtletiList] = useState<Array<{id:string; nome:string; cognome:string; numero_maglia:string; punti:number}>>([])
   const [loadingTabellino, setLoadingTabellino] = useState(false)
 
+  // Referto preview modal state
+  const [refertoPreviewOpen, setRefertoPreviewOpen] = useState(false)
+  const [refertoImageUrl, setRefertoImageUrl] = useState<string | null>(null)
+  const [loadingReferto, setLoadingReferto] = useState(false)
+  const [refertoZoomed, setRefertoZoomed] = useState(false)
+
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
     return homeAtleti.reduce((sum, atleta) => sum + (atletiPunti[atleta.id] || 0), 0)
@@ -2312,6 +2318,7 @@ export default function Gironi(){
                               <button 
                                 onClick={async () => {
                                   try {
+                                    setLoadingReferto(true)
                                     const docPath = (m as any).documento_url
                                     console.log('Trying to open document:', { docPath, matchId: (m as any).id })
                                     
@@ -2324,15 +2331,19 @@ export default function Gironi(){
                                     
                                     if (error) {
                                       alert('Errore apertura documento: ' + error.message)
+                                      setLoadingReferto(false)
                                       return
                                     }
                                     
                                     if (data?.signedUrl) {
-                                      window.open(data.signedUrl, '_blank')
+                                      setRefertoImageUrl(data.signedUrl)
+                                      setRefertoPreviewOpen(true)
                                     }
+                                    setLoadingReferto(false)
                                   } catch (err) {
                                     console.error('Errore documento:', err)
                                     alert('Errore apertura documento')
+                                    setLoadingReferto(false)
                                   }
                                 }}
                                 style={{
@@ -2344,8 +2355,9 @@ export default function Gironi(){
                                   cursor:'pointer',
                                   padding:0
                                 }}
+                                disabled={loadingReferto}
                               >
-                                Visualizza Referto
+                                {loadingReferto ? 'Caricamento...' : 'Visualizza Referto'}
                               </button>
                             </div>
                           )}
@@ -2646,6 +2658,105 @@ export default function Gironi(){
               </button>
             </Dialog.Close>
           </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Referto Preview Modal */}
+      <Dialog.Root open={refertoPreviewOpen} onOpenChange={(open) => {
+        setRefertoPreviewOpen(open)
+        if (!open) setRefertoZoomed(false)
+      }}>
+        <Dialog.Portal>
+          <Dialog.Overlay style={{
+            position: 'fixed',
+            inset: 0,
+            background: 'rgba(0,0,0,0.9)',
+            zIndex: 9999,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}>
+            <Dialog.Content style={{
+              width: '100vw',
+              height: '100vh',
+              background: 'transparent',
+              display: 'flex',
+              flexDirection: 'column',
+              border: 'none',
+              outline: 'none'
+            }}>
+              <div style={{
+                padding: 16,
+                display: 'flex',
+                justifyContent: 'space-between',
+                alignItems: 'center',
+                background: 'rgba(0,0,0,0.5)'
+              }}>
+                <Dialog.Title style={{
+                  fontWeight: 700,
+                  fontSize: '1.1rem',
+                  color: 'white',
+                  margin: 0
+                }}>
+                  Referto Partita
+                </Dialog.Title>
+                <button
+                  onClick={() => setRefertoPreviewOpen(false)}
+                  style={{
+                    padding: '8px 16px',
+                    background: 'white',
+                    color: '#1e293b',
+                    border: 'none',
+                    borderRadius: 6,
+                    fontWeight: 600,
+                    cursor: 'pointer'
+                  }}
+                >
+                  Chiudi
+                </button>
+              </div>
+              <Dialog.Description style={{ display: 'none' }}>
+                Anteprima del referto della partita
+              </Dialog.Description>
+              <div 
+                onClick={() => setRefertoZoomed(!refertoZoomed)}
+                style={{
+                  flex: 1,
+                  overflow: refertoZoomed ? 'auto' : 'hidden',
+                  display: 'flex',
+                  alignItems: refertoZoomed ? 'flex-start' : 'center',
+                  justifyContent: 'center',
+                  cursor: refertoZoomed ? 'zoom-out' : 'zoom-in',
+                  padding: refertoZoomed ? 0 : 16
+                }}
+              >
+                {refertoImageUrl && (
+                  <img 
+                    src={refertoImageUrl} 
+                    alt="Referto" 
+                    style={{
+                      width: refertoZoomed ? 'auto' : '100%',
+                      height: refertoZoomed ? 'auto' : '100%',
+                      maxWidth: refertoZoomed ? 'none' : '100%',
+                      maxHeight: refertoZoomed ? 'none' : '100%',
+                      objectFit: refertoZoomed ? 'none' : 'contain',
+                      display: 'block',
+                      transition: 'all 0.3s ease'
+                    }}
+                  />
+                )}
+              </div>
+              <div style={{
+                padding: 12,
+                background: 'rgba(0,0,0,0.5)',
+                textAlign: 'center',
+                color: 'white',
+                fontSize: '0.9rem'
+              }}>
+                {refertoZoomed ? 'Clicca per ridurre' : 'Clicca per ingrandire'}
+              </div>
+            </Dialog.Content>
+          </Dialog.Overlay>
         </Dialog.Portal>
       </Dialog.Root>
 
