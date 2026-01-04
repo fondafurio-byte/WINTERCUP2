@@ -39,6 +39,8 @@ export default function Partecipanti() {
   const [teamGirone, setTeamGirone] = useState<string>('')
   const [teamLogoUrl, setTeamLogoUrl] = useState('')
   const [teamPhotoUrl, setTeamPhotoUrl] = useState('')
+  const [teamPhotoFile, setTeamPhotoFile] = useState<File | null>(null)
+  const [uploadingPhoto, setUploadingPhoto] = useState(false)
 
   // Check admin and team user status
   useEffect(() => {
@@ -245,17 +247,64 @@ export default function Partecipanti() {
     } catch (err) { alert('Errore eliminazione') }
   }
 
+  async function uploadTeamPhoto(file: File, teamId: string): Promise<string | null> {
+    try {
+      const fileExt = file.name.split('.').pop()
+      const fileName = `${teamId}-${Date.now()}.${fileExt}`
+      const filePath = `${fileName}`
+
+      const { error: uploadError } = await supabase.storage
+        .from('team-photos')
+        .upload(filePath, file, {
+          cacheControl: '3600',
+          upsert: true
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        return null
+      }
+
+      const { data } = supabase.storage
+        .from('team-photos')
+        .getPublicUrl(filePath)
+
+      return data.publicUrl
+    } catch (error) {
+      console.error('Error uploading photo:', error)
+      return null
+    }
+  }
+
   async function handleUpdateTeam(e: React.FormEvent) {
     e.preventDefault()
     if (!selectedTeam || !teamName) return
     setStatus(null)
+    
     try {
+      let finalPhotoUrl = teamPhotoUrl
+
+      // Upload photo if file is selected
+      if (teamPhotoFile) {
+        setUploadingPhoto(true)
+        const uploadedUrl = await uploadTeamPhoto(teamPhotoFile, selectedTeam.id)
+        if (uploadedUrl) {
+          finalPhotoUrl = uploadedUrl
+        } else {
+          setStatus('Errore caricamento foto')
+          setUploadingPhoto(false)
+          return
+        }
+        setUploadingPhoto(false)
+      }
+
       const { data, error } = await supabase.from('squadre').update({
         name: teamName,
         girone: teamGirone || null,
         logo_url: teamLogoUrl || null,
-        team_photo_url: teamPhotoUrl || null
+        team_photo_url: finalPhotoUrl || null
       }).eq('id', selectedTeam.id).select()
+      
       if (error) { setStatus('Errore: ' + error.message); return }
       if (data && data.length) {
         const updatedTeam = (data as any)[0]
@@ -263,34 +312,74 @@ export default function Partecipanti() {
         setTeams(prev => prev.map(t => t.id === selectedTeam.id ? updatedTeam : t))
       }
       setEditTeamOpen(false)
+      setTeamPhotoFile(null)
       setStatus('Squadra aggiornata!')
       setTimeout(() => setStatus(null), 2000)
-    } catch (err) { setStatus('Errore aggiornamento squadra') }
+    } catch (err) { 
+      setStatus('Errore aggiornamento squadra')
+      setUploadingPhoto(false)
+    }
   }
 
   async function handleAddTeam(e: React.FormEvent) {
     e.preventDefault()
     if (!teamName) return
     setStatus(null)
+    
     try {
-      const { data, error } = await supabase.from('squadre').insert([{
+      // First create the team to get the ID
+      const { data: newTeamData, error: createError } = await supabase.from('squadre').insert([{
         name: teamName,
         girone: teamGirone || null,
         logo_url: teamLogoUrl || null,
-        team_photo_url: teamPhotoUrl || null
+        team_photo_url: null
       }]).select()
-      if (error) { setStatus('Errore: ' + error.message); return }
-      if (data && data.length) {
-        setTeams(prev => [...prev, ...(data as any)])
+
+      if (createError) { setStatus('Errore: ' + createError.message); return }
+      if (!newTeamData || newTeamData.length === 0) { 
+        setStatus('Errore creazione squadra')
+        return 
       }
+
+      const newTeam = newTeamData[0]
+      let finalPhotoUrl = teamPhotoUrl
+
+      // Upload photo if file is selected
+      if (teamPhotoFile) {
+        setUploadingPhoto(true)
+        const uploadedUrl = await uploadTeamPhoto(teamPhotoFile, newTeam.id)
+        if (uploadedUrl) {
+          finalPhotoUrl = uploadedUrl
+          // Update team with photo URL
+          const { data: updatedData, error: updateError } = await supabase
+            .from('squadre')
+            .update({ team_photo_url: finalPhotoUrl })
+            .eq('id', newTeam.id)
+            .select()
+          
+          if (updateError) {
+            console.error('Error updating photo URL:', updateError)
+          } else if (updatedData && updatedData.length > 0) {
+            setTeams(prev => [...prev, updatedData[0] as any])
+          }
+        }
+        setUploadingPhoto(false)
+      } else {
+        setTeams(prev => [...prev, newTeam as any])
+      }
+
       setAddTeamOpen(false)
       setTeamName('')
       setTeamGirone('')
       setTeamLogoUrl('')
       setTeamPhotoUrl('')
+      setTeamPhotoFile(null)
       setStatus('Squadra creata!')
       setTimeout(() => setStatus(null), 2000)
-    } catch (err) { setStatus('Errore creazione squadra') }
+    } catch (err) { 
+      setStatus('Errore creazione squadra')
+      setUploadingPhoto(false)
+    }
   }
 
   async function handleDeleteTeam() {
@@ -458,6 +547,7 @@ export default function Partecipanti() {
                     setTeamGirone(selectedTeam.girone || '')
                     setTeamLogoUrl(selectedTeam.logo_url || '')
                     setTeamPhotoUrl(selectedTeam.team_photo_url || '')
+                    setTeamPhotoFile(null)
                     setStatus(null)
                     setEditTeamOpen(true)
                   }}
@@ -761,26 +851,47 @@ export default function Partecipanti() {
                 )}
               </div>
               <div>
-                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra URL</div>
+                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra</div>
                 <input 
-                  className="rw-input" 
-                  value={teamPhotoUrl} 
-                  onChange={e => setTeamPhotoUrl(e.target.value)} 
-                  placeholder="https://esempio.com/foto-squadra.jpg" 
-                  type="url"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      setTeamPhotoFile(file)
+                      // Create preview URL
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        setTeamPhotoUrl(reader.result as string)
+                      }
+                      reader.readAsDataURL(file)
+                    }
+                  }}
+                  style={{
+                    padding: '8px',
+                    border: '2px dashed #cbd5e1',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    width: '100%'
+                  }}
                 />
                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
-                  Foto della squadra che apparirà sotto il logo (opzionale)
+                  Carica la foto della squadra (JPG, PNG, WEBP, GIF - max 5MB)
                 </div>
-                {teamPhotoUrl && (
+                {(teamPhotoUrl || selectedTeam?.team_photo_url) && (
                   <div style={{ marginTop: 8 }}>
                     <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 4 }}>Anteprima:</div>
                     <img 
-                      src={teamPhotoUrl} 
+                      src={teamPhotoUrl || selectedTeam?.team_photo_url || ''} 
                       alt="Foto squadra anteprima" 
                       style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: '2px solid #e6edf3', objectFit: 'cover' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                     />
+                    {teamPhotoFile && (
+                      <div style={{ fontSize: '0.85rem', color: '#10b981', marginTop: 4 }}>
+                        ✓ Nuova foto selezionata: {teamPhotoFile.name}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -788,7 +899,9 @@ export default function Partecipanti() {
                 <Dialog.Close asChild>
                   <button type="button" className="btn secondary">Annulla</button>
                 </Dialog.Close>
-                <button className="btn" type="submit">Salva</button>
+                <button className="btn" type="submit" disabled={uploadingPhoto}>
+                  {uploadingPhoto ? 'Caricamento...' : 'Salva'}
+                </button>
               </div>
               {status && <div className="status">{status}</div>}
             </form>
@@ -848,16 +961,32 @@ export default function Partecipanti() {
                 )}
               </div>
               <div>
-                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra URL</div>
+                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra</div>
                 <input 
-                  className="rw-input" 
-                  value={teamPhotoUrl} 
-                  onChange={e => setTeamPhotoUrl(e.target.value)} 
-                  placeholder="https://esempio.com/foto-squadra.jpg" 
-                  type="url"
+                  type="file"
+                  accept="image/jpeg,image/jpg,image/png,image/webp,image/gif"
+                  onChange={(e) => {
+                    const file = e.target.files?.[0]
+                    if (file) {
+                      setTeamPhotoFile(file)
+                      // Create preview URL
+                      const reader = new FileReader()
+                      reader.onloadend = () => {
+                        setTeamPhotoUrl(reader.result as string)
+                      }
+                      reader.readAsDataURL(file)
+                    }
+                  }}
+                  style={{
+                    padding: '8px',
+                    border: '2px dashed #cbd5e1',
+                    borderRadius: '8px',
+                    cursor: 'pointer',
+                    width: '100%'
+                  }}
                 />
                 <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
-                  Foto della squadra che apparirà sotto il logo (opzionale)
+                  Carica la foto della squadra (JPG, PNG, WEBP, GIF - max 5MB)
                 </div>
                 {teamPhotoUrl && (
                   <div style={{ marginTop: 8 }}>
@@ -868,6 +997,11 @@ export default function Partecipanti() {
                       style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: '2px solid #e6edf3', objectFit: 'cover' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                     />
+                    {teamPhotoFile && (
+                      <div style={{ fontSize: '0.85rem', color: '#10b981', marginTop: 4 }}>
+                        ✓ Foto selezionata: {teamPhotoFile.name}
+                      </div>
+                    )}
                   </div>
                 )}
               </div>
@@ -875,7 +1009,9 @@ export default function Partecipanti() {
                 <Dialog.Close asChild>
                   <button type="button" className="btn secondary">Annulla</button>
                 </Dialog.Close>
-                <button className="btn" type="submit">Crea Squadra</button>
+                <button className="btn" type="submit" disabled={uploadingPhoto}>
+                  {uploadingPhoto ? 'Caricamento...' : 'Crea Squadra'}
+                </button>
               </div>
               {status && <div className="status">{status}</div>}
             </form>
