@@ -524,15 +524,14 @@ export default function Partecipanti() {
             <div style={{ 
               display: 'flex', 
               justifyContent: 'center',
-              marginBottom: 24,
-              padding: '0 16px'
+              marginBottom: 24
             }}>
               <img 
                 src={selectedTeam.team_photo_url} 
                 alt={`${selectedTeam.name} team photo`}
                 style={{ 
-                  width: 'calc(100% - 32px)',
-                  maxWidth: '800px',
+                  maxWidth: 'calc(100% - 32px)',
+                  width: 'auto',
                   height: 'auto',
                   maxHeight: '400px',
                   objectFit: 'contain',
