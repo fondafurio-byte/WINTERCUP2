@@ -3,7 +3,7 @@ import { Users, Plus, Edit2, Trash2, X } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 
-type Team = { id: string; name: string; girone: string; logo_url?: string | null }
+type Team = { id: string; name: string; girone: string; logo_url?: string | null; team_photo_url?: string | null }
 type StaffMember = { id: string; squadra_id: string; ruolo: string; nome: string; cognome: string }
 type Athlete = { id: string; squadra_id: string; numero_maglia: string; nome: string; cognome: string }
 
@@ -38,6 +38,7 @@ export default function Partecipanti() {
   const [teamName, setTeamName] = useState('')
   const [teamGirone, setTeamGirone] = useState<string>('')
   const [teamLogoUrl, setTeamLogoUrl] = useState('')
+  const [teamPhotoUrl, setTeamPhotoUrl] = useState('')
 
   // Check admin and team user status
   useEffect(() => {
@@ -102,7 +103,7 @@ export default function Partecipanti() {
   useEffect(() => {
     async function loadTeams() {
       try {
-        const { data, error } = await supabase.from('squadre').select('id,name,girone,logo_url').order('name')
+        const { data, error } = await supabase.from('squadre').select('id,name,girone,logo_url,team_photo_url').order('name')
         if (error) { console.debug('loadTeams error', error.message); return }
         setTeams((data as any) ?? [])
       } catch (err) { console.debug(err) }
@@ -252,7 +253,8 @@ export default function Partecipanti() {
       const { data, error } = await supabase.from('squadre').update({
         name: teamName,
         girone: teamGirone || null,
-        logo_url: teamLogoUrl || null
+        logo_url: teamLogoUrl || null,
+        team_photo_url: teamPhotoUrl || null
       }).eq('id', selectedTeam.id).select()
       if (error) { setStatus('Errore: ' + error.message); return }
       if (data && data.length) {
@@ -274,7 +276,8 @@ export default function Partecipanti() {
       const { data, error } = await supabase.from('squadre').insert([{
         name: teamName,
         girone: teamGirone || null,
-        logo_url: teamLogoUrl || null
+        logo_url: teamLogoUrl || null,
+        team_photo_url: teamPhotoUrl || null
       }]).select()
       if (error) { setStatus('Errore: ' + error.message); return }
       if (data && data.length) {
@@ -284,6 +287,7 @@ export default function Partecipanti() {
       setTeamName('')
       setTeamGirone('')
       setTeamLogoUrl('')
+      setTeamPhotoUrl('')
       setStatus('Squadra creata!')
       setTimeout(() => setStatus(null), 2000)
     } catch (err) { setStatus('Errore creazione squadra') }
@@ -387,7 +391,7 @@ export default function Partecipanti() {
           {/* Team Header with Logo */}
           <div style={{ 
             display: 'flex', 
-            alignItems: 'center', 
+            alignItems: 'flex-start', 
             gap: 16, 
             marginBottom: 24,
             padding: 20,
@@ -395,31 +399,45 @@ export default function Partecipanti() {
             borderRadius: 12,
             border: selectedTeam.girone === 'A' ? '2px solid #17b3ff' : selectedTeam.girone === 'B' ? '2px solid #b8160f' : '2px solid #e2e8f0'
           }}>
-            {selectedTeam.logo_url ? (
-              <img 
-                src={selectedTeam.logo_url} 
-                alt={`${selectedTeam.name} logo`}
-                style={{ 
-                  width: 80, 
-                  height: 80, 
-                  objectFit: 'contain', 
-                  flexShrink: 0
-                }}
-              />
-            ) : (
-              <div style={{
-                width: 80,
-                height: 80,
-                background: 'white',
-                borderRadius: 12,
-                display: 'flex',
-                alignItems: 'center',
-                justifyContent: 'center',
-                flexShrink: 0
-              }}>
-                <Users size={40} color="#64748b" />
-              </div>
-            )}
+            <div style={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 12, flexShrink: 0 }}>
+              {selectedTeam.logo_url ? (
+                <img 
+                  src={selectedTeam.logo_url} 
+                  alt={`${selectedTeam.name} logo`}
+                  style={{ 
+                    width: 80, 
+                    height: 80, 
+                    objectFit: 'contain'
+                  }}
+                />
+              ) : (
+                <div style={{
+                  width: 80,
+                  height: 80,
+                  background: 'white',
+                  borderRadius: 12,
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center'
+                }}>
+                  <Users size={40} color="#64748b" />
+                </div>
+              )}
+              {selectedTeam.team_photo_url && (
+                <img 
+                  src={selectedTeam.team_photo_url} 
+                  alt={`${selectedTeam.name} team photo`}
+                  style={{ 
+                    width: 200,
+                    maxHeight: 150,
+                    objectFit: 'cover',
+                    borderRadius: 8,
+                    border: '2px solid white',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.1)'
+                  }}
+                />
+              )}
+            </div>
             <div style={{ flex: 1 }}>
               <h2 style={{ margin: 0, marginBottom: 8, fontSize: '1.75rem' }}>{selectedTeam.name}</h2>
               <span style={{ color: '#64748b', fontSize: '1rem', fontWeight: 600 }}>Girone {selectedTeam.girone || 'Non assegnato'}</span>
@@ -439,6 +457,7 @@ export default function Partecipanti() {
                     setTeamName(selectedTeam.name)
                     setTeamGirone(selectedTeam.girone || '')
                     setTeamLogoUrl(selectedTeam.logo_url || '')
+                    setTeamPhotoUrl(selectedTeam.team_photo_url || '')
                     setStatus(null)
                     setEditTeamOpen(true)
                   }}
@@ -741,6 +760,30 @@ export default function Partecipanti() {
                   </div>
                 )}
               </div>
+              <div>
+                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra URL</div>
+                <input 
+                  className="rw-input" 
+                  value={teamPhotoUrl} 
+                  onChange={e => setTeamPhotoUrl(e.target.value)} 
+                  placeholder="https://esempio.com/foto-squadra.jpg" 
+                  type="url"
+                />
+                <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
+                  Foto della squadra che apparirà sotto il logo (opzionale)
+                </div>
+                {teamPhotoUrl && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 4 }}>Anteprima:</div>
+                    <img 
+                      src={teamPhotoUrl} 
+                      alt="Foto squadra anteprima" 
+                      style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: '2px solid #e6edf3', objectFit: 'cover' }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                  </div>
+                )}
+              </div>
               <div style={{ display: 'flex', justifyContent: 'flex-end', gap: 8, marginTop: 6 }}>
                 <Dialog.Close asChild>
                   <button type="button" className="btn secondary">Annulla</button>
@@ -799,6 +842,30 @@ export default function Partecipanti() {
                       src={teamLogoUrl} 
                       alt="Logo anteprima" 
                       style={{ maxWidth: 80, maxHeight: 80, borderRadius: 8, border: '2px solid #e6edf3' }}
+                      onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
+                    />
+                  </div>
+                )}
+              </div>
+              <div>
+                <div style={{ marginBottom: 6, fontWeight: 600 }}>Foto Squadra URL</div>
+                <input 
+                  className="rw-input" 
+                  value={teamPhotoUrl} 
+                  onChange={e => setTeamPhotoUrl(e.target.value)} 
+                  placeholder="https://esempio.com/foto-squadra.jpg" 
+                  type="url"
+                />
+                <div style={{ fontSize: '0.85rem', color: '#64748b', marginTop: 4 }}>
+                  Foto della squadra che apparirà sotto il logo (opzionale)
+                </div>
+                {teamPhotoUrl && (
+                  <div style={{ marginTop: 8 }}>
+                    <div style={{ fontSize: '0.85rem', fontWeight: 600, marginBottom: 4 }}>Anteprima:</div>
+                    <img 
+                      src={teamPhotoUrl} 
+                      alt="Foto squadra anteprima" 
+                      style={{ maxWidth: 200, maxHeight: 150, borderRadius: 8, border: '2px solid #e6edf3', objectFit: 'cover' }}
                       onError={(e) => { (e.target as HTMLImageElement).style.display = 'none' }}
                     />
                   </div>
