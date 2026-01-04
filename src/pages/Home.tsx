@@ -1,4 +1,4 @@
-import React, { useState, useEffect, Suspense, useRef } from 'react'
+import React, { useState, useEffect, Suspense } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
 import { Info, Users, Trophy, LogIn, ChevronLeft, ChevronRight } from 'lucide-react'
@@ -43,45 +43,53 @@ type Standing = {
 
 // Team Photos Carousel Component
 function TeamPhotosCarousel({ teams, color }: { teams: Team[], color: string }) {
-  const scrollRef = useRef<HTMLDivElement>(null)
-  const [canScrollLeft, setCanScrollLeft] = useState(false)
-  const [canScrollRight, setCanScrollRight] = useState(false)
+  const [currentIndex, setCurrentIndex] = useState(0)
+  const [touchStart, setTouchStart] = useState(0)
+  const [touchEnd, setTouchEnd] = useState(0)
 
   const teamsWithPhotos = teams.filter(t => t.team_photo_url)
 
-  useEffect(() => {
-    checkScroll()
-  }, [teamsWithPhotos])
-
-  const checkScroll = () => {
-    if (scrollRef.current) {
-      const { scrollLeft, scrollWidth, clientWidth } = scrollRef.current
-      setCanScrollLeft(scrollLeft > 0)
-      setCanScrollRight(scrollLeft < scrollWidth - clientWidth - 10)
-    }
-  }
-
-  const scroll = (direction: 'left' | 'right') => {
-    if (scrollRef.current) {
-      const scrollAmount = 300
-      scrollRef.current.scrollBy({
-        left: direction === 'left' ? -scrollAmount : scrollAmount,
-        behavior: 'smooth'
-      })
-      setTimeout(checkScroll, 300)
-    }
-  }
-
   if (teamsWithPhotos.length === 0) return null
+
+  const goToNext = () => {
+    setCurrentIndex((prev) => (prev + 1) % teamsWithPhotos.length)
+  }
+
+  const goToPrev = () => {
+    setCurrentIndex((prev) => (prev - 1 + teamsWithPhotos.length) % teamsWithPhotos.length)
+  }
+
+  const handleTouchStart = (e: React.TouchEvent) => {
+    setTouchStart(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchMove = (e: React.TouchEvent) => {
+    setTouchEnd(e.targetTouches[0].clientX)
+  }
+
+  const handleTouchEnd = () => {
+    if (touchStart - touchEnd > 75) {
+      // Swipe left - next photo
+      goToNext()
+    }
+
+    if (touchStart - touchEnd < -75) {
+      // Swipe right - prev photo
+      goToPrev()
+    }
+  }
+
+  const currentTeam = teamsWithPhotos[currentIndex]
 
   return (
     <div style={{ position: 'relative', marginBottom: 24 }}>
-      {canScrollLeft && (
+      {/* Previous button */}
+      {teamsWithPhotos.length > 1 && (
         <button
-          onClick={() => scroll('left')}
+          onClick={goToPrev}
           style={{
             position: 'absolute',
-            left: 0,
+            left: 16,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
@@ -100,60 +108,61 @@ function TeamPhotosCarousel({ teams, color }: { teams: Team[], color: string }) 
           <ChevronLeft size={24} color={color} />
         </button>
       )}
-      
+
+      {/* Photo container */}
       <div
-        ref={scrollRef}
-        onScroll={checkScroll}
+        onTouchStart={handleTouchStart}
+        onTouchMove={handleTouchMove}
+        onTouchEnd={handleTouchEnd}
         style={{
           display: 'flex',
-          gap: 16,
-          overflowX: 'auto',
-          scrollbarWidth: 'none',
-          msOverflowStyle: 'none',
-          padding: '8px 0'
+          justifyContent: 'center',
+          padding: '8px 0',
+          userSelect: 'none'
         }}
-        className="hide-scrollbar"
       >
-        {teamsWithPhotos.map(team => (
-          <div
-            key={team.id}
+        <div
+          style={{
+            maxWidth: 600,
+            width: '100%',
+            borderRadius: 12,
+            overflow: 'hidden',
+            border: `3px solid ${color}`,
+            boxShadow: '0 4px 12px rgba(0,0,0,0.1)',
+            transition: 'opacity 0.3s ease'
+          }}
+        >
+          <img
+            src={currentTeam.team_photo_url!}
+            alt={`${currentTeam.name} team photo`}
             style={{
-              flexShrink: 0,
-              width: 300,
-              borderRadius: 12,
-              overflow: 'hidden',
-              border: `3px solid ${color}`,
-              boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
+              width: '100%',
+              height: 'auto',
+              maxHeight: 400,
+              objectFit: 'contain',
+              display: 'block'
             }}
-          >
-            <img
-              src={team.team_photo_url!}
-              alt={`${team.name} team photo`}
-              style={{
-                width: '100%',
-                height: 200,
-                objectFit: 'cover'
-              }}
-            />
-            <div style={{
-              padding: 12,
-              background: 'white',
-              textAlign: 'center',
-              fontWeight: 700,
-              color: '#1e293b'
-            }}>
-              {team.name}
-            </div>
+          />
+          <div style={{
+            padding: 16,
+            background: 'white',
+            textAlign: 'center',
+            fontWeight: 700,
+            fontSize: '1.1rem',
+            color: '#1e293b'
+          }}>
+            {currentTeam.name}
           </div>
-        ))}
+        </div>
       </div>
 
-      {canScrollRight && (
+      {/* Next button */}
+      {teamsWithPhotos.length > 1 && (
         <button
-          onClick={() => scroll('right')}
+          onClick={goToNext}
           style={{
             position: 'absolute',
-            right: 0,
+            right: 16,
             top: '50%',
             transform: 'translateY(-50%)',
             zIndex: 10,
@@ -171,6 +180,34 @@ function TeamPhotosCarousel({ teams, color }: { teams: Team[], color: string }) 
         >
           <ChevronRight size={24} color={color} />
         </button>
+      )}
+
+      {/* Dots indicator */}
+      {teamsWithPhotos.length > 1 && (
+        <div style={{
+          display: 'flex',
+          justifyContent: 'center',
+          gap: 8,
+          marginTop: 12
+        }}>
+          {teamsWithPhotos.map((_, index) => (
+            <button
+              key={index}
+              onClick={() => setCurrentIndex(index)}
+              style={{
+                width: 10,
+                height: 10,
+                borderRadius: '50%',
+                border: 'none',
+                background: index === currentIndex ? color : '#cbd5e1',
+                cursor: 'pointer',
+                padding: 0,
+                transition: 'all 0.3s ease'
+              }}
+              aria-label={`Go to photo ${index + 1}`}
+            />
+          ))}
+        </div>
       )}
     </div>
   )
