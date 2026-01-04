@@ -535,7 +535,7 @@ export default function Partecipanti() {
                   maxWidth: '800px',
                   height: 'auto',
                   maxHeight: '400px',
-                  objectFit: 'cover',
+                  objectFit: 'contain',
                   borderRadius: 12,
                   border: '3px solid #e2e8f0',
                   boxShadow: '0 4px 12px rgba(0,0,0,0.1)'
