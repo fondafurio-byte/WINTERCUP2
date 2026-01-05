@@ -1,6 +1,6 @@
 import React, { useState, useEffect, Suspense, useMemo } from 'react'
 import { supabase } from '../lib/supabase'
-import { Trophy, Zap, Edit2, Trash2, MapPin, Calendar, Clock, Radio, Eye } from 'lucide-react'
+import { Trophy, Zap, Edit2, Trash2, MapPin, Calendar, Clock, Radio, Eye, FileText } from 'lucide-react'
 import * as Dialog from '@radix-ui/react-dialog'
 
 const LazyFinalVoteDialog = React.lazy(() => import('../components/FinalVoteDialog'))
@@ -70,6 +70,15 @@ export default function Finali(){
   const [editCampo, setEditCampo] = useState<string>('')
   const [editOrario, setEditOrario] = useState<string>('')
   const [editStatus, setEditStatus] = useState<string | null>(null)
+
+  // Tabellino modal state (read-only)
+  const [tabellinoModalOpen, setTabellinoModalOpen] = useState(false)
+  const [tabellinoMatchId, setTabellinoMatchId] = useState<string | null>(null)
+  const [tabellinoHomeTeam, setTabellinoHomeTeam] = useState<Team | null>(null)
+  const [tabellinoAwayTeam, setTabellinoAwayTeam] = useState<Team | null>(null)
+  const [tabellinoSelectedTeam, setTabellinoSelectedTeam] = useState<'home' | 'away' | ''>('')
+  const [tabellinoAtletiList, setTabellinoAtletiList] = useState<Array<{id:string; nome:string; cognome:string; numero_maglia:string; punti:number}>>([])
+  const [loadingTabellino, setLoadingTabellino] = useState(false)
 
   // Calculate team totals
   const homeTeamScore = useMemo(() => {
@@ -507,6 +516,72 @@ export default function Finali(){
     }
   }
 
+  async function loadTabellinoForMatch(matchId: string) {
+    setLoadingTabellino(true)
+    setTabellinoSelectedTeam('')
+    setTabellinoAtletiList([])
+    try {
+      const match = finalMatches.find(m => m.id === matchId)
+      if (!match) {
+        setLoadingTabellino(false)
+        return
+      }
+      
+      const homeTeam = teamsMap[match.home_team_id]
+      const awayTeam = teamsMap[match.away_team_id]
+      setTabellinoHomeTeam(homeTeam || null)
+      setTabellinoAwayTeam(awayTeam || null)
+    } catch (err) {
+      console.error('Error loading tabellino:', err)
+    } finally {
+      setLoadingTabellino(false)
+    }
+  }
+
+  async function loadTabellinoForTeam(teamId: string) {
+    if (!tabellinoMatchId) return
+    setLoadingTabellino(true)
+    try {
+      // Get athletes for this team
+      const { data: atletiData, error: atletiError } = await supabase
+        .from('atleti')
+        .select('id, nome, cognome, numero_maglia')
+        .eq('squadra_id', teamId)
+        .order('numero_maglia')
+      
+      if (atletiError) {
+        console.error('Error loading athletes:', atletiError)
+        setLoadingTabellino(false)
+        return
+      }
+      
+      // Load points for these athletes
+      const atletiIds = (atletiData || []).map(a => a.id)
+      const { data: puntiData } = await supabase
+        .from('punti_atleti')
+        .select('atleta_id, punti')
+        .eq('partita_id', tabellinoMatchId)
+        .in('atleta_id', atletiIds)
+      
+      const puntiMap = (puntiData || []).reduce((acc: any, p: any) => {
+        acc[p.atleta_id] = (acc[p.atleta_id] || 0) + p.punti
+        return acc
+      }, {})
+      
+      // Combine athletes with their points
+      const atletiWithPunti = (atletiData || []).map(a => ({
+        ...a,
+        punti: puntiMap[a.id] || 0
+      }))
+      
+      setTabellinoAtletiList(atletiWithPunti)
+    } catch (err) {
+      console.error('Error loading tabellino:', err)
+    } finally {
+      setLoadingTabellino(false)
+    }
+  }
+
   function openVoteDialog(match: FinalMatch) {
     const squadraCasa = teamsMap[match.home_team_id]
     const squadraOspite = teamsMap[match.away_team_id]
@@ -838,6 +913,38 @@ export default function Finali(){
                         </>
                         )
                       })()}
+                      {/* Pulsante Visualizza Tabellino - sempre visibile se la partita ha dei punteggi */}
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '1-2')
+                        return (match && (match.home_score != null || match.away_score != null)) && (
+                          <button
+                            title="Visualizza Tabellino"
+                            onClick={() => {
+                              if (match) {
+                                setTabellinoMatchId(match.id)
+                                loadTabellinoForMatch(match.id)
+                                setTabellinoModalOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#10b981',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <FileText size={14} />
+                            Tabellino
+                          </button>
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -1016,6 +1123,38 @@ export default function Finali(){
                             </>
                           )}
                         </>
+                        )
+                      })()}
+                      {/* Pulsante Visualizza Tabellino */}
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '3-4')
+                        return (match && (match.home_score != null || match.away_score != null)) && (
+                          <button
+                            title="Visualizza Tabellino"
+                            onClick={() => {
+                              if (match) {
+                                setTabellinoMatchId(match.id)
+                                loadTabellinoForMatch(match.id)
+                                setTabellinoModalOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#10b981',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <FileText size={14} />
+                            Tabellino
+                          </button>
                         )
                       })()}
                     </>
@@ -1198,6 +1337,38 @@ export default function Finali(){
                         </>
                         )
                       })()}
+                      {/* Pulsante Visualizza Tabellino */}
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '5-6')
+                        return (match && (match.home_score != null || match.away_score != null)) && (
+                          <button
+                            title="Visualizza Tabellino"
+                            onClick={() => {
+                              if (match) {
+                                setTabellinoMatchId(match.id)
+                                loadTabellinoForMatch(match.id)
+                                setTabellinoModalOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#10b981',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <FileText size={14} />
+                            Tabellino
+                          </button>
+                        )
+                      })()}
                     </>
                   )}
                 </div>
@@ -1376,6 +1547,38 @@ export default function Finali(){
                             </>
                           )}
                         </>
+                        )
+                      })()}
+                      {/* Pulsante Visualizza Tabellino */}
+                      {(() => {
+                        const match = finalMatches.find(m => m.finalType === '7-8')
+                        return (match && (match.home_score != null || match.away_score != null)) && (
+                          <button
+                            title="Visualizza Tabellino"
+                            onClick={() => {
+                              if (match) {
+                                setTabellinoMatchId(match.id)
+                                loadTabellinoForMatch(match.id)
+                                setTabellinoModalOpen(true)
+                              }
+                            }}
+                            style={{
+                              background:'#10b981',
+                              border:0,
+                              borderRadius:4,
+                              cursor:'pointer',
+                              color:'white',
+                              padding:'6px 12px',
+                              fontSize:13,
+                              fontWeight:600,
+                              display:'flex',
+                              alignItems:'center',
+                              gap:4
+                            }}
+                          >
+                            <FileText size={14} />
+                            Tabellino
+                          </button>
                         )
                       })()}
                     </>
@@ -1860,6 +2063,138 @@ export default function Finali(){
                 </button>
               </div>
             </form>
+          </Dialog.Content>
+        </Dialog.Portal>
+      </Dialog.Root>
+
+      {/* Tabellino Modal (read-only) */}
+      <Dialog.Root open={tabellinoModalOpen} onOpenChange={setTabellinoModalOpen}>
+        <Dialog.Portal>
+          <Dialog.Overlay className="rw-overlay" />
+          <Dialog.Content className="rw-dialog" style={{maxWidth:'600px'}}>
+            <Dialog.Title style={{fontSize: '1.05rem', fontWeight:700}}>
+              Tabellino Finale
+            </Dialog.Title>
+            <Dialog.Description style={{fontSize: '0.9rem', color: '#64748b', marginTop: 8}}>
+              Visualizza i punti degli atleti per questa partita
+            </Dialog.Description>
+            
+            {loadingTabellino ? (
+              <div style={{padding:20,textAlign:'center',color:'#64748b'}}>Caricamento...</div>
+            ) : (
+              <div style={{marginTop:16,display:'grid',gap:16}}>
+                {/* Team selector */}
+                {tabellinoSelectedTeam === '' && (
+                  <>
+                    <div>
+                      <div style={{marginBottom:8,fontWeight:600}}>Seleziona squadra</div>
+                      <select 
+                        className="rw-input" 
+                        value=""
+                        onChange={async (e) => {
+                          if (e.target.value === 'home' && tabellinoHomeTeam) {
+                            setTabellinoSelectedTeam('home')
+                            const match = finalMatches.find(m => m.id === tabellinoMatchId)
+                            if (match) await loadTabellinoForTeam(match.home_team_id)
+                          } else if (e.target.value === 'away' && tabellinoAwayTeam) {
+                            setTabellinoSelectedTeam('away')
+                            const match = finalMatches.find(m => m.id === tabellinoMatchId)
+                            if (match) await loadTabellinoForTeam(match.away_team_id)
+                          }
+                        }}
+                      >
+                        <option value="">-- seleziona squadra --</option>
+                        {tabellinoHomeTeam && <option value="home">{tabellinoHomeTeam.name}</option>}
+                        {tabellinoAwayTeam && <option value="away">{tabellinoAwayTeam.name}</option>}
+                      </select>
+                    </div>
+                  </>
+                )}
+
+                {/* Athletes list (read-only) */}
+                {tabellinoSelectedTeam && tabellinoAtletiList.length > 0 && (
+                  <div>
+                    <div style={{marginBottom:12,fontWeight:600,fontSize:'1rem'}}>
+                      Punti atleti — {tabellinoSelectedTeam === 'home' ? tabellinoHomeTeam?.name : tabellinoAwayTeam?.name}
+                    </div>
+                    <div style={{display:'grid',gap:8,maxHeight:'400px',overflowY:'auto'}}>
+                      {tabellinoAtletiList.map((atleta) => (
+                        <div key={atleta.id} style={{
+                          display:'flex',
+                          alignItems:'center',
+                          justifyContent:'space-between',
+                          padding:'8px 12px',
+                          background:'#f8fafc',
+                          borderRadius:8,
+                          border:'1px solid #e2e8f0'
+                        }}>
+                          <div style={{display:'flex',alignItems:'center',gap:8}}>
+                            <span style={{
+                              fontWeight:700,
+                              fontSize:13,
+                              color:'#64748b',
+                              minWidth:32,
+                              textAlign:'center',
+                              background:'white',
+                              padding:'2px 8px',
+                              borderRadius:4
+                            }}>#{atleta.numero_maglia}</span>
+                            <span style={{fontSize:14,fontWeight:600}}>
+                              {atleta.nome} {atleta.cognome}
+                            </span>
+                          </div>
+                          <div style={{
+                            fontWeight:700,
+                            fontSize:16,
+                            color:'#3b82f6',
+                            minWidth:40,
+                            textAlign:'center'
+                          }}>
+                            {atleta.punti}
+                          </div>
+                        </div>
+                      ))}
+                    </div>
+                    <div style={{
+                      marginTop:16,
+                      padding:'12px 16px',
+                      background:'#f1f5f9',
+                      borderRadius:8,
+                      display:'flex',
+                      justifyContent:'space-between',
+                      alignItems:'center',
+                      fontWeight:700,
+                      fontSize:'1.1rem'
+                    }}>
+                      <span>Totale</span>
+                      <span style={{color:'#3b82f6'}}>
+                        {tabellinoAtletiList.reduce((sum, a) => sum + a.punti, 0)}
+                      </span>
+                    </div>
+                  </div>
+                )}
+
+                <div style={{display:'flex',justifyContent:'space-between',gap:8,marginTop:12}}>
+                  {tabellinoSelectedTeam && (
+                    <button 
+                      type="button" 
+                      className="btn secondary"
+                      onClick={() => {
+                        setTabellinoSelectedTeam('')
+                        setTabellinoAtletiList([])
+                      }}
+                    >
+                      ← Cambia squadra
+                    </button>
+                  )}
+                  <Dialog.Close asChild>
+                    <button type="button" className="btn">
+                      Chiudi
+                    </button>
+                  </Dialog.Close>
+                </div>
+              </div>
+            )}
           </Dialog.Content>
         </Dialog.Portal>
       </Dialog.Root>
