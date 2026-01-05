@@ -26,12 +26,12 @@ interface FinalVoteDialogProps {
   finalType: '1-2' | '3-4' | '5-6' | '7-8'
 }
 
-// Pesi per ogni tipo di finale
+// Pesi per ogni tipo di finale (solo team - 100%)
 const FINAL_WEIGHTS = {
-  '1-2': { team: 1.10, public: 0.20 },
-  '3-4': { team: 1.05, public: 0.175 },
-  '5-6': { team: 1.00, public: 0.15 },
-  '7-8': { team: 0.95, public: 0.125 }
+  '1-2': { team: 1.10 },
+  '3-4': { team: 1.05 },
+  '5-6': { team: 1.00 },
+  '7-8': { team: 0.95 }
 }
 
 const FINAL_LABELS = {
@@ -128,24 +128,8 @@ export default function FinalVoteDialog({ open, onOpenChange, partitaId, squadra
         return
       }
 
-      // Determina il tipo di voto (team o public)
-      let voteType = 'public'
-      const { data: teamUser } = await supabase
-        .from('users')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .maybeSingle()
-      
-      if (teamUser) {
-        voteType = 'team'
-      } else {
-        const { data: publicUser } = await supabase
-          .from('public_users')
-          .select('user_id')
-          .eq('user_id', user.id)
-          .maybeSingle()
-        if (publicUser) voteType = 'public'
-      }
+      // Determina il tipo di voto: sempre 'team' (voti pubblici non più utilizzati)
+      const voteType = 'team'
 
       if (hasVoted && currentVote) {
         // Aggiorna il voto esistente
@@ -237,10 +221,10 @@ export default function FinalVoteDialog({ open, onOpenChange, partitaId, squadra
             border: '1px solid #fbbf24'
           }}>
             <div style={{ fontSize: '0.85rem', color: '#78350f', fontWeight: 600, marginBottom: 4 }}>
-              ⚖️ Pesi di votazione per questa finale
+              ⚖️ Peso di votazione per questa finale
             </div>
             <div style={{ fontSize: '0.8rem', color: '#92400e' }}>
-              Voti Squadre: <strong>{(weights.team * 100).toFixed(0)}%</strong> | Voti Pubblico: <strong>{(weights.public * 100).toFixed(1)}%</strong>
+              Voti Squadre: <strong>{(weights.team * 100).toFixed(0)}%</strong>
             </div>
           </div>
 

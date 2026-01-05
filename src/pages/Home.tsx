@@ -263,8 +263,6 @@ export default function Home() {
     squadra_nome: string
     logo_url: string | null
     voteCount: number
-    teamVotes: number
-    publicVotes: number
   }>>([])
   const [loadingAllMVPs, setLoadingAllMVPs] = useState(false)
   const [selectedMVP, setSelectedMVP] = useState<{
@@ -274,9 +272,7 @@ export default function Home() {
     squadra_nome: string
     squadra_id?: string
     logo_url: string | null
-    teamVotes: number
-    publicVotes: number
-    totalWeighted: number
+    voteCount: number
   } | null>(null)
   const [topScorers, setTopScorers] = useState<Array<{
     id: string
@@ -296,8 +292,6 @@ export default function Home() {
     squadra_nome: string
     logo_url: string | null
     voteCount: number
-    teamVotes: number
-    publicVotes: number
   }>>([])
 
   const { loggedInTeamId } = useLoggedInTeam()
@@ -318,7 +312,6 @@ export default function Home() {
   }, [])
 
   function openMVPDetails(mvp: typeof topMVPs[0]) {
-    const weighted = (mvp.teamVotes * 0.9) + (mvp.publicVotes * 0.1)
     setSelectedMVP({
       nome: mvp.nome,
       cognome: mvp.cognome,
@@ -326,9 +319,7 @@ export default function Home() {
       squadra_nome: mvp.squadra_nome,
       squadra_id: mvp.squadra_id,
       logo_url: mvp.logo_url,
-      teamVotes: mvp.teamVotes,
-      publicVotes: mvp.publicVotes,
-      totalWeighted: weighted
+      voteCount: mvp.voteCount
     })
     setMvpDetailsModalOpen(true)
   }
@@ -347,24 +338,13 @@ export default function Home() {
         return
       }
 
-      // Raggruppa per atleta e tipo di voto
-      const voteStats: Record<string, { team: number; public: number; weighted: number }> = {}
+      // Raggruppa per atleta - conta solo voti team
+      const voteStats: Record<string, number> = {}
       votesData.forEach((vote: any) => {
         const atletaId = vote.atleta_id
-        if (!voteStats[atletaId]) {
-          voteStats[atletaId] = { team: 0, public: 0, weighted: 0 }
-        }
         if (vote.vote_type === 'team') {
-          voteStats[atletaId].team++
-        } else {
-          voteStats[atletaId].public++
+          voteStats[atletaId] = (voteStats[atletaId] || 0) + 1
         }
-      })
-
-      // Calcola voti ponderati
-      Object.keys(voteStats).forEach(atletaId => {
-        const stats = voteStats[atletaId]
-        stats.weighted = (stats.team * 0.9) + (stats.public * 0.1)
       })
 
       // Ottieni ID atleti con voti
@@ -396,12 +376,10 @@ export default function Home() {
         numero_maglia: athlete.numero_maglia,
         squadra_nome: athlete.squadre.name,
         logo_url: athlete.squadre.logo_url,
-        voteCount: voteStats[athlete.id].weighted,
-        teamVotes: voteStats[athlete.id].team,
-        publicVotes: voteStats[athlete.id].public
+        voteCount: voteStats[athlete.id] || 0
       }))
 
-      // Ordina per voti ponderati
+      // Ordina per voti
       allMVPsList.sort((a, b) => b.voteCount - a.voteCount)
 
       setAllMVPs(allMVPsList)
@@ -673,25 +651,13 @@ export default function Home() {
         return
       }
 
-      // Calculate weighted votes
-      const voteStats: Record<string, { team: number; public: number; weighted: number }> = {}
+      // Calculate vote counts - only team votes
+      const voteStats: Record<string, number> = {}
       
       votesRes.data.forEach((vote: any) => {
-        if (!voteStats[vote.atleta_id]) {
-          voteStats[vote.atleta_id] = { team: 0, public: 0, weighted: 0 }
-        }
-        
         if (vote.vote_type === 'team') {
-          voteStats[vote.atleta_id].team++
-        } else {
-          voteStats[vote.atleta_id].public++
+          voteStats[vote.atleta_id] = (voteStats[vote.atleta_id] || 0) + 1
         }
-      })
-      
-      // Calculate weighted totals
-      Object.keys(voteStats).forEach(atletaId => {
-        const stats = voteStats[atletaId]
-        stats.weighted = (stats.team * 0.9) + (stats.public * 0.1)
       })
 
       // Get athlete IDs with votes
@@ -717,12 +683,10 @@ export default function Home() {
         squadra_id: athlete.squadra_id,
         squadra_nome: athlete.squadre.name,
         logo_url: athlete.squadre.logo_url,
-        voteCount: voteStats[athlete.id].weighted,
-        teamVotes: voteStats[athlete.id].team,
-        publicVotes: voteStats[athlete.id].public
+        voteCount: voteStats[athlete.id] || 0
       }))
 
-      // Sort by weighted votes and take top 3
+      // Sort by vote count and take top 3
       const topThree = mvps
         .sort((a, b) => b.voteCount - a.voteCount)
         .slice(0, 3)
@@ -890,27 +854,14 @@ export default function Home() {
       if (athletesRes.error) {
         console.error('Error loading athletes:', athletesRes.error)
       } else {
-        // Calculate weighted vote counts for each athlete
-        // Team votes: 90% weight, Public votes: 10% weight
-        const voteStats: Record<string, { team: number; public: number; weighted: number }> = {}
+        // Calculate vote counts - only team votes (100%)
+        const voteStats: Record<string, number> = {}
         
         if (votesRes.data) {
           votesRes.data.forEach((vote: any) => {
-            if (!voteStats[vote.atleta_id]) {
-              voteStats[vote.atleta_id] = { team: 0, public: 0, weighted: 0 }
-            }
-            
             if (vote.vote_type === 'team') {
-              voteStats[vote.atleta_id].team++
-            } else {
-              voteStats[vote.atleta_id].public++
+              voteStats[vote.atleta_id] = (voteStats[vote.atleta_id] || 0) + 1
             }
-          })
-          
-          // Calculate weighted totals
-          Object.keys(voteStats).forEach(atletaId => {
-            const stats = voteStats[atletaId]
-            stats.weighted = (stats.team * 0.9) + (stats.public * 0.1)
           })
         }
 
@@ -925,9 +876,7 @@ export default function Home() {
         // Add vote stats and points to each athlete
         const athletesWithStats = (athletesRes.data || []).map(athlete => ({
           ...athlete,
-          voteCount: voteStats[athlete.id]?.weighted || 0,
-          teamVotes: voteStats[athlete.id]?.team || 0,
-          publicVotes: voteStats[athlete.id]?.public || 0,
+          voteCount: voteStats[athlete.id] || 0,
           totalPoints: pointTotals[athlete.id] || 0
         }))
 
@@ -1352,9 +1301,9 @@ export default function Home() {
                     gap: 4,
                     cursor: 'help'
                   }}
-                  title={`Voti Ponderati: ${mvp.voteCount.toFixed(1)}\nSquadre (90%): ${mvp.teamVotes}\nPubblico (10%): ${mvp.publicVotes}`}
+                  title={`Voti MVP: ${mvp.voteCount}`}
                 >
-                  🏆 {mvp.voteCount.toFixed(1)}
+                  🏆 {mvp.voteCount}
                 </div>
               </button>
             ))}
@@ -1447,13 +1396,11 @@ export default function Home() {
                               fontWeight: 700,
                               display: 'flex',
                               alignItems: 'center',
-                              gap: 4,
-                              position: 'relative',
-                              cursor: 'help'
+                              gap: 4
                             }}
-                            title={`Voti Ponderati: ${athlete.voteCount.toFixed(1)}\nSquadre (90%): ${athlete.teamVotes || 0}\nPubblico (10%): ${athlete.publicVotes || 0}`}
+                            title={`Voti MVP: ${athlete.voteCount}`}
                           >
-                            🏆 {athlete.voteCount.toFixed(1)}
+                            🏆 {athlete.voteCount}
                           </span>
                         )}
                       </div>
@@ -1722,21 +1669,20 @@ export default function Home() {
             <div style={{ display: 'grid', gap: 20, color: '#475569', overflowY: 'auto', paddingRight: 8 }}>
               <div>
                 <h3 style={{ fontSize: '1.1rem', fontWeight: 700, color: '#1e293b', marginBottom: 8 }}>
-                  Sistema di Voto Ponderato
+                  Sistema di Voto delle Squadre
                 </h3>
                 <p style={{ marginBottom: 12, lineHeight: 1.6 }}>
-                  La valutazione MVP utilizza un <strong>sistema di voti ponderati</strong> che bilancia l'opinione delle squadre e del pubblico.
+                  La valutazione MVP è basata esclusivamente sui <strong>voti espressi dalle squadre</strong> partecipanti al torneo.
                 </p>
               </div>
 
               <div style={{ background: '#f8fafc', padding: 16, borderRadius: 8, border: '1px solid #e2e8f0' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>📊 Formula di Calcolo</h4>
                 <div style={{ fontFamily: 'monospace', background: 'white', padding: 12, borderRadius: 6, marginBottom: 12, fontSize: '0.9rem', border: '1px solid #cbd5e1' }}>
-                  Valutazione = (Voti Squadre × 0.9) + (Voti Pubblico × 0.1)
+                  Valutazione MVP = Totale Voti Squadre
                 </div>
                 <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8 }}>
-                  <li><strong>Voti Squadre:</strong> peso <span style={{ color: '#f59e0b', fontWeight: 700 }}>90%</span></li>
-                  <li><strong>Voti Pubblico:</strong> peso <span style={{ color: '#3b82f6', fontWeight: 700 }}>10%</span></li>
+                  <li><strong>Voti Squadre:</strong> peso <span style={{ color: '#f59e0b', fontWeight: 700 }}>100%</span></li>
                 </ul>
               </div>
 
@@ -1744,18 +1690,18 @@ export default function Home() {
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#1e293b', marginBottom: 12 }}>💡 Esempio Pratico</h4>
                 <div style={{ background: '#fef3c7', padding: 12, borderRadius: 8, border: '1px solid #fde68a', marginBottom: 8 }}>
                   <div style={{ marginBottom: 4 }}>
-                    <strong>Atleta A:</strong> 5 voti squadre + 10 voti pubblico
+                    <strong>Atleta A:</strong> 5 voti squadre
                   </div>
                   <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#92400e' }}>
-                    Valutazione = (5 × 0.9) + (10 × 0.1) = 4.5 + 1.0 = <strong>5.5</strong>
+                    Valutazione MVP = <strong>5</strong>
                   </div>
                 </div>
                 <div style={{ background: '#dbeafe', padding: 12, borderRadius: 8, border: '1px solid #bfdbfe' }}>
                   <div style={{ marginBottom: 4 }}>
-                    <strong>Atleta B:</strong> 10 voti squadre + 0 voti pubblico
+                    <strong>Atleta B:</strong> 10 voti squadre
                   </div>
                   <div style={{ fontFamily: 'monospace', fontSize: '0.85rem', color: '#1e40af' }}>
-                    Valutazione = (10 × 0.9) + (0 × 0.1) = 9.0 + 0.0 = <strong>9.0</strong>
+                    Valutazione MVP = <strong>10</strong>
                   </div>
                 </div>
               </div>
@@ -1763,10 +1709,9 @@ export default function Home() {
               <div style={{ background: '#f0fdf4', padding: 16, borderRadius: 8, border: '1px solid #bbf7d0' }}>
                 <h4 style={{ fontSize: '0.95rem', fontWeight: 700, color: '#166534', marginBottom: 8 }}>✅ Perché questo sistema?</h4>
                 <ul style={{ margin: 0, paddingLeft: 20, lineHeight: 1.8, color: '#166534' }}>
-                  <li>Dà <strong>priorità all'opinione delle squadre</strong> (conoscenza tecnica)</li>
-                  <li>Include <strong>la voce del pubblico</strong> (coinvolgimento spettatori)</li>
-                  <li>Previene manipolazioni da <strong>voti di massa pubblici</strong></li>
-                  <li>Sistema <strong>democratico ma bilanciato</strong></li>
+                  <li>Valorizza <strong>l'opinione tecnica delle squadre</strong></li>
+                  <li>Sistema <strong>semplice e diretto</strong></li>
+                  <li>Basato sulla <strong>conoscenza diretta del gioco</strong></li>
                 </ul>
               </div>
             </div>
@@ -1819,7 +1764,7 @@ export default function Home() {
 
                 {/* Vote Breakdown */}
                 <div style={{ display: 'grid', gap: 12 }}>
-                  {/* Team Votes */}
+                  {/* Team Votes - Now 100% */}
                   <div style={{ 
                     padding: 16, 
                     background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
@@ -1834,7 +1779,7 @@ export default function Home() {
                             Voti Squadre
                           </div>
                           <div style={{ fontSize: '0.75rem', color: '#78350f' }}>
-                            Peso: 90%
+                            Peso: 100%
                           </div>
                         </div>
                       </div>
@@ -1843,61 +1788,12 @@ export default function Home() {
                         fontWeight: 800, 
                         color: '#f59e0b'
                       }}>
-                        {selectedMVP.teamVotes}
+                        {selectedMVP.voteCount}
                       </div>
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.85rem', 
-                      color: '#78350f',
-                      fontFamily: 'monospace',
-                      background: 'rgba(255,255,255,0.5)',
-                      padding: 8,
-                      borderRadius: 6
-                    }}>
-                      Contributo: {selectedMVP.teamVotes} × 0.9 = <strong>{(selectedMVP.teamVotes * 0.9).toFixed(1)}</strong>
                     </div>
                   </div>
 
-                  {/* Public Votes */}
-                  <div style={{ 
-                    padding: 16, 
-                    background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-                    borderRadius: 12,
-                    border: '2px solid #3b82f6'
-                  }}>
-                    <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', marginBottom: 8 }}>
-                      <div style={{ display: 'flex', alignItems: 'center', gap: 8 }}>
-                        <div style={{ fontSize: '1.5rem' }}>👥</div>
-                        <div>
-                          <div style={{ fontSize: '0.9rem', fontWeight: 700, color: '#1e40af' }}>
-                            Voti Pubblico
-                          </div>
-                          <div style={{ fontSize: '0.75rem', color: '#1e3a8a' }}>
-                            Peso: 10%
-                          </div>
-                        </div>
-                      </div>
-                      <div style={{ 
-                        fontSize: '2rem', 
-                        fontWeight: 800, 
-                        color: '#3b82f6'
-                      }}>
-                        {selectedMVP.publicVotes}
-                      </div>
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.85rem', 
-                      color: '#1e3a8a',
-                      fontFamily: 'monospace',
-                      background: 'rgba(255,255,255,0.5)',
-                      padding: 8,
-                      borderRadius: 6
-                    }}>
-                      Contributo: {selectedMVP.publicVotes} × 0.1 = <strong>{(selectedMVP.publicVotes * 0.1).toFixed(1)}</strong>
-                    </div>
-                  </div>
-
-                  {/* Total Weighted */}
+                  {/* Total */}
                   <div style={{ 
                     padding: 20, 
                     background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
@@ -1906,19 +1802,10 @@ export default function Home() {
                     textAlign: 'center'
                   }}>
                     <div style={{ fontSize: '0.9rem', marginBottom: 8, opacity: 0.9 }}>
-                      Valutazione Totale Ponderata
+                      Valutazione Totale MVP
                     </div>
-                    <div style={{ fontSize: '3rem', fontWeight: 800, marginBottom: 8 }}>
-                      🏆 {selectedMVP.totalWeighted.toFixed(1)}
-                    </div>
-                    <div style={{ 
-                      fontSize: '0.8rem',
-                      fontFamily: 'monospace',
-                      background: 'rgba(0,0,0,0.2)',
-                      padding: 8,
-                      borderRadius: 6
-                    }}>
-                      ({(selectedMVP.teamVotes * 0.9).toFixed(1)} + {(selectedMVP.publicVotes * 0.1).toFixed(1)})
+                    <div style={{ fontSize: '3rem', fontWeight: 800 }}>
+                      🏆 {selectedMVP.voteCount}
                     </div>
                   </div>
                 </div>
@@ -2021,33 +1908,7 @@ export default function Home() {
                         </div>
                       </div>
 
-                      {/* Vote Counts */}
-                      <div style={{ display: 'flex', gap: 8, alignItems: 'center' }}>
-                        <div style={{
-                          background: 'linear-gradient(135deg, #fef3c7 0%, #fde68a 100%)',
-                          border: '1px solid #f59e0b',
-                          borderRadius: 6,
-                          padding: '4px 8px',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color: '#92400e'
-                        }}>
-                          🏀 {mvp.teamVotes}
-                        </div>
-                        <div style={{
-                          background: 'linear-gradient(135deg, #dbeafe 0%, #bfdbfe 100%)',
-                          border: '1px solid #3b82f6',
-                          borderRadius: 6,
-                          padding: '4px 8px',
-                          fontSize: '0.75rem',
-                          fontWeight: 600,
-                          color: '#1e40af'
-                        }}>
-                          👥 {mvp.publicVotes}
-                        </div>
-                      </div>
-
-                      {/* Total Weighted Score */}
+                      {/* Vote Count */}
                       <div style={{
                         background: 'linear-gradient(135deg, #10b981 0%, #059669 100%)',
                         color: 'white',
@@ -2058,7 +1919,7 @@ export default function Home() {
                         minWidth: 60,
                         textAlign: 'center'
                       }}>
-                        {mvp.voteCount.toFixed(1)}
+                        {mvp.voteCount}
                       </div>
                     </button>
                   ))}

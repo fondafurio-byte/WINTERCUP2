@@ -105,32 +105,8 @@ export default function VoteDialog({ open, onOpenChange, partitaId, squadraCasa,
         return
       }
 
-      // Determina il tipo di voto: controlla prima users (team), poi public_users
-      let voteType = 'public'
-      
-      // Controlla se è un utente squadra
-      const { data: teamUser } = await supabase
-        .from('users')
-        .select('user_id')
-        .eq('user_id', user.id)
-        .maybeSingle()
-
-      if (teamUser) {
-        voteType = 'team'
-        console.log('Vote type: team (user in users table)')
-      } else {
-        // Controlla se è un utente pubblico
-        const { data: publicUser } = await supabase
-          .from('public_users')
-          .select('user_id')
-          .eq('user_id', user.id)
-          .maybeSingle()
-        
-        if (publicUser) {
-          voteType = 'public'
-          console.log('Vote type: public (user in public_users table)')
-        }
-      }
+      // Determina il tipo di voto: sempre 'team' (voti pubblici non più utilizzati)
+      const voteType = 'team'
 
       if (hasVoted) {
         // Aggiorna voto esistente
