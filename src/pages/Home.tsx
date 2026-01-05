@@ -1,7 +1,7 @@
 import React, { useState, useEffect, Suspense } from 'react'
 import * as Dialog from '@radix-ui/react-dialog'
 import { supabase } from '../lib/supabase'
-import { Info, Users, Trophy, LogIn, ChevronLeft, ChevronRight } from 'lucide-react'
+import { Info, Users, Trophy, LogIn, ChevronLeft, ChevronRight, Upload } from 'lucide-react'
 import { useLoggedInTeam } from '../lib/useLoggedInTeam'
 
 const LazyTeamLoginDialog = React.lazy(() => import('../components/TeamLoginDialog'))
@@ -296,6 +296,13 @@ export default function Home() {
 
   const { loggedInTeamId } = useLoggedInTeam()
 
+  // Home carousel states
+  const [homeCarouselImages, setHomeCarouselImages] = useState<string[]>([])
+  const [homeCarouselIndex, setHomeCarouselIndex] = useState(0)
+  const [uploadingHomeImage, setUploadingHomeImage] = useState(false)
+  const [uploadStatus, setUploadStatus] = useState<string | null>(null)
+  const [isAdmin, setIsAdmin] = useState(false)
+
   // Helper function to get team color (red if logged in team)
   function getTeamNameColor(teamId: string | undefined): string {
     if (loggedInTeamId && teamId === loggedInTeamId) {
@@ -309,6 +316,8 @@ export default function Home() {
     loadStandings()
     loadTopScorers()
     loadTopMVPs()
+    checkAdminStatus()
+    loadHomeCarouselImages()
   }, [])
 
   function openMVPDetails(mvp: typeof topMVPs[0]) {
@@ -698,6 +707,116 @@ export default function Home() {
     }
   }
 
+  async function checkAdminStatus() {
+    try {
+      const { data: { user } } = await supabase.auth.getUser()
+      if (!user) {
+        setIsAdmin(false)
+        return
+      }
+
+      // Check if user is in admins table
+      const { data: adminData } = await supabase
+        .from('admins')
+        .select('*')
+        .eq('user_id', user.id)
+        .limit(1)
+      
+      const isAdminUser = Boolean(adminData && adminData.length > 0)
+      setIsAdmin(isAdminUser)
+      console.log('Home - isAdmin:', isAdminUser, 'user_id:', user.id)
+    } catch (err) {
+      console.error('Error checking admin status:', err)
+      setIsAdmin(false)
+    }
+  }
+
+  async function loadHomeCarouselImages() {
+    try {
+      const { data, error } = await supabase
+        .storage
+        .from('home-carousel')
+        .list()
+
+      if (error) {
+        console.error('Error loading carousel images:', error)
+        return
+      }
+
+      console.log('Carousel bucket files:', data)
+
+      if (data && data.length > 0) {
+        const imageUrls = await Promise.all(
+          data
+            .filter(file => file.name.match(/\.(jpg|jpeg|png|gif|webp)$/i))
+            .map(async (file) => {
+              const { data: urlData } = await supabase
+                .storage
+                .from('home-carousel')
+                .createSignedUrl(file.name, 60 * 60 * 24 * 365) // 1 year
+              return urlData?.signedUrl || ''
+            })
+        )
+        const validUrls = imageUrls.filter(url => url !== '')
+        console.log('Carousel images loaded:', validUrls.length)
+        setHomeCarouselImages(validUrls)
+      }
+    } catch (err) {
+      console.error('Error loading carousel images:', err)
+    }
+  }
+
+  async function handleUploadHomeImage(e: React.ChangeEvent<HTMLInputElement>) {
+    const file = e.target.files?.[0]
+    if (!file) return
+
+    setUploadingHomeImage(true)
+    setUploadStatus(null)
+
+    try {
+      // Check file size (max 5MB)
+      if (file.size > 5 * 1024 * 1024) {
+        setUploadStatus('❌ File troppo grande (max 5MB)')
+        setUploadingHomeImage(false)
+        return
+      }
+
+      // Generate unique filename
+      const timestamp = Date.now()
+      const extension = file.name.split('.').pop()
+      const filename = `carousel_${timestamp}.${extension}`
+
+      // Upload to Supabase Storage
+      const { error: uploadError } = await supabase
+        .storage
+        .from('home-carousel')
+        .upload(filename, file, {
+          cacheControl: '3600',
+          upsert: false
+        })
+
+      if (uploadError) {
+        console.error('Upload error:', uploadError)
+        setUploadStatus('❌ Errore durante l\'upload')
+        setUploadingHomeImage(false)
+        return
+      }
+
+      setUploadStatus('✅ Immagine caricata con successo!')
+      setTimeout(() => setUploadStatus(null), 3000)
+      
+      // Reload carousel images
+      await loadHomeCarouselImages()
+    } catch (err) {
+      console.error('Error uploading image:', err)
+      setUploadStatus('❌ Errore durante l\'upload')
+    } finally {
+      setUploadingHomeImage(false)
+      // Reset input
+      e.target.value = ''
+    }
+  }
+
   async function loadTeams() {
     setLoading(true)
     try {
@@ -916,6 +1035,182 @@ export default function Home() {
           Winter Cup 2° Edizione
         </h1>
       </div>
+
+      {/* Upload button - Always visible for team users */}
+      {isAdmin && (
+        <div style={{ marginBottom: 24 }}>
+          <label 
+            style={{
+              display: 'inline-flex',
+              alignItems: 'center',
+              gap: 8,
+              padding: '12px 24px',
+              background: 'linear-gradient(135deg, #3b82f6 0%, #1e40af 100%)',
+              color: 'white',
+              borderRadius: 8,
+              cursor: uploadingHomeImage ? 'not-allowed' : 'pointer',
+              fontWeight: 600,
+              boxShadow: '0 2px 8px rgba(59,130,246,0.3)',
+              opacity: uploadingHomeImage ? 0.6 : 1
+            }}
+          >
+            <Upload size={20} />
+            {uploadingHomeImage ? 'Caricamento...' : 'Carica Immagine Carosello'}
+            <input 
+              type="file" 
+              accept="image/*"
+              onChange={handleUploadHomeImage}
+              disabled={uploadingHomeImage}
+              style={{ display: 'none' }}
+            />
+          </label>
+          {uploadStatus && (
+            <div style={{ 
+              marginTop: 8, 
+              fontSize: 14, 
+              color: uploadStatus.includes('✅') ? '#10b981' : '#ef4444',
+              fontWeight: 600
+            }}>
+              {uploadStatus}
+            </div>
+          )}
+          {homeCarouselImages.length === 0 && (
+            <div style={{ 
+              marginTop: 8, 
+              fontSize: 14, 
+              color: '#64748b',
+              fontStyle: 'italic'
+            }}>
+              Nessuna immagine nel carosello. Carica la prima immagine!
+            </div>
+          )}
+        </div>
+      )}
+
+      {/* Home Carousel */}
+      {homeCarouselImages.length > 0 && (
+        <div style={{ marginBottom: 24, position: 'relative' }}>
+          <div 
+            style={{ 
+              position: 'relative', 
+              width: '100%', 
+              height: '400px',
+              borderRadius: 12,
+              overflow: 'hidden',
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+            }}
+            onTouchStart={(e) => {
+              const touch = e.touches[0]
+              ;(e.currentTarget as any).touchStartX = touch.clientX
+            }}
+            onTouchMove={(e) => {
+              ;(e.currentTarget as any).touchEndX = e.touches[0].clientX
+            }}
+            onTouchEnd={(e) => {
+              const touchStartX = (e.currentTarget as any).touchStartX
+              const touchEndX = (e.currentTarget as any).touchEndX
+              if (touchStartX - touchEndX > 75) {
+                // Swipe left - next
+                setHomeCarouselIndex((prev) => (prev + 1) % homeCarouselImages.length)
+              } else if (touchStartX - touchEndX < -75) {
+                // Swipe right - prev
+                setHomeCarouselIndex((prev) => (prev - 1 + homeCarouselImages.length) % homeCarouselImages.length)
+              }
+            }}
+          >
+            <img 
+              src={homeCarouselImages[homeCarouselIndex]} 
+              alt="Winter Cup"
+              style={{ 
+                width: '100%', 
+                height: '100%', 
+                objectFit: 'cover'
+              }}
+            />
+            
+            {/* Navigation buttons */}
+            {homeCarouselImages.length > 1 && (
+              <>
+                <button
+                  onClick={() => setHomeCarouselIndex((prev) => (prev - 1 + homeCarouselImages.length) % homeCarouselImages.length)}
+                  style={{
+                    position: 'absolute',
+                    left: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'white',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '50%',
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10
+                  }}
+                >
+                  <ChevronLeft size={24} color="#3b82f6" />
+                </button>
+                <button
+                  onClick={() => setHomeCarouselIndex((prev) => (prev + 1) % homeCarouselImages.length)}
+                  style={{
+                    position: 'absolute',
+                    right: 16,
+                    top: '50%',
+                    transform: 'translateY(-50%)',
+                    background: 'white',
+                    border: '2px solid #3b82f6',
+                    borderRadius: '50%',
+                    width: 40,
+                    height: 40,
+                    display: 'flex',
+                    alignItems: 'center',
+                    justifyContent: 'center',
+                    cursor: 'pointer',
+                    boxShadow: '0 2px 8px rgba(0,0,0,0.15)',
+                    zIndex: 10
+                  }}
+                >
+                  <ChevronRight size={24} color="#3b82f6" />
+                </button>
+              </>
+            )}
+
+            {/* Indicators */}
+            {homeCarouselImages.length > 1 && (
+              <div style={{
+                position: 'absolute',
+                bottom: 16,
+                left: '50%',
+                transform: 'translateX(-50%)',
+                display: 'flex',
+                gap: 8,
+                zIndex: 10
+              }}>
+                {homeCarouselImages.map((_, index) => (
+                  <button
+                    key={index}
+                    onClick={() => setHomeCarouselIndex(index)}
+                    style={{
+                      width: 10,
+                      height: 10,
+                      borderRadius: '50%',
+                      border: 'none',
+                      background: index === homeCarouselIndex ? '#3b82f6' : 'rgba(255,255,255,0.7)',
+                      cursor: 'pointer',
+                      padding: 0,
+                      transition: 'all 0.3s ease'
+                    }}
+                    aria-label={`Go to image ${index + 1}`}
+                  />
+                ))}
+              </div>
+            )}
+          </div>
+        </div>
+      )}
 
       {/* Action Cards */}
       <div style={{ display: 'grid', gridTemplateColumns: 'repeat(auto-fit, minmax(280px, 1fr))', gap: 16, marginBottom: 32 }}>
