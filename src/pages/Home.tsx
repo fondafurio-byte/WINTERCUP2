@@ -1094,10 +1094,14 @@ export default function Home() {
             style={{ 
               position: 'relative', 
               width: '100%', 
-              height: '400px',
+              maxHeight: '600px',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center',
               borderRadius: 12,
               overflow: 'hidden',
-              boxShadow: '0 4px 12px rgba(0,0,0,0.15)'
+              boxShadow: '0 4px 12px rgba(0,0,0,0.15)',
+              background: '#f1f5f9'
             }}
             onTouchStart={(e) => {
               const touch = e.touches[0]
@@ -1123,8 +1127,10 @@ export default function Home() {
               alt="Winter Cup"
               style={{ 
                 width: '100%', 
-                height: '100%', 
-                objectFit: 'cover'
+                height: 'auto',
+                maxHeight: '600px',
+                objectFit: 'contain',
+                display: 'block'
               }}
             />
             
